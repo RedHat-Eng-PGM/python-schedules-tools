@@ -1,0 +1,102 @@
+%define py_version %(python -c "import sys; v=sys.version_info[:2]; print '%%d.%%d'%%v" 2>/dev/null || echo PYTHON-NOT-FOUND)
+%define py_prefix  %(python -c "import sys; print sys.prefix" 2>/dev/null || echo PYTHON-NOT-FOUND)
+%define py_libdir  %{py_prefix}/lib/python%{py_version}
+%define py_incdir  %{py_prefix}/include/python%{py_version}
+%define py_sitedir %{py_libdir}/site-packages
+%global py_bin_files schedule_converter schedule_diff
+
+Name:           pp-schedules-tools
+Version:        %{version}
+Release:        %{release}.%{checkout}%{?dist}
+Epoch:          1
+License:        BSD
+Summary:        Schedule tools to handle various formats (TaskJuggler, MS Project)
+Group:          Applications/Engineering
+Url:            https://github.com/RedHat-Eng-PGM/schedules-tools
+Source:         %{name}-%{version}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch:      noarch
+
+BuildRequires: python-setuptools
+
+Obsoletes: %{name}
+
+%global log_dir /var/log/%{name}
+%global log_files debug.log
+
+
+%description
+Schedule tools
+Contains tools to manipulate with schledules.
+
+
+%prep
+%setup -q
+
+
+%build
+
+
+%install
+rm -rf %{buildroot}
+python setup.py install --root=%{buildroot} --record=INSTALLED_FILES
+
+
+# create bin dir if not created by python setup
+mkdir -p %{buildroot}%{_bindir}
+for bin_file in %{py_bin_files}; do
+    bin_file_src=%{py_sitedir}/schedules_tools/${bin_file}.py
+    ln -s $bin_file_src %{buildroot}%{_bindir}/$bin_file
+    chmod 755 %{buildroot}/$bin_file_src
+done
+
+# delete egg from installation
+name_underscone=%{name}
+name_underscone=${name_underscone//-/_}
+rm -rf %{buildroot}/%{py_sitedir}/${name_underscone}*.egg-info
+
+# create log dir
+mkdir -m 755 -p %{buildroot}%{log_dir}
+for log_file in %log_files ; do
+    touch %{buildroot}%{log_dir}/$log_file
+done
+
+
+
+%pre
+
+
+%post
+# fix log permissions
+cd %log_dir
+for log_file in %log_files; do
+    test -e $log_file || {
+        touch $log_file
+        chmod 0664 $log_file
+        chown root:apache $log_file
+    }
+done
+
+%postun
+
+
+%clean
+rm -rf %{buildroot}
+
+
+%files
+%defattr(644,root,root)
+
+# setup permissions so that logrotate works correctly
+%defattr(664,root,apache,755)
+%dir %log_dir
+%ghost %config %log_dir/*
+
+
+%defattr(-,root,apache,755)
+%{_bindir}/schedule_*
+%{py_sitedir}/schedules_tools
+
+
+%changelog
+

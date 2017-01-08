@@ -1,0 +1,45 @@
+* Fri Jan 06 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-12.git20170106.61364c1
+- handlers: added json + jsonstruct (export only)
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-11.git20170105.2b635fe
+- fix import in rpm_log
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-10.git20170105.2a344ca
+- converter: fix search path for handlers
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-9.git20170105.62d13ee
+- move rpm_log.py into scripts from root directory
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-8.git20170105.5eec0ba
+- add devel-tools/copr.py (copied from pp)
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-7.git20170105.5ed809c
+- specfile: add Obsoletes package
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-6.git20170105.7721145
+- schedule_diff: fix import of converter class (has been renamed)
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-5.git20170105.f188927
+- Unify name package (rpm/python pkg) to use dashes: pp-schedules-tools
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-5.git20170105.900be44
+- Unify name package (rpm/python pkg) to use dashes: pp-schedules-tools
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-4.git20170105.e635c97
+- specfile: link bin files from site-packages
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-4.git20170105.53042b6
+- specfile: link bin files from site-packages
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-3.git20170105.c6d76d0
+- Unify name of python/rpm package to pp_schedules_tools
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-4.git20170105.aacf43c
+- spec unify _ and -
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-3.git20170105.a88ed94
+- Unify name of python/rpm package to pp_schedules_tools
+
+* Thu Jan 05 2017 Martin Pavlasek <mpavlase@redhat.com> 0.1.0-2.git20170105.f320114
+- rename (unify) sch. converter/diff to schedule_*.py
+
