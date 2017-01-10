@@ -9,6 +9,7 @@ from scripts.setup_utils import write_version, get_rpm_version
 
 project_name = "pp-schedules-tools"
 save_version_dirs = ["schedules_tools"]
+project_url = "https://github.com/RedHat-Eng-PGM/schedules-tools"
 project_author = "Red Hat, Inc."
 project_author_email = "pslama@redhat.com"
 project_description = "Schedules tools to handle various formats"
@@ -41,18 +42,14 @@ except:
     pass
 
 
-script_files = []
 
 setup(
     name=package_name,
+    url=project_url,
     version=package_version[0],
     author=project_author,
     author_email=project_author_email,
     description=project_description,
     packages=find_packages(exclude=('scripts',)),
     include_package_data=True,
-    #package_data=package_data,
-    #data_files=data_files.items(),
-    scripts=script_files,
 )
-
