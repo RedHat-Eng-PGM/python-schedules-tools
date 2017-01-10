@@ -5,7 +5,7 @@
 %define py_sitedir %{py_libdir}/site-packages
 %global py_bin_files schedule_converter schedule_diff
 
-Name:           pp-schedules-tools
+Name:           schedules-tools
 Version:        %{version}
 Release:        %{release}.%{checkout}%{?dist}
 Epoch:          1
@@ -13,6 +13,7 @@ License:        BSD
 Summary:        Schedule tools to handle various formats (TaskJuggler, MS Project)
 Group:          Applications/Engineering
 Url:            https://github.com/RedHat-Eng-PGM/schedules-tools
+Packager:      Martin Pavlasek <mpavlase@redhat.com>
 Source:         %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch

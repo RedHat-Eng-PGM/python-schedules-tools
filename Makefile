@@ -1,4 +1,4 @@
-NAME = pp-schedules-tools
+NAME = schedules-tools
 
 
 all: help

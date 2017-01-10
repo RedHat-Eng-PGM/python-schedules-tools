@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 from scripts.setup_utils import write_version, get_rpm_version
 
 
-project_name = "pp-schedules-tools"
+project_name = "schedules-tools"
 save_version_dirs = ["schedules_tools"]
 project_url = "https://github.com/RedHat-Eng-PGM/schedules-tools"
 project_author = "Red Hat, Inc."
