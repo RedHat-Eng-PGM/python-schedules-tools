@@ -48,6 +48,8 @@ prebuild: source
 clean:
 	@python setup.py clean
 	rm -f MANIFEST build/$(NAME).spec
+	rm -rf build
+	mkdir -p build
 	find . -\( -name "*.pyc" -o -name '*.pyo' -o -name "*~" -\) -delete
 
 install:
@@ -58,6 +60,5 @@ log:
 	@python scripts/rpm_log.py
 
 source: clean
-	mkdir -p build
 	@python setup.py sdist
 
