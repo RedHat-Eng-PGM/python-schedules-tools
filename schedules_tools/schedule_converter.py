@@ -13,7 +13,7 @@ logging.basicConfig(
 
 logger = logging.getLogger('pp.core')
 VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class ScheduleFormatNotSupported(Exception):
