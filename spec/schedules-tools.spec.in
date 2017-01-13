@@ -13,14 +13,14 @@ License:        BSD
 Summary:        Schedule tools to handle various formats (TaskJuggler, MS Project)
 Group:          Applications/Engineering
 Url:            https://github.com/RedHat-Eng-PGM/schedules-tools
-Packager:      Martin Pavlasek <mpavlase@redhat.com>
+Packager:       Martin Pavlasek <mpavlase@redhat.com>
 Source:         %{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
 BuildRequires: python-setuptools
+BuildRequires: python-devel
 
-Obsoletes: %{name}
 
 %global log_dir /var/log/%{name}
 %global log_files debug.log
