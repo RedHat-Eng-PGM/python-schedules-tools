@@ -24,22 +24,28 @@ else:
 # 'ScheduleHandler' can be whatever.
 class ScheduleHandlerBase(object):
     schedule = None
+    
+    # source storage to get changelog from if applicable
+    src_storage = None
 
     # This flag indicate ability to export internal intermediate structure
     # (Schedule) into format of implementation. It's read by ScheduleConverter
     # during autodiscovery and used to provide actual help message in CLI
     provide_export = False
 
-    def __init__(self, schedule=None):
-        if schedule:
-            self.schedule = schedule
+    def __init__(self, schedule=None, src_storage=None):
+        self.schedule = schedule
+        self.src_storage = src_storage
 
     # handle - file/link/smartsheet id
     def import_schedule(self, handle):
         pass
 
     def export_schedule(self, output):
-        pass    
+        pass   
+    
+    def build_schedule(self, handle):
+        pass 
 
     @staticmethod
     def is_valid_source(handle):

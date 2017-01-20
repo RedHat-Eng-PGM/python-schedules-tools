@@ -1,4 +1,4 @@
 from . import ScheduleStorageBase
 
-class CVSScheduleStorage(ScheduleStorageBase):
+class ScheduleStorage_cvs(ScheduleStorageBase):
     pass
