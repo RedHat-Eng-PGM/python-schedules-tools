@@ -5,11 +5,18 @@ import os
 import re
 import tempfile
 import models
+import logging
 
 from lxml import etree
 
 MSP_FLAGS_ATTRS = 'Flags', 'Text1'
 datetime_format = '%Y-%m-%dT%H:%M:%S'
+
+PREFIX_FLAG = 'Flags'
+PREFIX_LINK = 'Link'
+
+re_flags_separator = re.compile('[, ]+')
+logger = logging.getLogger(__name__)
 
 
 class ScheduleHandler_msp(ScheduleHandlerBase):
@@ -280,9 +287,40 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                     task.flags = [f for f in flags_value.strip(' ,\n').split(',') if ' ' not in f]
                     task._schedule.used_flags |= set(task.flags)
 
+            # workaround for SmartSheet exports - load flags, links
+            ext_attr_elements = eTask.xpath('ExtendedAttribute/Value')
+            for ext_attr in ext_attr_elements:
+                self._parse_extended_attr(task, ext_attr)
+
             task.check_for_phase()
             return True
         return False
+
+    def _parse_extended_attr(self, task, element):
+        """According to content of element will guess if the value is flag
+        or link definition.
+
+        @param element: XPath element instance (/Project/Tasks/Task/ExtendedAttribute/Value)
+        """
+        element_val = element.text
+        pieces = element_val.split(':', 1)
+        if len(pieces) != 2:
+            # it's not a string in format 'Flag: qe, dev' - don't process
+            return
+        key, val = pieces
+        key = key.strip().lower()
+        val = val.strip()
+        print '"{}", "{}"'.format(key, val)
+
+        if key == PREFIX_FLAG.lower():
+            val = val.lower()
+            flags = re_flags_separator.split(val)
+            task.flags = flags
+            self.schedule.used_flags |= set(task.flags)
+        elif key == PREFIX_LINK.lower():
+            task.process_link = val
+        else:
+            logger.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
     # Task
     def task_export_msp_node(self, task):
@@ -313,5 +351,15 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if task.note:
             eNotes = etree.SubElement(eTask, 'Notes')
             eNotes.text = task.note
+
+        flags_str = ','.join(task.flags)
+        if flags_str or task.process_link:
+            ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
+            if flags_str:
+                value_element = etree.SubElement(ext_attr_element, 'Value')
+                value_element.text = '{}: {}'.format(PREFIX_FLAG, flags_str)
+            if task.process_link:
+                value_element = etree.SubElement(ext_attr_element, 'Value')
+                value_element.text = '{}: {}'.format(PREFIX_LINK, task.process_link)
 
         return eTask

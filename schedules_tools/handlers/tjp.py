@@ -18,6 +18,10 @@ macro end_date      [%(end_date)s]
 macro state         [$State: Exp $]
 
 project ${content}${major}${minor}${maint} "${content_title}" "${major}.${minor}" ${start_date} - ${end_date} {
+  # Add Process Link capabilities
+  extend task {
+    reference PTask "Process Link"
+  }
 
   # include the Red Hat default values for a program plan
   include "defaults.tji"

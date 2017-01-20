@@ -23,6 +23,7 @@ class Task(object):
     p_complete = 0
     flags = []
     level = 1
+    process_link = ''
 
     tasks = []
 
@@ -220,7 +221,8 @@ class Schedule(object):
         return diff
 
     def _diff_tasks(self, left, right, attrs=None, whole_days=False):
-        default_attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish']
+        default_attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish',
+                         'process_link']
         if not attrs:
             attrs = default_attrs
         ret = ''
