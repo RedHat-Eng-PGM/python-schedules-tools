@@ -62,6 +62,10 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
         for eFlag in eTask.xpath('./flag'):
             task.flags.append(eFlag.text)
 
+        process_link_el = eTask.xpath('customAttribute[@id="PTask"]/referenceAttribute')
+        if process_link_el:
+            task.process_link = process_link_el[0].get('url')
+
         # add flags from task to global used tags
         task._schedule.used_flags |= set(task.flags)
 
