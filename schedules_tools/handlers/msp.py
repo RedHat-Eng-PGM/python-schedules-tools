@@ -70,10 +70,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
         self.schedule.tasks = self._load_tasks_level(start_level, eTask_list)
 
-        day = datetime.timedelta(days=1)
-        self.schedule.dStart -= day
-        self.schedule.dFinish += day
-
         os.unlink(tmp_file)
         self.schedule.check_top_task()
         return self.schedule

@@ -55,14 +55,19 @@ class ScheduleHandler_tjp(ScheduleHandlerBase):
     # $(COMMON_DIR)/schedule_convert.py --tj-id $(CONTENT) ${MAJOR_STR} ${MINOR_STR} ${MAINT_STR} $(MSP_SRC) tjp $(MASTER)
     def export_schedule(self, out_file, ps_export_file):
         fp = open(out_file, 'wb')
+
+        day = datetime.timedelta(days=1)
+        dStart = self.schedule.dStart - day
+        dFinish = self.schedule.dFinish + day
+
         fp.write(tjp_template % {
             'major': self.schedule._version['major'],
             'minor': self.schedule._version['minor'],
             'maint': self.schedule._version['maint'],
             'tj_id': self.schedule.tj_id,
             'tj_name': self.schedule.name,
-            'start_date': self.schedule.dStart.strftime(date_format),
-            'end_date': self.schedule.dFinish.strftime(date_format),
+            'start_date': dStart.strftime(date_format),
+            'end_date': dFinish.strftime(date_format),
             'current_datetime': datetime.datetime.now().strftime(
                 '%Y/%m/%d %H:%M:%S'),
             'ps_export_file': ps_export_file
