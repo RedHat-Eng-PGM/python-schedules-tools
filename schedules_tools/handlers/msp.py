@@ -306,7 +306,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         key, val = pieces
         key = key.strip().lower()
         val = val.strip()
-        print '"{}", "{}"'.format(key, val)
 
         if key == PREFIX_FLAG.lower():
             val = val.lower()
