@@ -45,6 +45,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         eTask_list = tree.xpath('Tasks/Task[OutlineLevel >= %s]' % start_level)
 
         self.schedule.name = tree.xpath('Name|Title')[0].text
+        if self.schedule.rally_iter:
+            self.schedule.name = self.schedule.rally_iter
         name_rx = re.match('(?P<name>.*?)(?P<version> [0-9]\S*)?$', self.schedule.name)
         if name_rx:
             self.schedule.name = name_rx.groupdict()['name']
@@ -83,7 +85,9 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
         eProject = etree.Element(MSP + 'Project', nsmap=NSMAP)
         eName = etree.SubElement(eProject, 'Name')
-        eName.text = self.schedule.rally_iter
+        eName.text = self.schedule.name
+        eTitle = etree.SubElement(eProject, 'Title')
+        eTitle.text = self.schedule.name
         eMinutesPerDay = etree.SubElement(eProject, 'MinutesPerDay')
         eMinutesPerDay.text = '300'
         eMinutesPerWeek = etree.SubElement(eProject, 'MinutesPerWeek')
