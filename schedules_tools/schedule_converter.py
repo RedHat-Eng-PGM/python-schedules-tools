@@ -73,20 +73,25 @@ class AutodiscoverHandlers(object):
 
         for path in paths:
             full_path = os.path.join(start_dir, path)
+            
             if os.path.isfile(full_path):
                 if not VALID_MODULE_NAME.match(path):
                     # valid Python identifiers only
                     continue
+                
                 name = self._get_name_from_path(full_path)
                 module = self._get_module_from_name(name)
                 classes = self._find_classes(module)
+            
                 for k in classes.keys():
                     if k in ret.keys():
                         logger.warning(
                             ('Found duplicated handler name (would be '
                              'overrriden): {} ({}, {})').format(
                                 k, ret[k], classes[k]))
+                
                 ret.update(classes)
+        
         return ret
 
 
@@ -113,11 +118,12 @@ class ScheduleConverter(object):
                'handlers: {}').format(handle)
         raise ScheduleFormatNotSupported(msg)
 
-    def load_schedule_from_handle(self, handle):
+    def load_schedule_from_handle(self, handle, handler_opt_args=dict()):
         handle_class = self.find_handle(handle)['class']
-        handle_inst = handle_class()
+        handle_inst = handle_class(opt_args=handler_opt_args)
         sch = handle_inst.import_schedule(handle)
         self.schedule = sch
+        return self.schedule
 
     def _get_export_handle_cls(self, target_format):
         handle_class = self.handlers[target_format]['class']
@@ -130,7 +136,7 @@ class ScheduleConverter(object):
 
     def export_handle(self, target_format, out_file,
                       tj_id='', v_major='', v_minor='', v_maint='',
-                      rally_iter=''):
+                      rally_iter='', handler_opt_args=dict()):
         if target_format == 'tjp':
             logger.info('Producing tji file to include in tjp')
 

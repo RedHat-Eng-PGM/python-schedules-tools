@@ -32,10 +32,13 @@ class ScheduleHandlerBase(object):
     # (Schedule) into format of implementation. It's read by ScheduleConverter
     # during autodiscovery and used to provide actual help message in CLI
     provide_export = False
+    
+    opt_args = {}
 
-    def __init__(self, schedule=None, src_storage=None):
+    def __init__(self, schedule=None, src_storage=None, opt_args=dict()):
         self.schedule = schedule
         self.src_storage = src_storage
+        self.opt_args = opt_args
 
     # handle - file/link/smartsheet id
     def import_schedule(self, handle):
