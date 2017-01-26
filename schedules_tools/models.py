@@ -255,7 +255,7 @@ class Schedule(object):
 
     def _diff_schedule_attrs(self, schedule):
         attrs = ['name', 'changelog', 'dStart', 'dFinish', 'assignments',
-                 '_version']
+                 'version', 'used_flags']
         ret = ''
         diff = dict()
 
