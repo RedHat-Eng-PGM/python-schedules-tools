@@ -6,8 +6,12 @@ import os
 
 
 logger = logging.getLogger('pp.core')
+date_format = '%Y-%m-%d'
 
-tjp_template = """macro major         [%(major)s]
+
+class ScheduleHandler_tjp(ScheduleHandlerBase):
+    provide_export = True
+    tjp_template = """macro major         [%(major)s]
 macro minor         [%(minor)s]
 macro maint         [%(maint)s]
 macro content       [%(tj_id)s]
@@ -40,12 +44,6 @@ include "%(ps_export_file)s"
 include "reports.tji"
 """
 
-date_format = '%Y-%m-%d'
-
-
-class ScheduleHandler_tjp(ScheduleHandlerBase):
-    provide_export = True
-
     @staticmethod
     def is_valid_source(handle):
         # We don't provide any import method
@@ -60,7 +58,7 @@ class ScheduleHandler_tjp(ScheduleHandlerBase):
         dStart = self.schedule.dStart - day
         dFinish = self.schedule.dFinish + day
 
-        fp.write(tjp_template % {
+        fp.write(self.tjp_template % {
             'major': self.schedule._version['major'],
             'minor': self.schedule._version['minor'],
             'maint': self.schedule._version['maint'],
