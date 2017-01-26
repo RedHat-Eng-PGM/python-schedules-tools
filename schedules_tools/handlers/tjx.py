@@ -146,10 +146,10 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
             eParentTask = etree.SubElement(eTask, 'ParentTask')
             eParentTask.text = id_prefix
 
-        if task.process_link:
+        if task.link:
             ptask = etree.SubElement(eTask, 'custom')
             ptask.attrib['id'] = 'PTask'
-            ptask.attrib['url'] = task.process_link
+            ptask.attrib['url'] = task.link
 
         eActualStart = etree.SubElement(
             eTask,
@@ -231,7 +231,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
 
         ptask_el = eTask.xpath('./custom[@id="PTask"]')
         if ptask_el:
-            task.process_link = ptask_el[0].get('url')
+            task.link = ptask_el[0].get('url')
 
         min_date = task.dStart
         max_date = task.dAcFinish

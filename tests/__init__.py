@@ -31,7 +31,7 @@ def create_test_schedule():
     task2.priority = 34
     task2.p_complete = 10
     task2.flags = ['pm']
-    task2.process_link = 'https://www.redhat.com'
+    task2.link = 'https://www.redhat.com'
     task1.tasks.append(task2)
 
     task3 = models.Task(sch, level=task1.level + 1)

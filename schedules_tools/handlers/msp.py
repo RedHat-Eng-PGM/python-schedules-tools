@@ -317,7 +317,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             task.flags = flags
             self.schedule.used_flags |= set(task.flags)
         elif key == PREFIX_LINK.lower():
-            task.process_link = val
+            task.link = val
         else:
             logger.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
@@ -360,10 +360,10 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             # this value is not used, but required by SmartSheets import
             fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')
             fieldid_element.text = '188743734'
-        if task.process_link:
+        if task.link:
             ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
             value_element = etree.SubElement(ext_attr_element, 'Value')
-            value_element.text = '{}: {}'.format(PREFIX_LINK, task.process_link)
+            value_element.text = '{}: {}'.format(PREFIX_LINK, task.link)
 
             # this value is not used, but required by SmartSheets import
             fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')

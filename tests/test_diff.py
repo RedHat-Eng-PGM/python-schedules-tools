@@ -41,11 +41,11 @@ class TestDiff(testtools.TestCase):
         task = self.sch1.tasks[0].tasks[0]
         task.dStart -= date_delta
         task.dFinish += date_delta
-        task.process_link = 'nothing'
+        task.link = 'nothing'
 
         diff = self.sch1.diff(self.sch2)
 
-        assert 'process_link' in diff
+        assert 'link' in diff
         assert 'dStart' in diff
         assert 'dFinish' in diff
 

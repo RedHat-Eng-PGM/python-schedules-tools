@@ -101,8 +101,8 @@ class ScheduleHandler_tji(ScheduleHandlerBase):
         if task.flags:
             task_tji.append(d_ind + 'flags ' + ', '.join(task.flags))
 
-        if task.process_link:
-            task_tji.append(d_ind + 'PTask ' + task.process_link)
+        if task.link:
+            task_tji.append(d_ind + 'PTask ' + task.link)
 
         if task.tasks:
             for subtask in task.tasks:
