@@ -13,7 +13,13 @@ logging.basicConfig(
 
 logger = logging.getLogger('pp.core')
 VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+BASE_DIR = os.path.dirname(os.path.realpath(
+    os.path.join(__file__, os.pardir)))
+PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
+
+# FIXME(mpavlase): Figure out nicer way to deal with paths
+sys.path.append(BASE_DIR)
+sys.path.append(os.path.join(BASE_DIR, PARENT_DIRNAME))
 
 
 class ScheduleFormatNotSupported(Exception):
@@ -25,7 +31,7 @@ class HandleWithoutExport(Exception):
 
 
 class AutodiscoverHandlers(object):
-    _top_level_dir = BASE_DIR
+    _top_level_dir = os.path.join(BASE_DIR, PARENT_DIRNAME)
 
     def _get_name_from_path(self, path):
         path = os.path.splitext(os.path.normpath(path))[0]
@@ -64,7 +70,6 @@ class AutodiscoverHandlers(object):
     def discover(self, start_dir):
         paths = os.listdir(start_dir)
         ret = {}
-        #import pudb;pudb.set_trace()
 
         for path in paths:
             full_path = os.path.join(start_dir, path)
@@ -93,7 +98,8 @@ class ScheduleConverter(object):
 
     def __init__(self):
         ad = AutodiscoverHandlers()
-        handlers_path = os.path.join(BASE_DIR, self.handlers_dir)
+        #handlers_path = os.path.join(BASE_DIR, self.handlers_dir)
+        handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.handlers_dir)
         self.handlers = ad.discover(handlers_path)
         for key, val in self.handlers.iteritems():
             if val['provide_export']:
@@ -136,8 +142,6 @@ class ScheduleConverter(object):
             out_tji_file = '-'.join(out_tji_parts) + '.tji'
             handle_inst.schedule.override_version(
                     tj_id, v_major, v_minor, v_maint)
-            print out_tji_file
-            print handle_inst.schedule._version
             handle_inst.export_schedule(out_tji_file)
 
             # export TJP with included TJI

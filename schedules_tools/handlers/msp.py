@@ -4,7 +4,7 @@ import datetime
 import os
 import re
 import tempfile
-import models
+from schedules_tools import models
 import logging
 
 from lxml import etree

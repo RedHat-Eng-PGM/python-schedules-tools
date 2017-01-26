@@ -1,7 +1,7 @@
 from . import ScheduleHandlerBase, TJXChangelog
 import datetime
 import logging
-import models
+from schedules_tools import models
 import os
 
 from lxml import etree

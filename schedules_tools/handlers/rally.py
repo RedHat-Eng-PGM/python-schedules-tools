@@ -1,7 +1,7 @@
-from handlers import msp
-from handlers import strptime
+from schedules_tools.handlers import msp
+from schedules_tools.handlers import strptime
 from pyral import Rally, rallySettings
-import models
+from schedules_tools import models
 import sys
 import datetime
 import os
