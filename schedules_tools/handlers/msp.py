@@ -352,13 +352,21 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             eNotes.text = task.note
 
         flags_str = ','.join(task.flags)
-        if flags_str or task.process_link:
+        if flags_str:
             ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
-            if flags_str:
-                value_element = etree.SubElement(ext_attr_element, 'Value')
-                value_element.text = '{}: {}'.format(PREFIX_FLAG, flags_str)
-            if task.process_link:
-                value_element = etree.SubElement(ext_attr_element, 'Value')
-                value_element.text = '{}: {}'.format(PREFIX_LINK, task.process_link)
+            value_element = etree.SubElement(ext_attr_element, 'Value')
+            value_element.text = '{}: {}'.format(PREFIX_FLAG, flags_str)
+
+            # this value is not used, but required by SmartSheets import
+            fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')
+            fieldid_element.text = '188743734'
+        if task.process_link:
+            ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
+            value_element = etree.SubElement(ext_attr_element, 'Value')
+            value_element.text = '{}: {}'.format(PREFIX_LINK, task.process_link)
+
+            # this value is not used, but required by SmartSheets import
+            fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')
+            fieldid_element.text = '188743737'
 
         return eTask
