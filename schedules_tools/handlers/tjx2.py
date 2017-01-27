@@ -17,7 +17,11 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
         file_ext = os.path.splitext(handle)[1]
 
         if file_ext == '.tjx':
-            tree = etree.parse(handle)
+            try:
+                tree = etree.parse(handle)
+            except etree.XMLSyntaxError:
+                return False
+
             if tree.xpath('/taskjuggler/project[@name]'):
                 return True
         return False

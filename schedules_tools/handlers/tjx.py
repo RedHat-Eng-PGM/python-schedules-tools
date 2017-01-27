@@ -49,7 +49,11 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
         file_ext = os.path.splitext(handle)[1]
 
         if file_ext == '.tjx':
-            tree = etree.parse(handle)
+            try:
+                tree = etree.parse(handle)
+            except etree.XMLSyntaxError:
+                return False
+
             if tree.xpath('//Project[@Id and @WeekStart]'):
                 return True
         return False
