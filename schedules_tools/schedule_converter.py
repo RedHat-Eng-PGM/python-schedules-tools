@@ -138,9 +138,9 @@ class ScheduleConverter(object):
 
     def export_handle(self, target_format, out_file, handler_opt_args=dict()):
         tj_id = handler_opt_args['tj_id']
-        v_major = handler_opt_args['v_major']
-        v_minor = handler_opt_args['v_minor']
-        v_maint = handler_opt_args['v_maint']
+        v_major = handler_opt_args['major']
+        v_minor = handler_opt_args['minor']
+        v_maint = handler_opt_args['maint']
 
         if target_format == 'tjp':
             logger.info('Producing tji file to include in tjp')
