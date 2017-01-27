@@ -36,10 +36,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     left = conv.ScheduleConverter()
-    left.load_schedule_from_handle(args.left)
+    left.import_schedule(args.left)
 
     right = conv.ScheduleConverter()
-    right.load_schedule_from_handle(args.right)
+    right.import_schedule(args.right)
 
     whole_days = False
     diff = left.schedule.diff(right.schedule, whole_days=args.whole_days)

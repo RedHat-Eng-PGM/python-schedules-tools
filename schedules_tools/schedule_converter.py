@@ -118,7 +118,7 @@ class ScheduleConverter(object):
                'handlers: {}').format(handle)
         raise ScheduleFormatNotSupported(msg)
 
-    def load_schedule_from_handle(self, handle, handler_opt_args=dict()):
+    def import_schedule(self, handle, handler_opt_args=dict()):
         handle_class = self.find_handle(handle)['class']
         handle_inst = handle_class(opt_args=handler_opt_args)
         sch = handle_inst.import_schedule(handle)
@@ -192,7 +192,7 @@ if __name__ == '__main__':
                         help='Output schedule file', default=None, nargs='?')
 
     arguments = parser.parse_args()
-    converter.load_schedule_from_handle(arguments.source)
+    converter.import_schedule(arguments.source)
 
     converter.export_handle(arguments.target_format,
                             arguments.out_file,
