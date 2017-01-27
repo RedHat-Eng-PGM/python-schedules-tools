@@ -1,5 +1,5 @@
-from schedules_tools.handlers import ScheduleHandlerBase
-from schedules_tools.handlers import strptime
+from . import ScheduleHandlerBase
+from . import strptime
 from pyral import Rally, rallySettings
 from schedules_tools import models
 import sys
