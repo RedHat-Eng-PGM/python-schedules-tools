@@ -24,7 +24,11 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
     @staticmethod
     def is_valid_source(handle):
-        tree = etree.parse(handle)
+        try:
+            tree = etree.parse(handle)
+        except etree.XMLSyntaxError:
+            return False
+
         if 'http://schemas.microsoft.com/project' in tree.getroot().tag:
             return True
         return False
