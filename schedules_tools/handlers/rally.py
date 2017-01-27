@@ -29,6 +29,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         rally = Rally(server, user, password, workspace=workspace, project=project)
 
         rally_iter = self.opt_args['rally_iter']
+        self.schedule.name = rally_iter
         query_criteria = 'Iteration.Name = "%s"' % rally_iter
 
         response = rally.get('Iteration', fetch=True,
