@@ -19,11 +19,11 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         return False
 
     # Schedule
-    def import_schedule(self, rally_cfg_file):
+    def import_schedule(self, handle):
         self.schedule = models.Schedule()
         start_time = None
 
-        options = ['--config=%s' % rally_cfg_file]
+        options = ['--config=%s' % handle]
         server, user, password, workspace, project = rallySettings(options)
 
         rally = Rally(server, user, password, workspace=workspace, project=project)
