@@ -1,4 +1,4 @@
-from schedules_tools.handlers import msp
+from schedules_tools.handlers import ScheduleHandlerBase
 from schedules_tools.handlers import strptime
 from pyral import Rally, rallySettings
 from schedules_tools import models
@@ -7,7 +7,7 @@ import datetime
 import os
 
 
-class ScheduleHandler_rally(msp.ScheduleHandler_msp):
+class ScheduleHandler_rally(ScheduleHandlerBase):
     provide_export = False
 
     @staticmethod
