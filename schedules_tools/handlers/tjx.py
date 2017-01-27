@@ -192,7 +192,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
     # Task
     @staticmethod
     def _load_tjx_date(eTask, datetype, what=''):
-        ''' Returns datetime with datetype = plan|actual what = start|end'''
+        """Returns datetime with datetype = plan|actual what = start|end"""
         tag = datetype.lower() + what.capitalize()
         eTag = eTask.xpath(tag)
         if eTag:
@@ -203,9 +203,11 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
         task.index = eTask.xpath('Index')[0].text
         task.tjx_id = eTask.get('Id')
         task.name = eTask.xpath('Name')[0].text
+
         notes = eTask.xpath('Note')
         if notes:
             task.note = notes[0].text.strip()
+
         task.priority = eTask.xpath('Priority')[0].text
         task.p_complete = eTask.xpath('complete')[0].text
         task.dStart = task.dAcStart = self._load_tjx_date(eTask, 'plan',

@@ -49,7 +49,7 @@ class Task(object):
 
     @staticmethod
     def _workaround_it_phase_names(eTask):
-        '''Corrects phase names'''
+        """Corrects phase names"""
         name_map = {'Concept': 'Concept Phase',
                     'Planning': 'Planning Phase',
                     'Develop': 'Development Phase',
@@ -73,9 +73,7 @@ class Task(object):
 
                 if not eFullnamed_task_list:  # if not - map the name
                     return name_map[name]
-
             return name
-
         return ''
 
     def check_for_phase(self):
@@ -170,14 +168,18 @@ class Schedule(object):
 
             for task in self.tasks:
                 if top_task.dStart:
-                    top_task.dStart = min(top_task.dStart, task.dStart, task.dAcStart)
+                    top_task.dStart = min(top_task.dStart,
+                                          task.dStart,
+                                          task.dAcStart)
                 else:
                     top_task.dStart = task.dStart
 
                 top_task.dAcStart = top_task.dStart
 
                 if top_task.dFinish:
-                    top_task.dFinish = max(top_task.dFinish, task.dAcFinish, task.dFinish)
+                    top_task.dFinish = max(top_task.dFinish,
+                                           task.dAcFinish,
+                                           task.dFinish)
                 else:
                     top_task.dFinish = task.dFinish
 
@@ -286,6 +288,7 @@ class Schedule(object):
             # width=1 force wrap tuple to newline
             ret += 'Schedule version:\n'
             ret += pprint.pformat(diff, width=1)
+
         return ret
 
     def diff(self, schedule, attrs=None, whole_days=False):
@@ -303,6 +306,7 @@ class Schedule(object):
             ret += 'Tasks attrs:\n'
             ret += diff_tasks
         ret += self._diff_schedule_attrs(schedule)
+
         return ret.strip()
 
     def get_unique_task_id(self, task, id_prefix):

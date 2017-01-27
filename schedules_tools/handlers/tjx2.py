@@ -24,7 +24,7 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
 
     @staticmethod
     def _load_tjx_date(eTask, datetype, what=''):
-        '''Returns datetime with datetype = plan|actual what = start|end'''
+        """Returns datetime with datetype = plan|actual what = start|end"""
         xpath = './taskScenario[@scenarioId=\'{}\']/{}'.format(datetype, what)
         tag = eTask.xpath(xpath)
         if tag:

@@ -85,11 +85,11 @@ class AutodiscoverHandlers(object):
             
                 for k in classes.keys():
                     if k in ret.keys():
-                        logger.warning(
-                            ('Found duplicated handler name (would be '
-                             'overrriden): {} ({}, {})').format(
-                                k, ret[k], classes[k]))
-                
+                        msg = ('Found duplicated handler name (would be '
+                               'overrriden): {} ({}, {})').format(
+                            k, ret[k], classes[k])
+                        logger.warning(msg)
+
                 ret.update(classes)
         
         return ret
@@ -106,6 +106,7 @@ class ScheduleConverter(object):
         #handlers_path = os.path.join(BASE_DIR, self.handlers_dir)
         handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.handlers_dir)
         self.handlers = ad.discover(handlers_path)
+
         for key, val in self.handlers.iteritems():
             if val['provide_export']:
                 self.provided_exports.append(key)
@@ -114,6 +115,7 @@ class ScheduleConverter(object):
         for k, mod in self.handlers.iteritems():
             if mod['class'].is_valid_source(handle):
                 return mod
+
         msg = ('Given schedule format doesn\'t match any of available '
                'handlers: {}').format(handle)
         raise ScheduleFormatNotSupported(msg)
@@ -164,6 +166,7 @@ class ScheduleConverter(object):
                 logger.info('tjp already exists - using existing one')
                 handle_inst.update_tjp(out_file)
             return
+
         handle_class = self._get_export_handle_cls(target_format)  # tjp
         handle_inst = handle_class(self.schedule)
         handle_inst.schedule.override_version(

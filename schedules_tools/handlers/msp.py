@@ -38,10 +38,9 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         self.schedule = models.Schedule()
         # remove project's xmlns
         tmp_file = tempfile.mkstemp()[1]
-        hTmp_file = open(tmp_file, 'wt')
-        for line in open(msp_file):
-            hTmp_file.write(line.replace(' xmlns="http://schemas.microsoft.com/project"', ''))
-        hTmp_file.close()
+        with open(tmp_file, 'wt') as hTmp_file:
+            for line in open(msp_file):
+                hTmp_file.write(line.replace(' xmlns="http://schemas.microsoft.com/project"', ''))
 
         start_level = 1
         tree = etree.parse(tmp_file)
@@ -66,6 +65,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             fieldID = int(eExtAttr.xpath('FieldID')[0].text)
             fieldName = eExtAttr.xpath('FieldName')[0].text
             self.schedule.ext_attr[fieldName] = fieldID
+
         if self.schedule.ext_attr:  # choose flags field
             for ff_name in MSP_FLAGS_ATTRS:
                 if ff_name in self.schedule.ext_attr:
@@ -124,6 +124,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                     eFromTime.text = '%02d:00:00' % int(from_time)
                     eToTime = etree.SubElement(eWorkingTime, 'ToTime')
                     eToTime.text = '%02d:00:00' % (from_time + 1,)
+
         for r_id, resource in self.schedule.resources.items():
             eCalendar = etree.SubElement(eCalendars, 'Calendar')
             eUID = etree.SubElement(eCalendar, 'UID')

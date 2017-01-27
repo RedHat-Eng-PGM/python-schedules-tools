@@ -91,6 +91,7 @@ class ScheduleHandler_tji(ScheduleHandlerBase):
             task_tji.append(d_ind + 'actual:start %s' % (
                 task.dAcStart.strftime(date_format)))
         task_tji.append(d_ind + 'end %s' % (task.dFinish.strftime(date_format)))
+
         if task.dFinish != task.dAcFinish:
             task_tji.append(d_ind + 'actual:end %s' % (
                 task.dAcFinish.strftime(date_format)))
