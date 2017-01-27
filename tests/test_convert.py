@@ -28,7 +28,7 @@ class TestConvert(testtools.TestCase):
         conv_from = schedule_converter.ScheduleConverter()
         in_file = os.path.join(CURR_DIR, DATA_DIR, input_file)
         in_file = os.path.realpath(in_file)
-        conv_from.load_schedule_from_handle(in_file)
+        conv_from.import_schedule(in_file)
 
         conv_from.export_handle(target_format=target_format,
                                 out_file=self.file_out_name)
@@ -39,7 +39,7 @@ class TestConvert(testtools.TestCase):
             self.file_out_name = new_name
 
         conv_to = schedule_converter.ScheduleConverter()
-        conv_to.load_schedule_from_handle(self.file_out_name)
+        conv_to.import_schedule(self.file_out_name)
 
         diff = conv_from.schedule.diff(conv_to.schedule)
         assert diff == ''

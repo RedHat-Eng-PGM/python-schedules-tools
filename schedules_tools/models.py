@@ -108,7 +108,6 @@ class Schedule(object):
     tasks = []
     dStart = None
     dFinish = None
-    rally_iter = ''
     changelog = {}
 
     phases = []
@@ -126,8 +125,7 @@ class Schedule(object):
     _eTask_list = []
     _task_index = 1
 
-    def __init__(self, rally_iter=''):
-        self.rally_iter = rally_iter
+    def __init__(self):
         self.tasks = []
         self.phases = []
         self.used_flags = set()
