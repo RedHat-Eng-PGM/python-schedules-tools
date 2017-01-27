@@ -134,9 +134,12 @@ class ScheduleConverter(object):
 
         return handle_class
 
-    def export_handle(self, target_format, out_file,
-                      tj_id='', v_major='', v_minor='', v_maint='',
-                      handler_opt_args=dict()):
+    def export_handle(self, target_format, out_file, handler_opt_args=dict()):
+        tj_id = handler_opt_args['tj_id']
+        v_major = handler_opt_args['v_major']
+        v_minor = handler_opt_args['v_minor']
+        v_maint = handler_opt_args['v_maint']
+
         if target_format == 'tjp':
             logger.info('Producing tji file to include in tjp')
 
@@ -144,6 +147,7 @@ class ScheduleConverter(object):
             handle_class = self._get_export_handle_cls('tji')
             handle_inst = handle_class(self.schedule)
             self.schedule = handle_inst.schedule
+
             out_tji_parts = [tj_id, v_major, v_minor, v_maint, 'msp']
             out_tji_file = '-'.join(out_tji_parts) + '.tji'
             handle_inst.schedule.override_version(
@@ -196,8 +200,4 @@ if __name__ == '__main__':
 
     converter.export_handle(arguments.target_format,
                             arguments.out_file,
-                            arguments.tj_id,
-                            arguments.major,
-                            arguments.minor,
-                            arguments.maint,
                             handler_opt_args=opt_args)
