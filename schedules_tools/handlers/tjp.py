@@ -105,11 +105,16 @@ include "reports.tji"
     # Schedule
     def update_tjp(self, filename):
         # update project frame
+
+        day = datetime.timedelta(days=1)
+        dStart = self.schedule.dStart - day
+        dFinish = self.schedule.dFinish + day
+
         for line in fileinput.input(filename, inplace=True):
             if line.startswith('macro start_date'):
                 line = 'macro start_date    [%s]\n' % (
-                    self.schedule.dStart.strftime(date_format))
+                    dStart.strftime(date_format))
 
             if line.startswith('macro end_date'):
                 line = 'macro end_date      [%s]\n' % (
-                    self.schedule.dFinish.strftime(date_format))
+                    dFinish.strftime(date_format))
