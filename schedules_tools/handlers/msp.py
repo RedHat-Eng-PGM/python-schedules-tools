@@ -182,9 +182,10 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             eID.text = str(self.schedule._task_index)
 
             if task.resource:
-                self.assignments.append({'t_id': self._task_index,
-                                         'r_id': task.resource,
-                                         })
+                self.schedule.assignments.append({
+                    't_id': self.schedule._task_index,
+                    'r_id': task.resource}
+                )
 
             eOutlineNumber = etree.SubElement(eTask, 'OutlineNumber')
             eOutlineNumber.text = '%s%s' % (outline_prefix, n)
