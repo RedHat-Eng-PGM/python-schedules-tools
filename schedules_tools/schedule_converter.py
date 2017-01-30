@@ -142,35 +142,13 @@ class ScheduleConverter(object):
         v_minor = handler_opt_args['minor']
         v_maint = handler_opt_args['maint']
 
-        if target_format == 'tjp':
-            logger.info('Producing tji file to include in tjp')
+        handle_class = self._get_export_handle_cls(target_format)
+        handle_inst = handle_class(schedule=self.schedule,
+                                   opt_args=handler_opt_args)
 
-            # export as TJI first
-            handle_class = self._get_export_handle_cls('tji')
-            handle_inst = handle_class(self.schedule)
-            self.schedule = handle_inst.schedule
-
-            out_tji_parts = [tj_id, v_major, v_minor, v_maint, 'msp']
-            out_tji_file = '-'.join(out_tji_parts) + '.tji'
-            handle_inst.schedule.override_version(
-                    tj_id, v_major, v_minor, v_maint)
-            handle_inst.export_schedule(out_tji_file)
-
-            # export TJP with included TJI
-            handle_class = self._get_export_handle_cls(target_format)  # tjp
-            handle_inst = handle_class(self.schedule)
-            if not os.path.exists(out_file):  # create if not exists
-                logger.info('tjp file doesn\'t exist - creating one')
-                handle_inst.export_schedule(out_file, out_tji_file)
-            else:
-                logger.info('tjp already exists - using existing one')
-                handle_inst.update_tjp(out_file)
-            return
-
-        handle_class = self._get_export_handle_cls(target_format)  # tjp
-        handle_inst = handle_class(self.schedule)
         handle_inst.schedule.override_version(
             tj_id, v_major, v_minor, v_maint)
+
         handle_inst.export_schedule(out_file)
 
 if __name__ == '__main__':

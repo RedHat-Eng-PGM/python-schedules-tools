@@ -2,6 +2,7 @@ from . import ScheduleHandlerBase
 import datetime
 import logging
 import fileinput
+import tji
 import os
 
 
@@ -51,7 +52,37 @@ include "reports.tji"
 
     # Schedule
     # $(COMMON_DIR)/schedule_convert.py --tj-id $(CONTENT) ${MAJOR_STR} ${MINOR_STR} ${MAINT_STR} $(MSP_SRC) tjp $(MASTER)
-    def export_schedule(self, out_file, ps_export_file):
+    def export_schedule(self, out_file):
+        tj_id = self.opt_args['tj_id']
+        v_major = self.schedule._version['major']
+        v_minor = self.schedule._version['minor']
+        v_maint = self.schedule._version['maint']
+
+        version_numbers = [tj_id, v_major, v_minor, v_maint]
+        if None in version_numbers:
+            logger.error('TJP format requires all attributes set: '
+                         'tj_id, major, minor, maint')
+            return
+
+        # export as TJI first
+        logger.info('Producing tji file to include in tjp')
+        handle_tji_inst = tji.ScheduleHandler_tji(self.schedule)
+
+        out_tji_parts = version_numbers + ['msp']
+        out_tji_file = '-'.join(out_tji_parts) + '.tji'
+        handle_tji_inst.schedule.override_version(
+            tj_id, v_major, v_minor, v_maint)
+        handle_tji_inst.export_schedule(out_tji_file)
+
+        # export TJP with included TJI
+        if os.path.exists(out_file):  # create if not exists
+            logger.info('tjp already exists - using existing one')
+            self.update_tjp(out_file)
+            return
+
+        logger.info('tjp file doesn\'t exist - creating one')
+        ps_export_file = out_tji_file
+
         fp = open(out_file, 'wb')
 
         day = datetime.timedelta(days=1)
@@ -59,9 +90,9 @@ include "reports.tji"
         dFinish = self.schedule.dFinish + day
 
         fp.write(self.tjp_template % {
-            'major': self.schedule._version['major'],
-            'minor': self.schedule._version['minor'],
-            'maint': self.schedule._version['maint'],
+            'major': v_major,
+            'minor': v_minor,
+            'maint': v_maint,
             'tj_id': self.schedule.tj_id,
             'tj_name': self.schedule.name,
             'start_date': dStart.strftime(date_format),
