@@ -96,6 +96,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
             self.schedule.tasks.append(t)
 
         self.schedule.dFinish = max_end_time
+        return self.schedule
 
     # Schedule
     def export_schedule(self, out_file):
