@@ -307,10 +307,14 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         @param element: XPath element instance (/Project/Tasks/Task/ExtendedAttribute/Value)
         """
         element_val = element.text
+        if not element_val:
+            return
+
         pieces = element_val.split(':', 1)
         if len(pieces) != 2:
             # it's not a string in format 'Flag: qe, dev' - don't process
             return
+
         key, val = pieces
         key = key.strip().lower()
         val = val.strip()
