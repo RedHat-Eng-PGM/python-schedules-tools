@@ -5,18 +5,17 @@ import sys
 import re
 import handlers
 import logging
-
+import importlib
 
 logger = logging.getLogger(__name__)
 handler_class_template = re.compile('^ScheduleHandler_(\S+)$')
-VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
+VALID_MODULE_NAME = re.compile(r'^(\w+)\.py$', re.IGNORECASE)
 BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
 PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, PARENT_DIRNAME))
 
 
 def setup_logging(level):
@@ -42,22 +41,22 @@ class HandleWithoutExport(Exception):
 
 
 class AutodiscoverHandlers(object):
-    _top_level_dir = os.path.join(BASE_DIR)
     _discovered_handlers = dict()
 
-    def _get_name_from_path(self, path):
-        path = os.path.splitext(os.path.normpath(path))[0]
+    def _load_parent_module(self, path):
+        realpath = os.path.realpath(path)
+        parent = os.path.dirname(realpath)
+        module_name = os.path.basename(realpath)
+        if parent not in sys.path:
+            logger.info('Add path {} to sys.path (as parent of {})'.format(parent, path))
+            sys.path.append(parent)
+        importlib.import_module(module_name)
 
-        relpath = os.path.relpath(path, self._top_level_dir)
-        assert not os.path.isabs(relpath), "Path must be within the project"
-        assert not relpath.startswith('..'), "Path must be within the project"
-
-        name = relpath.replace(os.path.sep, '.')
-        return name
+        return module_name
 
     @staticmethod
-    def _get_module_from_name(name):
-        __import__(name)
+    def _load_module(name):
+        importlib.import_module(name)
         return sys.modules[name]
 
     @staticmethod
@@ -92,33 +91,39 @@ class AutodiscoverHandlers(object):
             logger.debug('Discovered new handler: {} from {}'.format(key, module))
         return ret
 
-    def _discover_path(self, path, start_dir):
-        full_path = os.path.join(start_dir, path)
+    def _discover_path(self, filename, parent_module):
+        # valid Python identifiers only
+        if not VALID_MODULE_NAME.match(filename):
+            return
 
-        if os.path.isfile(full_path):
-            if not VALID_MODULE_NAME.match(path):
-                # valid Python identifiers only
-                return
+        name = VALID_MODULE_NAME.sub('\\1', filename)
+        name = '.'.join([parent_module, name])
+        module = self._load_module(name)
+        classes = self._find_classes(module)
 
-            name = self._get_name_from_path(full_path)
-            module = self._get_module_from_name(name)
-            classes = self._find_classes(module)
+        for k in classes.keys():
+            if k in self._discovered_handlers.keys():
+                cls_existing = self._discovered_handlers[k]
+                cls_new = classes[k]
+                msg = ('Found handler with same name (would be '
+                       'overrriden): {} (existing: {}, new: {})').format(
+                    k, cls_existing, cls_new)
+                logger.info(msg)
 
-            for k in classes.keys():
-                if k in self._discovered_handlers.keys():
-                    msg = ('Found handler with same name (would be '
-                           'overrriden): {} ({}, {})').format(
-                        k, self._discovered_handlers[k], classes[k])
-                    logger.warning(msg)
-
-            self._discovered_handlers.update(classes)
+        self._discovered_handlers.update(classes)
 
     def discover(self, start_dir):
-        paths = os.listdir(start_dir)
-        self._discovered_handlers = dict()
+        start_dir = os.path.expanduser(start_dir)
+        try:
+            module_name = self._load_parent_module(start_dir)
+        except ImportError as e:
+            logger.warn('Skipping path "{}", couldn\'t load it: {}'.format(start_dir, e))
+            return self._discovered_handlers
 
-        for path in paths:
-            self._discover_path(path, start_dir)
+        files = os.listdir(start_dir)
+
+        for filename in files:
+            self._discover_path(filename, module_name)
 
         return self._discovered_handlers
 
@@ -128,26 +133,16 @@ class ScheduleConverter(object):
     handlers = {}
     provided_exports = []
     schedule = None
+    discovery = None
 
     def __init__(self):
-        #handlers_path = os.path.join(BASE_DIR, self.handlers_dir)
         handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.handlers_dir)
+        self.discovery = AutodiscoverHandlers()
         self.add_discover_path(handlers_path)
 
     def add_discover_path(self, handlers_path):
-        ad = AutodiscoverHandlers()
-        new_handlers = ad.discover(handlers_path)
-
-        # notify about overriden handlers
-        keys_existing = set(self.handlers.keys())
-        keys_new = set(new_handlers.keys())
-        keys_diff = keys_existing.intersection(keys_new)
-        if keys_diff:
-            keys_str = list(keys_diff)
-            logger.info('Overriding handlers: {} (from {})'.format(
-                keys_str, handlers_path))
-
-        self.handlers.update(new_handlers)
+        logger.debug('Searching for handlers in path: {}'.format(handlers_path))
+        self.handlers = self.discovery.discover(handlers_path)
 
         for key, val in self.handlers.iteritems():
             if val['provide_export']:
@@ -195,7 +190,7 @@ class ScheduleConverter(object):
         handle_inst.export_schedule(out_file)
 
 if __name__ == '__main__':
-    setup_logging(logging.DEBUG)
+    setup_logging(logging.INFO)
     converter = ScheduleConverter()
     parser = argparse.ArgumentParser(description='Perform schedule conversions.')
 
