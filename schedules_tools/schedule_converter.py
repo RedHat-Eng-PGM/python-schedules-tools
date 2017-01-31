@@ -6,12 +6,8 @@ import re
 import handlers
 import logging
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(name)s %(levelname)7s: %(message)s'
-)
 
-logger = logging.getLogger('pp.core')
+logger = logging.getLogger('converter')
 VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
 BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
@@ -20,6 +16,20 @@ PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, PARENT_DIRNAME))
+
+
+def setup_logging(level):
+    log_format = '%(name)-10s %(levelname)7s: %(message)s'
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(level)
+
+    formatter = logging.Formatter(log_format)
+    sh.setFormatter(formatter)
+
+    # setup root logger
+    inst = logging.getLogger('')
+    inst.setLevel(level)
+    inst.addHandler(sh)
 
 
 class ScheduleFormatNotSupported(Exception):
@@ -152,6 +162,7 @@ class ScheduleConverter(object):
         handle_inst.export_schedule(out_file)
 
 if __name__ == '__main__':
+    setup_logging(logging.DEBUG)
     converter = ScheduleConverter()
     parser = argparse.ArgumentParser(description='Perform schedule conversions.')
 
