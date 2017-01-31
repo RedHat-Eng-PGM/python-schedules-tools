@@ -6,7 +6,7 @@ import logging
 import copy
 
 
-logger = logging.getLogger('pp.core')
+logger = logging.getLogger(__name__)
 
 
 class Task(object):

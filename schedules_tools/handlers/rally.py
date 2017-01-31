@@ -5,6 +5,9 @@ from schedules_tools import models
 import sys
 import datetime
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ScheduleHandler_rally(ScheduleHandlerBase):

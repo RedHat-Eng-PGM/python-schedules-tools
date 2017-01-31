@@ -6,7 +6,7 @@ from schedules_tools import models
 import os
 
 from lxml import etree
-logger = logging.getLogger('pp.core')
+logger = logging.getLogger(__name__)
 
 KNOWN_FLAGS = set([
     'team',

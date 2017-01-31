@@ -1,7 +1,7 @@
 from . import ScheduleHandlerBase
 import logging
 
-logger = logging.getLogger('pp.core')
+logger = logging.getLogger(__name__)
 date_format = '%Y-%m-%d'
 KNOWN_FLAGS = set([
     'team',

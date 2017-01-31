@@ -3,7 +3,7 @@ import logging
 import time
 import os
 
-logger = logging.getLogger('pp.core')
+logger = logging.getLogger(__name__)
 
 # schedules are in US TZ
 os.environ['TZ'] = 'America/New_York'

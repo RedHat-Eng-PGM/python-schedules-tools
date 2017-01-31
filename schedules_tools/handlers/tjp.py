@@ -6,7 +6,7 @@ import tji
 import os
 
 
-logger = logging.getLogger('pp.core')
+logger = logging.getLogger(__name__)
 date_format = '%Y-%m-%d'
 
 

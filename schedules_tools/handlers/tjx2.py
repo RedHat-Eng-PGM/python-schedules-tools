@@ -3,9 +3,9 @@ import datetime
 import logging
 from schedules_tools import models
 import os
-
 from lxml import etree
-logger = logging.getLogger('pp.core')
+
+logger = logging.getLogger(__name__)
 
 
 class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):

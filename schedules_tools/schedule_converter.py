@@ -7,7 +7,7 @@ import handlers
 import logging
 
 
-logger = logging.getLogger('converter')
+logger = logging.getLogger(__name__)
 handler_class_template = re.compile('^ScheduleHandler_(\S+)$')
 VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
 BASE_DIR = os.path.dirname(os.path.realpath(
