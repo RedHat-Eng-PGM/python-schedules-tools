@@ -189,10 +189,10 @@ class ScheduleConverter(object):
         return handle_class
 
     def export_handle(self, target_format, out_file, handler_opt_args=dict()):
-        tj_id = handler_opt_args['tj_id']
-        v_major = handler_opt_args['major']
-        v_minor = handler_opt_args['minor']
-        v_maint = handler_opt_args['maint']
+        tj_id = handler_opt_args.get('tj_id', '')
+        v_major = handler_opt_args.get('major', '')
+        v_minor = handler_opt_args.get('minor', '')
+        v_maint = handler_opt_args.get('maint', '')
         handle_class = self._get_export_handle_cls(target_format)
         handle_inst = handle_class(schedule=self.schedule,
                                    opt_args=handler_opt_args)
