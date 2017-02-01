@@ -141,6 +141,19 @@ class ScheduleConverter(object):
         self.add_discover_path(handlers_path)
 
     def add_discover_path(self, handlers_path):
+        """
+        Adds location in handlers_path variable to discovery path and starts to
+        search for handlers. This method can be called multiple times, if there
+        will be conflict in name of the handler, discovered implementation will
+        be used (override the old one).
+
+        Order of search paths:
+         - schedules_tools/handlers
+         - handlers_path (optionally)
+
+        Args:
+            handlers_path: Path to directory (python module) to search for handlers
+        """
         logger.debug('Searching for handlers in path: {}'.format(handlers_path))
         self.handlers = self.discovery.discover(handlers_path)
 
@@ -205,8 +218,10 @@ if __name__ == '__main__':
     parser.add_argument('--rally-iter', help='Rally iteration to import',
                         default='')
     parser.add_argument('--handlers-path',
-                        help='Add path to discover handlers (can be called '
-                             'several times)',
+                        help='Add path to discover handlers (needs to be python'
+                             ' module), can be called several times '
+                             '(conflicting names will be overriden - the last '
+                             'implementation will be used)',
                         action='append',
                         default=[])
 
