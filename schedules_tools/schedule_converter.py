@@ -202,7 +202,8 @@ class ScheduleConverter(object):
 
         handle_inst.export_schedule(out_file)
 
-if __name__ == '__main__':
+
+def main(args):
     setup_logging(logging.INFO)
     converter = ScheduleConverter()
     parser = argparse.ArgumentParser(description='Perform schedule conversions.')
@@ -234,7 +235,7 @@ if __name__ == '__main__':
     parser.add_argument('out_file', metavar='OUT_FILE',
                         help='Output schedule file', default=None, nargs='?')
 
-    arguments = parser.parse_args()
+    arguments = parser.parse_args(args)
     opt_args = vars(arguments)
 
     for path in opt_args.pop('handlers_path'):
@@ -244,3 +245,6 @@ if __name__ == '__main__':
     converter.export_handle(arguments.target_format,
                             arguments.out_file,
                             handler_opt_args=opt_args)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
