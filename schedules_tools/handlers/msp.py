@@ -14,6 +14,7 @@ datetime_format = '%Y-%m-%dT%H:%M:%S'
 
 PREFIX_FLAG = 'Flags'
 PREFIX_LINK = 'Link'
+PREFIX_NOTE = 'Note'
 
 re_flags_separator = re.compile('[, ]+')
 logger = logging.getLogger(__name__)
@@ -326,6 +327,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             self.schedule.used_flags |= set(task.flags)
         elif key == PREFIX_LINK.lower():
             task.link = val
+        elif key == PREFIX_NOTE.lower():
+            task.note = val
         else:
             logger.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
