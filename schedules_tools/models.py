@@ -222,7 +222,7 @@ class Schedule(object):
 
     def _diff_tasks(self, left, right, attrs=None, whole_days=False):
         default_attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish',
-                         'link']
+                         'link', 'note']
         if not attrs:
             attrs = default_attrs
         ret = ''
