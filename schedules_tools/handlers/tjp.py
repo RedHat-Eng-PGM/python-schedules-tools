@@ -93,7 +93,7 @@ include "reports.tji"
             'minor': v_minor,
             'maint': v_maint,
             'tj_id': self.schedule.tj_id,
-            'tj_name': self.schedule.name,
+            'tj_name': self.schedule.project_name,
             'start_date': dStart.strftime(date_format),
             'end_date': dFinish.strftime(date_format),
             'current_datetime': datetime.datetime.now().strftime(

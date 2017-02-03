@@ -101,7 +101,8 @@ class Task(object):
 class Schedule(object):
     tj_id = ''
     proj_id = ''
-    name = ''
+    name = ''  # Product 1.2
+    project_name = ''  # Product
     tasks = []
     dStart = None
     dFinish = None

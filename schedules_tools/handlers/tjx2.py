@@ -92,8 +92,10 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
         self.schedule = models.Schedule()
         tree = etree.parse(handle)
         el_proj = tree.xpath('/taskjuggler/project')[0]
-        self.schedule.name = '%s %s' % (el_proj.get('name'),
+        project_name = el_proj.get('name')
+        self.schedule.name = '%s %s' % (project_name,
                                         el_proj.get('version'))
+        self.schedule.project_name = project_name
         self.schedule.proj_id = el_proj.get('id')
 
         # import changelog

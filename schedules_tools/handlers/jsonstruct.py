@@ -17,7 +17,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
     def export_schedule(self, out_file, flat=False):
         json_schedule = dict()
-        json_schedule['name'] = self.schedule.name
+        json_schedule['name'] = self.schedule.project_name
         json_schedule['version'] = self.schedule.version
         json_schedule['start'] = self.schedule.dStart.strftime('%s')
         json_schedule['end'] = self.schedule.dFinish.strftime('%s')

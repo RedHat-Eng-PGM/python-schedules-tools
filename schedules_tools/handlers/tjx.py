@@ -62,8 +62,10 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
         self.schedule = models.Schedule()
 
         tree = etree.parse(handle)
-        self.schedule.name = '%s %s' % (tree.xpath('Name')[0].text,
+        project_name = tree.xpath('Name')[0].text.strip()
+        self.schedule.name = '%s %s' % (project_name,
                                         tree.xpath('Version')[0].text)
+        self.schedule.project_name = project_name
         proj_id = str(tree.xpath('@Id')[0])
         if proj_id:
             self.schedule.proj_id = proj_id
@@ -261,7 +263,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
                                  WeekStart='Mon')
 
         eName = etree.SubElement(eProject, 'Name')
-        eName.text = self.schedule.name
+        eName.text = self.schedule.project_name
 
         eVersion = etree.SubElement(eProject, 'Version')
         eVersion.text = self.schedule.version

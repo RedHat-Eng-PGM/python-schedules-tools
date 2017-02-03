@@ -57,6 +57,12 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                     for number in version_rx.groupdict().iterkeys():
                         if version_rx.groupdict()[number]:
                             self.schedule._version[number] = version_rx.groupdict()[number].strip()
+        else:
+            msg = ('Parsing schedule name "{}" failed. schedule.project_name '
+                   'will contain full name (i.e. "Product 1.2") instead of '
+                   'just "Product"').format(self.schedule.name)
+            logger.warn(msg)
+            self.schedule.project_name = self.schedule.name.strip()
 
         self.schedule.name = self.schedule.name.strip()
 
