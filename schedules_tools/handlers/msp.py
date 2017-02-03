@@ -244,67 +244,68 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         task.index = eTask.xpath('ID')[0].text
 
         task.name = task._workaround_it_phase_names(eTask)
-        if task.name:
-            task.priority = int(eTask.xpath('Priority')[0].text)
+        if not task.name:
+            return False
 
-            nlStart = eTask.xpath('Start')
+        task.priority = int(eTask.xpath('Priority')[0].text)
 
-            if nlStart:
-                task.dStart = task.dAcStart = datetime.strptime(nlStart[0].text,
-                                                       task._date_format)
-                task.dFinish = task.dAcFinish = task.dStart
-            else:
-                return False
+        nlStart = eTask.xpath('Start')
 
-            nlFinish = eTask.xpath('Finish')
-            if nlFinish:
-                task.dFinish = task.dAcFinish = datetime.strptime(
-                    nlFinish[0].text, task._date_format)
-
-            nlAcStart = eTask.xpath('ActualStart')
-            if nlAcStart:
-                task.dAcStart = datetime.strptime(nlAcStart[0].text,
-                                                  task._date_format)
-
-            nlAcFinish = eTask.xpath('ActualFinish')
-            if nlAcFinish:
-                task.dAcFinish = datetime.strptime(nlAcFinish[0].text,
+        if nlStart:
+            task.dStart = task.dAcStart = datetime.strptime(nlStart[0].text,
                                                    task._date_format)
+            task.dFinish = task.dAcFinish = task.dStart
+        else:
+            return False
 
-            # sanity check - if only ac start defined and beyond plan finish
-            task.dAcFinish = max(task.dAcFinish, task.dAcStart)
+        nlFinish = eTask.xpath('Finish')
+        if nlFinish:
+            task.dFinish = task.dAcFinish = datetime.strptime(
+                nlFinish[0].text, task._date_format)
 
-            task.milestone = eTask.xpath('Milestone')[0].text == '1'
-            if task.milestone:
-                task.flags.append('roadmap')
+        nlAcStart = eTask.xpath('ActualStart')
+        if nlAcStart:
+            task.dAcStart = datetime.strptime(nlAcStart[0].text,
+                                              task._date_format)
 
-            ePercentComplete_list = eTask.xpath('PercentComplete')
-            if ePercentComplete_list:
-                task.p_complete = eTask.xpath('PercentComplete')[0].text
+        nlAcFinish = eTask.xpath('ActualFinish')
+        if nlAcFinish:
+            task.dAcFinish = datetime.strptime(nlAcFinish[0].text,
+                                               task._date_format)
 
-            notes = eTask.xpath('Notes')
-            if notes:
-                task.note = notes[0].text.strip()
+        # sanity check - if only ac start defined and beyond plan finish
+        task.dAcFinish = max(task.dAcFinish, task.dAcStart)
 
-            # load flags from ext attributes
-            flag_ext_attr = eTask.xpath(
-                'ExtendedAttribute[FieldID = {}]'.format(
-                    task._schedule.flags_attr_id)
-            )
-            if flag_ext_attr:
-                flags_value = flag_ext_attr[0].xpath('Value')[0].text
-                if flags_value:
-                    task.flags = [f for f in flags_value.strip(' ,\n').split(',') if ' ' not in f]
-                    task._schedule.used_flags |= set(task.flags)
+        task.milestone = eTask.xpath('Milestone')[0].text == '1'
+        if task.milestone:
+            task.flags.append('roadmap')
 
-            # workaround for SmartSheet exports - load flags, links
-            ext_attr_elements = eTask.xpath('ExtendedAttribute/Value')
-            for ext_attr in ext_attr_elements:
-                self._parse_extended_attr(task, ext_attr)
+        ePercentComplete_list = eTask.xpath('PercentComplete')
+        if ePercentComplete_list:
+            task.p_complete = eTask.xpath('PercentComplete')[0].text
 
-            task.check_for_phase()
-            return True
-        return False
+        notes = eTask.xpath('Notes')
+        if notes:
+            task.note = notes[0].text.strip()
+
+        # load flags from ext attributes
+        flag_ext_attr = eTask.xpath(
+            'ExtendedAttribute[FieldID = {}]'.format(
+                task._schedule.flags_attr_id)
+        )
+        if flag_ext_attr:
+            flags_value = flag_ext_attr[0].xpath('Value')[0].text
+            if flags_value:
+                task.flags = [f for f in flags_value.strip(' ,\n').split(',') if ' ' not in f]
+                task._schedule.used_flags |= set(task.flags)
+
+        # workaround for SmartSheet exports - load flags, links
+        ext_attr_elements = eTask.xpath('ExtendedAttribute/Value')
+        for ext_attr in ext_attr_elements:
+            self._parse_extended_attr(task, ext_attr)
+
+        task.check_for_phase()
+        return True
 
     def _parse_extended_attr(self, task, element):
         """According to content of element will guess if the value is flag
