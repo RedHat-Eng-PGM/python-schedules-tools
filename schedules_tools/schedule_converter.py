@@ -117,7 +117,8 @@ class AutodiscoverHandlers(object):
         try:
             module_name = self._load_parent_module(start_dir)
         except ImportError as e:
-            logger.warn('Skipping path "{}", couldn\'t load it: {}'.format(start_dir, e))
+            logger.warn('Skipping path "{}", couldn\'t load it: {} (search '
+                        'paths: {})'.format(start_dir, e, sys.path))
             return self._discovered_handlers
 
         files = os.listdir(start_dir)
