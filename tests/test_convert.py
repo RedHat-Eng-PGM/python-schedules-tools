@@ -9,22 +9,45 @@ CURR_DIR = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 print CURR_DIR
 
 
-class TestConvert(testtools.TestCase):
-    file_tjx = 'schedule.tjx'
-    file_tjx2 = 'schedule-v2.tjx'
-    file_smartsheet = 'smartsheet.xml'
+class BaseTestConvert(testtools.TestCase):
+    _filenames = {
+        'tjx': 'schedule.tjx',
+        'tjx2': 'schedule-v2.tjx',
+        'smartsheet': 'smartsheet.xml'
+    }
+    file_tjx = ''
+    file_tjx2 = ''
+    file_smartsheet = ''
+
     file_out_fd = None
     file_out_name = None
 
     def setUp(self):
-        super(TestConvert, self).setUp()
+        super(BaseTestConvert, self).setUp()
         self.file_out_fd, self.file_out_name = tempfile.mkstemp()
 
+        for k, v in self._filenames.items():
+            key = 'file_{}'.format(k)
+            val = os.path.join(CURR_DIR, DATA_DIR, v)
+            val = os.path.realpath(val)
+            setattr(self, key, val)
+
     def tearDown(self):
-        super(TestConvert, self).tearDown()
+        super(BaseTestConvert, self).tearDown()
         os.remove(self.file_out_name)
 
+
+class TestConverter(BaseTestConvert):
     def _test_format_combination(self, input_file, target_format, suffix):
+        """
+        Do import of input_file, export it into target_format and compare
+        these two files/handles, if there are some differences (shouldn't be).
+
+        Args:
+            input_file: Source handle/file with schedule
+            target_format: Desired export format
+            suffix: Target file suffix (i.e. '.tjx')
+        """
         conv_from = schedule_converter.ScheduleConverter()
         in_file = os.path.join(CURR_DIR, DATA_DIR, input_file)
         in_file = os.path.realpath(in_file)
@@ -58,3 +81,23 @@ class TestConvert(testtools.TestCase):
 
     def test_smartsheet_tjx(self):
         self._test_format_combination(self.file_smartsheet, 'tjx', '.tjx')
+
+
+class TestConverterCLI(BaseTestConvert):
+    def test_discover_handlers(self):
+        args = ['--handlers-path', 'tests/foohandlers', self.file_tjx, 'msp', self.file_out_name]
+        args = [self.file_tjx, 'msp', self.file_out_name]
+        schedule_converter.main(args)
+
+        conv_from = schedule_converter.ScheduleConverter()
+
+
+    def test_override_handlers(self):
+        pass
+        #args = ['--handlers-path']
+        #schedule_converter.main(args)
+
+    def test_tjx_msp(self):
+        pass
+        #args = [self.file_tjx, 'msp', self.file_out_name]
+        #schedule_converter.main(args)

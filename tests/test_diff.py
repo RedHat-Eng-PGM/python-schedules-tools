@@ -42,12 +42,14 @@ class TestDiff(testtools.TestCase):
         task.dStart -= date_delta
         task.dFinish += date_delta
         task.link = 'nothing'
+        task.note = 'note123'
 
         diff = self.sch1.diff(self.sch2)
 
         assert 'link' in diff
         assert 'dStart' in diff
         assert 'dFinish' in diff
+        assert 'note' in diff
 
     def test_missing_task(self):
         diff = self.sch1.diff(self.sch2)
@@ -64,3 +66,7 @@ class TestDiff(testtools.TestCase):
 
         diff = self.sch1.diff(self.sch2, whole_days=True)
         assert diff == ''
+
+
+class TestDiffCLI(testtools.TestCase):
+    pass
