@@ -1,4 +1,4 @@
-import jsonstruct
+from schedules_tools.handlers import jsonstruct
 
 
 class ScheduleHandler_jsonflat(jsonstruct.ScheduleHandler_json):

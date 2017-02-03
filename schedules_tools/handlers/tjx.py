@@ -1,11 +1,10 @@
-from . import ScheduleHandlerBase, TJXChangelog
-from . import strptime
+from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelog
+from schedules_tools import models
 import datetime
 import logging
-from schedules_tools import models
 import os
-
 from lxml import etree
+
 logger = logging.getLogger(__name__)
 
 KNOWN_FLAGS = set([
@@ -61,6 +60,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
     # Schedule
     def import_schedule(self, handle):
         self.schedule = models.Schedule()
+
         tree = etree.parse(handle)
         self.schedule.name = '%s %s' % (tree.xpath('Name')[0].text,
                                         tree.xpath('Version')[0].text)

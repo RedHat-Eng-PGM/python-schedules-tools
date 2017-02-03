@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import logging
 import time
 import os
@@ -8,15 +8,6 @@ logger = logging.getLogger(__name__)
 # schedules are in US TZ
 os.environ['TZ'] = 'America/New_York'
 time.tzset()
-
-
-if hasattr(datetime.datetime, 'strptime'):
-    # python 2.6
-    strptime = datetime.datetime.strptime
-else:
-    # python 2.4 equivalent
-    import time
-    strptime = lambda date_string, dFormat: datetime.datetime(*(time.strptime(date_string, dFormat)[0:6]))
 
 
 # Handle implementation must be in format ScheduleHandler_format
@@ -66,7 +57,7 @@ class TJXChangelog(object):
         # import changelog
         for log in tree.xpath('changelog/log'):
             self.schedule.changelog[log.get('rev')] = {
-                'date': strptime(log.get('date'), '%Y/%m/%d'),
+                'date': datetime.strptime(log.get('date'), '%Y/%m/%d'),
                 'user': log.get('user'),
                 'msg': log.text.strip(),
             }

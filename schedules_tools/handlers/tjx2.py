@@ -1,7 +1,7 @@
-from . import ScheduleHandlerBase, TJXChangelog
+from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelog
+from schedules_tools import models
 import datetime
 import logging
-from schedules_tools import models
 import os
 from lxml import etree
 

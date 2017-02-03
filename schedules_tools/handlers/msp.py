@@ -1,12 +1,10 @@
-from . import ScheduleHandlerBase
-from . import strptime
-import datetime
+from schedules_tools.handlers import ScheduleHandlerBase
+from schedules_tools import models
+from datetime import datetime
 import os
 import re
 import tempfile
-from schedules_tools import models
 import logging
-
 from lxml import etree
 
 MSP_FLAGS_ATTRS = 'Flags', 'Text1'
@@ -47,7 +45,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         tree = etree.parse(tmp_file)
 
         eTask_list = tree.xpath('Tasks/Task[OutlineLevel >= %s]' % start_level)
-
         self.schedule.name = tree.xpath('Name|Title')[0].text
         name_rx = re.match('(?P<name>.*?)(?P<version> [0-9]\S*)?$', self.schedule.name)
         if name_rx:
@@ -252,7 +249,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             nlStart = eTask.xpath('Start')
 
             if nlStart:
-                task.dStart = task.dAcStart = strptime(nlStart[0].text,
+                task.dStart = task.dAcStart = datetime.strptime(nlStart[0].text,
                                                        task._date_format)
                 task.dFinish = task.dAcFinish = task.dStart
             else:
@@ -260,16 +257,18 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
             nlFinish = eTask.xpath('Finish')
             if nlFinish:
-                task.dFinish = task.dAcFinish = strptime(nlFinish[0].text,
-                                                         task._date_format)
+                task.dFinish = task.dAcFinish = datetime.strptime(
+                    nlFinish[0].text, task._date_format)
 
             nlAcStart = eTask.xpath('ActualStart')
             if nlAcStart:
-                task.dAcStart = strptime(nlAcStart[0].text, task._date_format)
+                task.dAcStart = datetime.strptime(nlAcStart[0].text,
+                                                  task._date_format)
 
             nlAcFinish = eTask.xpath('ActualFinish')
             if nlAcFinish:
-                task.dAcFinish = strptime(nlAcFinish[0].text, task._date_format)
+                task.dAcFinish = datetime.strptime(nlAcFinish[0].text,
+                                                   task._date_format)
 
             # sanity check - if only ac start defined and beyond plan finish
             task.dAcFinish = max(task.dAcFinish, task.dAcStart)
@@ -287,7 +286,10 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                 task.note = notes[0].text.strip()
 
             # load flags from ext attributes
-            flag_ext_attr = eTask.xpath('ExtendedAttribute[FieldID = %s]' % task._schedule.flags_attr_id)
+            flag_ext_attr = eTask.xpath(
+                'ExtendedAttribute[FieldID = {}]'.format(
+                    task._schedule.flags_attr_id)
+            )
             if flag_ext_attr:
                 flags_value = flag_ext_attr[0].xpath('Value')[0].text
                 if flags_value:

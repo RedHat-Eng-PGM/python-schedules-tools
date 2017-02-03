@@ -5,7 +5,6 @@ import re
 import logging
 import copy
 
-
 logger = logging.getLogger(__name__)
 
 

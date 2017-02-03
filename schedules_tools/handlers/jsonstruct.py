@@ -1,6 +1,7 @@
-from . import ScheduleHandlerBase
+from schedules_tools.handlers import ScheduleHandlerBase
 import datetime
 
+# TODO(mpavlase): verify if it's still needed.
 # this block exists here only for compatibility purpose
 try:
     import json

@@ -1,7 +1,6 @@
-from . import ScheduleHandlerBase
-from . import strptime
-from pyral import Rally, rallySettings
+from schedules_tools.handlers import ScheduleHandlerBase
 from schedules_tools import models
+from pyral import Rally, rallySettings
 import sys
 import datetime
 import os
@@ -44,7 +43,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         for iteration in response:
             print 'Iteration: %s (starts %s)' % (iteration.Name, iteration.StartDate)
             start_time = datetime.datetime.combine(
-                strptime(iteration.StartDate[:10], '%Y-%m-%d'),
+                datetime.datetime.strptime(iteration.StartDate[:10], '%Y-%m-%d'),
                 datetime.time(8))
             break
 

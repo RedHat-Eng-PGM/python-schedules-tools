@@ -1,10 +1,9 @@
-from . import ScheduleHandlerBase
+from schedules_tools.handlers import ScheduleHandlerBase
 import datetime
 import logging
 import fileinput
 import tji
 import os
-
 
 logger = logging.getLogger(__name__)
 date_format = '%Y-%m-%d'
