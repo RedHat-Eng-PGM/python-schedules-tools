@@ -40,7 +40,7 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
         task.index = self.task_index
         self.task_index += 1
         task.tjx_id = eTask.get('id')
-        task.name = eTask.get('name')
+        task.name = eTask.get('name').strip()
         # TBD - notes
         task.priority = eTask.get('priority')
         task.milestone = eTask.get('milestone') == '1'
@@ -125,5 +125,6 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
             end = datetime.datetime.fromtimestamp(float(tag))
             if end:
                 self.schedule.dFinish = end
+        self.schedule.name = self.schedule.name.strip()
 
         return self.schedule

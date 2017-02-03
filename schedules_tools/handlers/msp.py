@@ -61,6 +61,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                         if version_rx.groupdict()[number]:
                             self.schedule._version[number] = version_rx.groupdict()[number].strip()
 
+        self.schedule.name = self.schedule.name.strip()
+
         # extended attributes
         for eExtAttr in tree.xpath('ExtendedAttributes/ExtendedAttribute'):
             fieldID = int(eExtAttr.xpath('FieldID')[0].text)

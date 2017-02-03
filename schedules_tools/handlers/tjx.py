@@ -88,6 +88,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
         else:
             logger.info('Can\'t find single root task in %s (found %d root tasks)' % (handle, len(eRoot_tasks)))
 
+        self.schedule.name = self.schedule.name.strip()
         # import changelog
         self.parse_changelog(tree)
 
@@ -206,7 +207,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
     def task_load_tjx_node(self, task, eTask):
         task.index = eTask.xpath('Index')[0].text
         task.tjx_id = eTask.get('Id')
-        task.name = eTask.xpath('Name')[0].text
+        task.name = eTask.xpath('Name')[0].text.strip()
 
         notes = eTask.xpath('Note')
         if notes:

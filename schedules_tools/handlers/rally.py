@@ -32,7 +32,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         rally = Rally(server, user, password, workspace=workspace, project=project)
 
         rally_iter = self.opt_args['rally_iter']
-        self.schedule.name = rally_iter
+        self.schedule.name = rally_iter.strip()
         query_criteria = 'Iteration.Name = "%s"' % rally_iter
 
         response = rally.get('Iteration', fetch=True,
@@ -65,7 +65,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
             t = models.Task(self.schedule, level=1)
             t.index = index
             index += 1
-            t.name = story.Name
+            t.name = story.Name.strip()
             t.dStart = start_time
 
             max_st_end_time = start_time
@@ -75,7 +75,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
                 t_in = models.Task(self.schedule, level=2)
                 t_in.index = index
                 index += 1
-                t_in.name = task.Name
+                t_in.name = task.Name.strip()
                 t_in.dStart = start_time
                 t_in.dFinish = start_time + datetime.timedelta(hours=float(task.Estimate))
                 max_st_end_time = max(max_end_time, t_in.dFinish)
