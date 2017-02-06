@@ -11,13 +11,14 @@ print CURR_DIR
 
 class BaseTestConvert(testtools.TestCase):
     _filenames = {
-        'tjx': 'schedule.tjx',
-        'tjx2': 'schedule-v2.tjx',
-        'smartsheet': 'smartsheet.xml'
+        'tjx': 'proj-10-1-2.tjx',
+        'tjx2': 'proj-10-1-2-v2.tjx',
+        'smartsheet': 'proj-10-1-2-smartsheet.xml'
     }
     file_tjx = ''
     file_tjx2 = ''
     file_smartsheet = ''
+    schedule_name = 'Test project 10'
 
     file_out_fd = None
     file_out_name = None
@@ -26,6 +27,7 @@ class BaseTestConvert(testtools.TestCase):
         super(BaseTestConvert, self).setUp()
         self.file_out_fd, self.file_out_name = tempfile.mkstemp()
 
+        # prepend data dir to real path of files
         for k, v in self._filenames.items():
             key = 'file_{}'.format(k)
             val = os.path.join(CURR_DIR, DATA_DIR, v)
@@ -85,19 +87,21 @@ class TestConverter(BaseTestConvert):
 
 class TestConverterCLI(BaseTestConvert):
     def test_discover_handlers(self):
-        args = ['--handlers-path', 'tests/foohandlers', self.file_tjx, 'msp', self.file_out_name]
-        args = [self.file_tjx, 'msp', self.file_out_name]
+        args = ['--handlers-path', 'tests/foohandlers',
+                self.file_tjx, 'abc', self.file_out_name]
         schedule_converter.main(args)
-
-        conv_from = schedule_converter.ScheduleConverter()
-
+        with open(self.file_out_name) as fd:
+            line = fd.readline()
+            assert line == self.schedule_name
 
     def test_override_handlers(self):
-        pass
-        #args = ['--handlers-path']
-        #schedule_converter.main(args)
+        args = ['--handlers-path', 'tests/conflicthandlers',
+                self.file_tjx2, 'tjx', self.file_out_name]
+        schedule_converter.main(args)
+        with open(self.file_out_name) as fd:
+            line = fd.readline()
+            assert line == 'schedule.name={}'.format(self.schedule_name)
 
     def test_tjx_msp(self):
-        pass
-        #args = [self.file_tjx, 'msp', self.file_out_name]
-        #schedule_converter.main(args)
+        args = [self.file_tjx, 'msp', self.file_out_name]
+        schedule_converter.main(args)
