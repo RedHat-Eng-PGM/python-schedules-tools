@@ -41,7 +41,11 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
         self.task_index += 1
         task.tjx_id = eTask.get('id')
         task.name = eTask.get('name').strip()
-        # TBD - notes
+
+        notes = eTask.xpath('note')
+        if notes:
+            task.note = notes[0].text.strip()
+
         task.priority = eTask.get('priority')
         task.milestone = eTask.get('milestone') == '1'
         # TBD - complete
