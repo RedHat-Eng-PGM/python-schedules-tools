@@ -329,7 +329,10 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if key == PREFIX_FLAG.lower():
             val = val.lower()
             flags = re_flags_separator.split(val)
-            task.flags = flags
+            for flag in flags:
+                flag = flag.strip()
+                if flag:
+                    task.flags.append(flag)
             self.schedule.used_flags |= set(task.flags)
         elif key == PREFIX_LINK.lower():
             task.link = val
