@@ -1,25 +1,7 @@
 from testtools import TestCase
-from schedules_tools.handlers import msp, tjx, tjx2
+from schedules_tools.handlers import msp
 from schedules_tools import models
 from lxml import etree
-from tests import create_test_schedule
-
-
-class TestHandlers(TestCase):
-    def setUp(self):
-        super(TestHandlers, self).setUp()
-
-    def tearDown(self):
-        super(TestHandlers, self).tearDown()
-
-    def test_tjx(self):
-        pass
-
-    def test_tjx2(self):
-        pass
-
-    def test_msp(self):
-        pass
 
 
 class Test_msp_parseExtAttrs(TestCase):
