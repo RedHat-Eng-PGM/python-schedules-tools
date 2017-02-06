@@ -277,8 +277,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         task.dAcFinish = max(task.dAcFinish, task.dAcStart)
 
         task.milestone = eTask.xpath('Milestone')[0].text == '1'
-        if task.milestone:
-            task.flags.append('roadmap')
 
         ePercentComplete_list = eTask.xpath('PercentComplete')
         if ePercentComplete_list:
