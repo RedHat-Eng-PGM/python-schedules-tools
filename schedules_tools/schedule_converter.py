@@ -158,9 +158,11 @@ class ScheduleConverter(object):
         logger.debug('Searching for handlers in path: {}'.format(handlers_path))
         self.handlers = self.discovery.discover(handlers_path)
 
+        self.provided_exports = []
         for key, val in self.handlers.iteritems():
             if val['provide_export']:
                 self.provided_exports.append(key)
+        self.provided_exports = sorted(self.provided_exports)
 
     def find_handle(self, handle):
         for k, mod in self.handlers.iteritems():
@@ -205,8 +207,28 @@ class ScheduleConverter(object):
 
 
 def main(args):
-    setup_logging(logging.INFO)
+    handlers_args_def = '--handlers-path',
+    handlers_kwargs_def = {
+        'help': 'Add path to discover handlers (needs to be python'
+                ' module), can be called several times '
+                '(conflicting names will be overriden - the last '
+                'implementation will be used)',
+        'action': 'append',
+        'default': []
+    }
+    setup_logging(logging.WARN)
     converter = ScheduleConverter()
+
+    # Separate parser to handle '--handlers-path' argument and prepare
+    # converter.provided_exports to be used in main parser
+    add_handler_parser = argparse.ArgumentParser(add_help=False)
+    add_handler_parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
+    known_args = add_handler_parser.parse_known_args(args)
+
+    opt_args = vars(known_args[0])  # 0. index contains successfully parsed args
+    for path in opt_args.pop('handlers_path'):
+        converter.add_discover_path(path)
+
     parser = argparse.ArgumentParser(description='Perform schedule conversions.')
 
     parser.add_argument('--tj-id', metavar='TJ_PROJECT_ID',
@@ -219,14 +241,7 @@ def main(args):
                         default='')
     parser.add_argument('--rally-iter', help='Rally iteration to import',
                         default='')
-    parser.add_argument('--handlers-path',
-                        help='Add path to discover handlers (needs to be python'
-                             ' module), can be called several times '
-                             '(conflicting names will be overriden - the last '
-                             'implementation will be used)',
-                        action='append',
-                        default=[])
-
+    parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
     parser.add_argument('source', type=str,
                         help='Source of schedule (file/URL/...)')
     parser.add_argument('target_format',
@@ -239,8 +254,9 @@ def main(args):
     arguments = parser.parse_args(args)
     opt_args = vars(arguments)
 
-    for path in opt_args.pop('handlers_path'):
-        converter.add_discover_path(path)
+    # --handlers-path argument is already procesed, it shouldn't be passed
+    # as opt_args into handlers
+    opt_args.pop('handlers_path')
 
     converter.import_schedule(arguments.source, handler_opt_args=opt_args)
     converter.export_handle(arguments.target_format,
