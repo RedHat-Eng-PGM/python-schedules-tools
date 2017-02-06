@@ -253,18 +253,28 @@ class Schedule(object):
             ret += self._diff_tasks(left.tasks, right.tasks, attrs, whole_days)
         return ret
 
-    def _diff_schedule_attrs(self, schedule):
+    def _diff_schedule_attrs(self, schedule, whole_days=False):
         attrs = ['name', 'changelog', 'dStart', 'dFinish', 'assignments',
                  'version', 'used_flags']
         ret = ''
         diff = dict()
 
         for attr in attrs:
-            self_s = str(self.__getattribute__(attr))
-            schedule_s = str(schedule.__getattribute__(attr))
+            self_s = self.__getattribute__(attr)
+            schedule_s = schedule.__getattribute__(attr)
 
             if self_s != schedule_s:
-                diff[attr] = (self_s, schedule_s)
+                try:
+                    if whole_days and \
+                                    self_s.day == schedule_s.day and \
+                                    self_s.month == schedule_s.month and \
+                                    self_s.year == schedule_s.year:
+                        # When we compare just whole days, we don't mind
+                        # to have diff in time
+                        continue
+                except AttributeError:
+                    pass
+                diff[attr] = (str(self_s), str(schedule_s))
 
         if len(diff):
             # width=1 force wrap tuple to newline
@@ -305,7 +315,7 @@ class Schedule(object):
         if diff_tasks:
             ret += 'Tasks attrs:\n'
             ret += diff_tasks
-        ret += self._diff_schedule_attrs(schedule)
+        ret += self._diff_schedule_attrs(schedule, whole_days=whole_days)
 
         return ret.strip()
 
