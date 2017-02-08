@@ -106,7 +106,7 @@ class AutodiscoverHandlers(object):
                 cls_existing = self._discovered_handlers[k]
                 cls_new = classes[k]
                 msg = ('Found handler with same name (would be '
-                       'overrriden): {} (existing: {}, new: {})').format(
+                       'overridden): {} (existing: {}, new: {})').format(
                     k, cls_existing, cls_new)
                 logger.info(msg)
 
@@ -130,16 +130,22 @@ class AutodiscoverHandlers(object):
 
 
 class ScheduleConverter(object):
+    """
+    Abstraction class to work with handles/schedules 
+    no matter the exact handler/schedule type.
+    """
     handlers_dir = 'handlers'
     handlers = {}
     provided_exports = []
     schedule = None
     discovery = None
 
+
     def __init__(self):
         handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.handlers_dir)
         self.discovery = AutodiscoverHandlers()
         self.add_discover_path(handlers_path)
+
 
     def add_discover_path(self, handlers_path):
         """
@@ -159,51 +165,85 @@ class ScheduleConverter(object):
         self.handlers = self.discovery.discover(handlers_path)
 
         self.provided_exports = []
+        
+        # TODO: Don't use "key, val" when it has a meaning
         for key, val in self.handlers.iteritems():
             if val['provide_export']:
                 self.provided_exports.append(key)
+                
         self.provided_exports = sorted(self.provided_exports)
 
-    def find_handle(self, handle):
+
+    def get_handler_for_handle(self, handle):
+        # TODO: what is mod and why don't you use itervalues ?
         for k, mod in self.handlers.iteritems():
             if mod['class'].is_valid_source(handle):
                 return mod
 
-        msg = ('Given schedule format doesn\'t match any of available '
-               'handlers: {}').format(handle)
+        msg = "Can't find schedule handler for handle: {}".format(handle)
         raise ScheduleFormatNotSupported(msg)
 
-    def import_schedule(self, handle, handler_opt_args=dict()):
-        handle_class = self.find_handle(handle)['class']
-        handle_inst = handle_class(opt_args=handler_opt_args)
-        sch = handle_inst.import_schedule(handle)
-        assert sch is not None, 'Import handle {} didn\'t return filled ' \
-                                'schedule!'.format(handle_class)
-        self.schedule = sch
+    def get_handler_for_format(self, format):
+        if format not in self.handlers:
+            msg = "Can't find schedule handler for format: {}".format(format)
+            raise ScheduleFormatNotSupported(msg)
+            
+        return self.handlers[format]
+    
+    def get_handler(self, handle=None, format=None):
+        if format:
+            handler_cls = self.get_handler_for_format(format)
+        else:
+            handler_cls = self.get_handler_for_handle(handle)
+            
+        return handler_cls
+    
+    def get_handler_cls(self, *args, **kwargs):
+        return self.get_handler(*args, **kwargs)['class']
+
+    # Following methods call their counterparts on handlers
+
+    def handle_modified_since(self, handle, mtime, 
+                              src_format=None, handler_opt_args=dict()):
+        handler_cls = self.get_handler_cls(handle=handle, format=src_format)
+            
+        handler = handler_cls(handle=handle, opt_args=handler_opt_args)
+
+        return handler.handle_modified_since(mtime)
+    
+
+    def import_schedule(self, handle, src_format=None, handler_opt_args=dict()):
+        handler_cls = self.get_handler_cls(handle=handle, format=src_format)
+            
+        handler = handler_cls(handle=handle, opt_args=handler_opt_args)
+        
+        schedule = handler.import_schedule()
+        
+        assert schedule is not None, 'Import handler {} didn\'t return filled ' \
+                                     'schedule!'.format(handler_cls)
+        self.schedule = schedule
         return self.schedule
 
-    def _get_export_handle_cls(self, target_format):
-        handle_class = self.handlers[target_format]['class']
-        if not handle_class.provide_export:
-            raise HandleWithoutExport(
-                'Handler {} doesn\'t provide export method for this format.'
-                .format(target_format))
 
-        return handle_class
-
-    def export_handle(self, target_format, out_file, handler_opt_args=dict()):
+    def export_schedule(self, output, target_format, handler_opt_args=dict()):
         tj_id = handler_opt_args.get('tj_id', '')
         v_major = handler_opt_args.get('major', '')
         v_minor = handler_opt_args.get('minor', '')
         v_maint = handler_opt_args.get('maint', '')
-        handle_class = self._get_export_handle_cls(target_format)
-        handle_inst = handle_class(schedule=self.schedule,
-                                   opt_args=handler_opt_args)
 
-        handle_inst.schedule.override_version(
-            tj_id, v_major, v_minor, v_maint)
+        handler_cls = self.get_handler_cls(format=target_format)
+        
+        if not handler_cls.provide_export:
+            raise HandleWithoutExport(
+                'Schedule handler for {} doesn\'t provide export.'
+                .format(target_format))
+        
+        handler = handler_cls(schedule=self.schedule, opt_args=handler_opt_args)
 
-        handle_inst.export_schedule(out_file)
+        handler.schedule.override_version(tj_id, v_major, v_minor, v_maint)
+
+        handler.export_schedule(output)
+
 
 
 def main(args):
@@ -259,9 +299,9 @@ def main(args):
     opt_args.pop('handlers_path')
 
     converter.import_schedule(arguments.source, handler_opt_args=opt_args)
-    converter.export_handle(arguments.target_format,
-                            arguments.out_file,
-                            handler_opt_args=opt_args)
+    converter.export_schedule(arguments.out_file,
+                              arguments.target_format,
+                              handler_opt_args=opt_args)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

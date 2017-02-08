@@ -14,6 +14,7 @@ time.tzset()
 # where 'format' is used as a uniq label for the format and
 # 'ScheduleHandler' can be whatever.
 class ScheduleHandlerBase(object):
+    handle = None
     schedule = None
     
     # source storage to get changelog from if applicable
@@ -26,19 +27,27 @@ class ScheduleHandlerBase(object):
     
     opt_args = {}
 
-    def __init__(self, schedule=None, src_storage=None, opt_args=dict()):
+    def __init__(self, handle=None, schedule=None, src_storage=None, 
+                 opt_args=dict()):
+        self.handle = handle
         self.schedule = schedule
         self.src_storage = src_storage
         self.opt_args = opt_args
-
+    
+    def get_handle_mtime(self):
+        pass
+    
+    def handle_modified_since(self, mtime):
+        pass
+        
     # handle - file/link/smartsheet id
-    def import_schedule(self, handle):
+    def import_schedule(self, handle=None):
         pass
 
     def export_schedule(self, output):
         pass   
     
-    def build_schedule(self, handle):
+    def build_schedule(self, handle=None):
         pass 
 
     @staticmethod
@@ -47,7 +56,7 @@ class ScheduleHandlerBase(object):
         given handle"""
         pass
 
-    def extract_backup(self, handle):
+    def extract_backup(self, handle=None):
         """Prepare files which need a backup in case of external source"""
         return []
 
