@@ -52,4 +52,6 @@ setup(
     description=project_description,
     packages=find_packages(exclude=('scripts',)),
     include_package_data=True,
+    test_suite='tests',
+    tests_require=['testtools', 'pyral'],
 )
