@@ -274,7 +274,7 @@ def main(args):
     parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
 
     parser.add_argument('-f', '--force', 
-                        help='Use TJI file when exporting into TJP',
+                        help='Force target overwrite',
                         default=False, 
                         action='store_true')
 
