@@ -92,9 +92,9 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
             task.tasks.append(item_task)
         return min_date, max_date
 
-    def import_schedule(self, handle):
+    def import_schedule(self):
         self.schedule = models.Schedule()
-        tree = etree.parse(handle)
+        tree = etree.parse(self.handle)
         el_proj = tree.xpath('/taskjuggler/project')[0]
         project_name = el_proj.get('name')
         self.schedule.name = '%s %s' % (project_name,

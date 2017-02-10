@@ -21,11 +21,11 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         return False
 
     # Schedule
-    def import_schedule(self, handle):
+    def import_schedule(self):
         self.schedule = models.Schedule()
         start_time = None
 
-        options = ['--config=%s' % handle]
+        options = ['--config=%s' % self.handle]
         server, user, password, workspace, project = rallySettings(options)
 
         rally = Rally(server, user, password, workspace=workspace, project=project)
@@ -100,6 +100,3 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         self.schedule.dFinish = max_end_time
         return self.schedule
 
-    # Schedule
-    def export_schedule(self, out_file):
-        raise Exception('decide what to do')

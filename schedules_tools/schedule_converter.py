@@ -212,8 +212,8 @@ class ScheduleConverter(object):
         return handler.handle_modified_since(mtime)
     
 
-    def import_schedule(self, handle, src_format=None, handler_opt_args=dict()):
-        handler_cls = self.get_handler_cls(handle=handle, format=src_format)
+    def import_schedule(self, handle, source_format=None, handler_opt_args=dict()):
+        handler_cls = self.get_handler_cls(handle=handle, format=source_format)
             
         handler = handler_cls(handle=handle, opt_args=handler_opt_args)
         
@@ -256,7 +256,7 @@ def main(args):
         'action': 'append',
         'default': []
     }
-    setup_logging(logging.WARN)
+    setup_logging(logging.DEBUG)
     converter = ScheduleConverter()
 
     # Separate parser to handle '--handlers-path' argument and prepare
@@ -271,6 +271,13 @@ def main(args):
 
     parser = argparse.ArgumentParser(description='Perform schedule conversions.')
 
+    parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
+
+    parser.add_argument('-f', '--force', 
+                        help='Use TJI file when exporting into TJP',
+                        default=False, 
+                        action='store_true')
+
     parser.add_argument('--tj-id', metavar='TJ_PROJECT_ID',
                         help='TJ Project Id (e.g. rhel)')
     parser.add_argument('--major', help='Project major version number',
@@ -279,17 +286,29 @@ def main(args):
                         default='')
     parser.add_argument('--maint', help='Project maint version number',
                         default='')
+    parser.add_argument('--use-tji-file', 
+                        help='Use TJI file when exporting into TJP',
+                        default=False, 
+                        action='store_true')
+    
     parser.add_argument('--rally-iter', help='Rally iteration to import',
                         default='')
-    parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
-    parser.add_argument('source', type=str,
-                        help='Source of schedule (file/URL/...)')
+    
+    parser.add_argument('--source-format',
+                        choices=converter.provided_exports,
+                        metavar='SRC_FORMAT',
+                        help='Source format to enforce')
+    parser.add_argument('source',
+                        help='Source handle (file/URL/...)',
+                        type=str,
+                        metavar='SRC')
+    
     parser.add_argument('target_format',
                         choices=converter.provided_exports,
                         metavar='TARGET_FORMAT',
                         help='Target format to convert')
-    parser.add_argument('out_file', metavar='OUT_FILE',
-                        help='Output schedule file', default=None, nargs='?')
+    parser.add_argument('target', metavar='TARGET',
+                        help='Output target', default=None, nargs='?')
 
     arguments = parser.parse_args(args)
     opt_args = vars(arguments)
@@ -298,8 +317,11 @@ def main(args):
     # as opt_args into handlers
     opt_args.pop('handlers_path')
 
-    converter.import_schedule(arguments.source, handler_opt_args=opt_args)
-    converter.export_schedule(arguments.out_file,
+    converter.import_schedule(arguments.source, 
+                              arguments.source_format, 
+                              handler_opt_args=opt_args)
+    
+    converter.export_schedule(arguments.target,
                               arguments.target_format,
                               handler_opt_args=opt_args)
 

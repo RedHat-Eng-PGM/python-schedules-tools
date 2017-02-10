@@ -29,7 +29,17 @@ KNOWN_FLAGS = set([
     'i18n',
     'certification',
     'prod',
-    'sysops'
+    'sysops',
+    
+    'zstream', 
+    'latest_zstream', 
+    'zstream_qa', 
+    'zstream_ga', 
+    'zstream_submission', 
+    'eol', 
+    'eoleus', 
+    'eolamc', 
+    'eolels',    
 ])
 
 
@@ -41,7 +51,7 @@ class ScheduleHandler_tji(ScheduleHandlerBase):
         return False
 
     # Schedule
-    def export_schedule(self, out_file):
+    def export_schedule(self, out_file=None):
         out = ''
         self.schedule.id_reg = set()
 
@@ -55,10 +65,12 @@ class ScheduleHandler_tji(ScheduleHandlerBase):
             out += self.task_export_tji(item,
                                         self.schedule.proj_id,
                                         self.schedule.proj_id)
-
-        fp = open(out_file, 'wb')
-        fp.write(out.strip().encode('UTF-8'))
-
+        
+        if out_file:
+            self._write_to_file(out, out_file)
+        
+        return out
+        
     # Task
     def task_export_tji(self, task, id_prefix, proj_id, indent=0):
         return '\n'.join(self.task_prepare_tji(task, id_prefix,

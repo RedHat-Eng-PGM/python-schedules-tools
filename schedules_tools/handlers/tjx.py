@@ -58,10 +58,10 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
         return False
 
     # Schedule
-    def import_schedule(self, handle):
+    def import_schedule(self):
         self.schedule = models.Schedule()
 
-        tree = etree.parse(handle)
+        tree = etree.parse(self.handle)
         project_name = tree.xpath('Name')[0].text.strip()
         self.schedule.name = '%s %s' % (project_name,
                                         tree.xpath('Version')[0].text)
@@ -79,7 +79,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
             if root_tasks_count == 1:
                 eRoot_task = eRoot_tasks[0]
             elif root_tasks_count == 0:
-                logger.warning('Empty schedule %s ' % (handle,))
+                logger.warning('Empty schedule %s ' % (self.handle,))
         else:
             eRoot_task = eRoot_tasks[0]
 
@@ -258,7 +258,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
         return min_date, max_date
 
     # Schedule
-    def export_schedule(self, out_file):
+    def export_schedule(self, out_file=None):
         eProject = etree.Element('Project', Id=self.schedule.proj_id,
                                  WeekStart='Mon')
 
@@ -295,5 +295,9 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
                                                       self.schedule.proj_id))
 
         et = etree.ElementTree(eProject)
-        et.write(out_file, pretty_print=True, encoding="utf-8",
-                 xml_declaration=True)
+
+        if out_file:
+            et.write(out_file, pretty_print=True, encoding="utf-8",
+                     xml_declaration=True)
+        
+        return str(et)

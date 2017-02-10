@@ -33,12 +33,13 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         return False
 
     # Schedule
-    def import_schedule(self, msp_file):
+    def import_schedule(self):
         self.schedule = models.Schedule()
+        
         # remove project's xmlns
         tmp_file = tempfile.mkstemp()[1]
         with open(tmp_file, 'wt') as hTmp_file:
-            for line in open(msp_file):
+            for line in open(self.handle):
                 hTmp_file.write(line.replace(' xmlns="http://schemas.microsoft.com/project"', ''))
 
         start_level = 1
@@ -80,7 +81,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         return self.schedule
 
     # Schedule
-    def export_schedule(self, out_file):
+    def export_schedule(self, out_file=None):
         MSP_NAMESPACE = "http://schemas.microsoft.com/project"
         MSP = "{%s}" % MSP_NAMESPACE
 
@@ -170,7 +171,12 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             eUnits.text = '1'
 
         et = etree.ElementTree(eProject)
-        et.write(out_file, pretty_print=True, encoding="utf-8", xml_declaration=True)
+        
+        if out_file:
+            et.write(out_file, pretty_print=True, encoding="utf-8",
+                     xml_declaration=True)
+        
+        return str(et)        
 
     # Schedule
     def export_msp_tasks(self, tasks, eParent, outline_prefix):

@@ -33,28 +33,33 @@ class ScheduleHandlerBase(object):
         self.schedule = schedule
         self.src_storage = src_storage
         self.opt_args = opt_args
+        
+    def _write_to_file(self, content, file):
+        with open(file, 'wb') as fp:
+            fp.write(content.strip().encode('UTF-8'))
+            
     
     def get_handle_mtime(self):
-        pass
+        raise NotImplementedError
     
     def handle_modified_since(self, mtime):
-        pass
+        raise NotImplementedError
         
     # handle - file/link/smartsheet id
     def import_schedule(self, handle=None):
-        pass
+        raise NotImplementedError
 
-    def export_schedule(self, output):
-        pass   
+    def export_schedule(self, output=None):
+        raise NotImplementedError   
     
     def build_schedule(self, handle=None):
-        pass 
+        raise NotImplementedError 
 
     @staticmethod
     def is_valid_source(handle):
         """Method returns True, if the specific handler is able to work with
         given handle"""
-        pass
+        return False
 
     def extract_backup(self, handle=None):
         """Prepare files which need a backup in case of external source"""

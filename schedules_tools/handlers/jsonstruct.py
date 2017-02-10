@@ -1,21 +1,13 @@
-from schedules_tools.handlers import ScheduleHandlerBase
 import datetime
+import json
 
-# TODO(mpavlase): verify if it's still needed.
-# this block exists here only for compatibility purpose
-try:
-    import json
-except ImportError:
-    import simplejson as json
+from schedules_tools.handlers import ScheduleHandlerBase
 
 
 class ScheduleHandler_json(ScheduleHandlerBase):
     provide_export = True
 
-    def import_schedule(self, handle):
-        raise NotImplementedError
-
-    def export_schedule(self, out_file, flat=False):
+    def export_schedule(self, out_file=None, flat=False):
         json_schedule = dict()
         json_schedule['name'] = self.schedule.project_name
         json_schedule['version'] = self.schedule.version
@@ -45,9 +37,14 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         json_schedule['phases'] = []
         for phase in self.schedule.phases:
             json_schedule['phases'].append(self.task_export_json_phase(phase))
+        
+        out = json.dumps(json_schedule)
+        
+        if out_file:
+            self._write_to_file(out, out_file)
+        
+        return out        
 
-        fp = open(out_file, 'wb')
-        json.dump(json_schedule, fp)
 
     def task_export_json_obj(self, task, id_prefix, proj_id, flat=False):
         task_export = {}
