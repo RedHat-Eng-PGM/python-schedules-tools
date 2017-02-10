@@ -141,10 +141,11 @@ class ScheduleConverter(object):
     discovery = None
 
 
-    def __init__(self):
+    def __init__(self, schedule=None):
         handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.handlers_dir)
         self.discovery = AutodiscoverHandlers()
         self.add_discover_path(handlers_path)
+        self.schedule = schedule
 
 
     def add_discover_path(self, handlers_path):
