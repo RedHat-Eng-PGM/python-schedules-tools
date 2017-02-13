@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''
+"""
 Simple wrapper to get diff of two schedules
 @author: mpavlase@redhat.com
 
@@ -10,9 +10,9 @@ Follows 'diff' exit codes:
     0 - same
     1 - different
     2 - other trouble
-'''
+"""
 
-import schedule_converter as conv
+import schedules_tools.converter as conv
 import os
 import sys
 import time
