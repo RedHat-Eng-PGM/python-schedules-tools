@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-import argparse
 import os
 import sys
 import re
@@ -16,20 +14,6 @@ PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
-
-
-def setup_logging(level):
-    log_format = '%(name)-10s %(levelname)7s: %(message)s'
-    sh = logging.StreamHandler(sys.stdout)
-    sh.setLevel(level)
-
-    formatter = logging.Formatter(log_format)
-    sh.setFormatter(formatter)
-
-    # setup root logger
-    inst = logging.getLogger('')
-    inst.setLevel(level)
-    inst.addHandler(sh)
 
 
 class ScheduleFormatNotSupported(Exception):
@@ -140,13 +124,11 @@ class ScheduleConverter(object):
     schedule = None
     discovery = None
 
-
     def __init__(self, schedule=None):
         handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.handlers_dir)
         self.discovery = AutodiscoverHandlers()
         self.add_discover_path(handlers_path)
         self.schedule = schedule
-
 
     def add_discover_path(self, handlers_path):
         """
@@ -166,20 +148,17 @@ class ScheduleConverter(object):
         self.handlers = self.discovery.discover(handlers_path)
 
         self.provided_exports = []
-
-        # TODO: Don't use "key, val" when it has a meaning
-        for key, val in self.handlers.iteritems():
-            if val['provide_export']:
-                self.provided_exports.append(key)
+        
+        for handler_name, handler in self.handlers.iteritems():
+            if handler['provide_export']:
+                self.provided_exports.append(handler_name)
 
         self.provided_exports = sorted(self.provided_exports)
 
-
     def get_handler_for_handle(self, handle):
-        # TODO: what is mod and why don't you use itervalues ?
-        for k, mod in self.handlers.iteritems():
-            if mod['class'].is_valid_source(handle):
-                return mod
+        for module in self.handlers.itervalues():
+            if module['class'].is_valid_source(handle):
+                return module
 
         msg = "Can't find schedule handler for handle: {}".format(handle)
         raise ScheduleFormatNotSupported(msg)
@@ -212,7 +191,6 @@ class ScheduleConverter(object):
 
         return handler.handle_modified_since(mtime)
 
-
     def import_schedule(self, handle, source_format=None, handler_opt_args=dict()):
         handler_cls = self.get_handler_cls(handle=handle, format=source_format)
 
@@ -224,7 +202,6 @@ class ScheduleConverter(object):
                                      'schedule!'.format(handler_cls)
         self.schedule = schedule
         return self.schedule
-
 
     def export_schedule(self, output, target_format, handler_opt_args=dict()):
         tj_id = handler_opt_args.get('tj_id', '')
@@ -244,87 +221,3 @@ class ScheduleConverter(object):
         handler.schedule.override_version(tj_id, v_major, v_minor, v_maint)
 
         handler.export_schedule(output)
-
-
-
-def main(args):
-    handlers_args_def = '--handlers-path',
-    handlers_kwargs_def = {
-        'help': 'Add path to discover handlers (needs to be python'
-                ' module), can be called several times '
-                '(conflicting names will be overriden - the last '
-                'implementation will be used)',
-        'action': 'append',
-        'default': []
-    }
-    setup_logging(logging.DEBUG)
-    converter = ScheduleConverter()
-
-    # Separate parser to handle '--handlers-path' argument and prepare
-    # converter.provided_exports to be used in main parser
-    add_handler_parser = argparse.ArgumentParser(add_help=False)
-    add_handler_parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
-    known_args = add_handler_parser.parse_known_args(args)
-
-    opt_args = vars(known_args[0])  # 0. index contains successfully parsed args
-    for path in opt_args.pop('handlers_path'):
-        converter.add_discover_path(path)
-
-    parser = argparse.ArgumentParser(description='Perform schedule conversions.')
-
-    parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
-
-    parser.add_argument('-f', '--force',
-                        help='Force target overwrite',
-                        default=False,
-                        action='store_true')
-
-    parser.add_argument('--tj-id', metavar='TJ_PROJECT_ID',
-                        help='TJ Project Id (e.g. rhel)')
-    parser.add_argument('--major', help='Project major version number',
-                        default='')
-    parser.add_argument('--minor', help='Project minor version number',
-                        default='')
-    parser.add_argument('--maint', help='Project maint version number',
-                        default='')
-    parser.add_argument('--use-tji-file',
-                        help='Use TJI file when exporting into TJP',
-                        default=False,
-                        action='store_true')
-
-    parser.add_argument('--rally-iter', help='Rally iteration to import',
-                        default='')
-
-    parser.add_argument('--source-format',
-                        choices=converter.provided_exports,
-                        metavar='SRC_FORMAT',
-                        help='Source format to enforce')
-    parser.add_argument('source',
-                        help='Source handle (file/URL/...)',
-                        type=str,
-                        metavar='SRC')
-
-    parser.add_argument('target_format',
-                        choices=converter.provided_exports,
-                        metavar='TARGET_FORMAT',
-                        help='Target format to convert')
-    parser.add_argument('target', metavar='TARGET',
-                        help='Output target', default=None, nargs='?')
-
-    arguments = parser.parse_args(args)
-    opt_args = vars(arguments)
-
-    # --handlers-path argument is already procesed, it shouldn't be passed
-    # as opt_args into handlers
-    opt_args.pop('handlers_path')
-
-    converter.import_schedule(arguments.source,
-                              arguments.source_format,
-                              handler_opt_args=opt_args)
-
-    converter.export_schedule(arguments.target,
-                              arguments.target_format,
-                              handler_opt_args=opt_args)
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
