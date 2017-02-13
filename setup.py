@@ -29,7 +29,6 @@ if os.path.isdir(".git"):
         file_name = os.path.join(i, "version.py")
         write_version(file_name, package_version)
 
-
 try:
     f = open('build/version.txt', 'w')
     f.write(package_version[0])
@@ -40,8 +39,6 @@ try:
     f.close()
 except:
     pass
-
-
 
 setup(
     name=package_name,
@@ -54,4 +51,7 @@ setup(
     include_package_data=True,
     test_suite='tests',
     tests_require=['testtools', 'pyral'],
+    scripts=[
+        'bin/schedule_converter.py',
+        'bin/schedule_diff.py'],
 )
