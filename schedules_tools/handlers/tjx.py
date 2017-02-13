@@ -43,8 +43,10 @@ datetime_format_tz = '%Y-%m-%d %H:%M:%S EDT'
 class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
     provide_export = True
 
-    @staticmethod
-    def is_valid_source(handle):
+    @classmethod
+    def is_valid_source(cls, handle=None):
+        if not handle:
+            handle = cls.handle
         file_ext = os.path.splitext(handle)[1]
 
         if file_ext == '.tjx':
@@ -88,7 +90,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
             if root_task_name:
                 self.schedule.name = root_task_name[0].text
         else:
-            logger.info('Can\'t find single root task in %s (found %d root tasks)' % (handle, len(eRoot_tasks)))
+            logger.info('Can\'t find single root task in %s (found %d root tasks)' % (self.handle, len(eRoot_tasks)))
 
         self.schedule.name = self.schedule.name.strip()
         # import changelog

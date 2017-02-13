@@ -12,10 +12,12 @@ logger = logging.getLogger(__name__)
 class ScheduleHandler_rally(ScheduleHandlerBase):
     provide_export = False
 
-    @staticmethod
-    def is_valid_source(file_path):
-        if os.stat(file_path).st_size < 1024:
-            file_cont = open(file_path).read()
+    @classmethod
+    def is_valid_source(cls, handle=None):
+        if not handle:
+            handle = cls.handle
+        if os.stat(handle).st_size < 1024:
+            file_cont = open(handle).read()
             if 'WORKSPACE' in file_cont and 'PROJECT' in file_cont:
                 return True
         return False

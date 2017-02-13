@@ -59,7 +59,7 @@ include "reports.tji"
 
     # Schedule
     # $(COMMON_DIR)/schedule_convert.py --tj-id $(CONTENT) ${MAJOR_STR} ${MINOR_STR} ${MAINT_STR} $(MSP_SRC) tjp $(MASTER)
-    def export_schedule(self, out_file=None):
+    def export_schedule(self):
         tj_id = self.opt_args['tj_id']
         use_tji_file = self.opt_args.get('use_tji_file', False)
         force = self.opt_args.get('force', False)
@@ -111,14 +111,14 @@ include "reports.tji"
 
 
         # Update TJP if possible, otherwise create new
-        if (os.path.exists(out_file)
+        if (os.path.exists(self.handle)
             and use_tji_file
             and not force):
                 logger.info('Updating existing TJP file')
-                self.update_tjp(out_file)
-        elif out_file:
+                self.update_tjp(self.handle)
+        elif self.handle:
             logger.info('Creating new TJP file')
-            self._write_to_file(out, out_file)
+            self._write_to_file(out, self.handle)
 
         return out
 

@@ -46,12 +46,8 @@ KNOWN_FLAGS = set([
 class ScheduleHandler_tji(ScheduleHandlerBase):
     provide_export = True
 
-    @staticmethod
-    def is_valid_source(handle):
-        return False
-
     # Schedule
-    def export_schedule(self, out_file=None):
+    def export_schedule(self):
         out = ''
         self.schedule.id_reg = set()
 
@@ -66,8 +62,8 @@ class ScheduleHandler_tji(ScheduleHandlerBase):
                                         self.schedule.proj_id,
                                         self.schedule.proj_id)
         
-        if out_file:
-            self._write_to_file(out, out_file)
+        if self.handle:
+            self._write_to_file(out, self.handle)
         
         return out
         

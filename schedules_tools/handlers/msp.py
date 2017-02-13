@@ -21,8 +21,10 @@ logger = logging.getLogger(__name__)
 class ScheduleHandler_msp(ScheduleHandlerBase):
     provide_export = True
 
-    @staticmethod
-    def is_valid_source(handle):
+    @classmethod
+    def is_valid_source(cls, handle=None):
+        if not handle:
+            handle = cls.handle
         try:
             tree = etree.parse(handle)
         except etree.XMLSyntaxError:

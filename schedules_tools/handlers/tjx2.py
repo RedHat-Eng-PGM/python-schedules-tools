@@ -12,8 +12,10 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
     provide_export = False
     task_index = 1
 
-    @staticmethod
-    def is_valid_source(handle):
+    @classmethod
+    def is_valid_source(cls, handle=None):
+        if not handle:
+            handle = cls.handle
         file_ext = os.path.splitext(handle)[1]
 
         if file_ext == '.tjx':

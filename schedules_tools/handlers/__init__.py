@@ -29,7 +29,7 @@ class ScheduleHandlerBase(object):
 
     def __init__(self, handle=None, schedule=None, src_storage=None, 
                  opt_args=dict()):
-        self.handle = handle
+        self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
         self.src_storage = src_storage
         self.opt_args = opt_args
@@ -37,8 +37,7 @@ class ScheduleHandlerBase(object):
     def _write_to_file(self, content, file):
         with open(file, 'wb') as fp:
             fp.write(content.strip().encode('UTF-8'))
-            
-    
+
     def get_handle_mtime(self):
         raise NotImplementedError
     
@@ -46,17 +45,17 @@ class ScheduleHandlerBase(object):
         raise NotImplementedError
         
     # handle - file/link/smartsheet id
-    def import_schedule(self, handle=None):
+    def import_schedule(self):
         raise NotImplementedError
 
-    def export_schedule(self, output=None):
+    def export_schedule(self):
         raise NotImplementedError   
     
-    def build_schedule(self, handle=None):
+    def build_schedule(self):
         raise NotImplementedError 
 
-    @staticmethod
-    def is_valid_source(handle):
+    @classmethod
+    def is_valid_source(cls, handle=None):
         """Method returns True, if the specific handler is able to work with
         given handle"""
         return False
