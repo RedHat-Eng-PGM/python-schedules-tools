@@ -24,3 +24,4 @@ devel-tools/*.pp
 /.buildpath
 /.refactorings
 .cache
+.eggs
