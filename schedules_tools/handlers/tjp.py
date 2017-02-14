@@ -13,7 +13,7 @@ date_format = '%Y-%m-%d'
 
 class ScheduleHandler_tjp(ScheduleHandlerBase):
     """Handles TJP schedules
-    
+
     opt_args:
         tj_id
         use_tji_file: At first export schedule into TJI file and include it into TJP
@@ -61,6 +61,9 @@ include "reports.tji"
     # $(COMMON_DIR)/schedule_convert.py --tj-id $(CONTENT) ${MAJOR_STR} ${MINOR_STR} ${MAINT_STR} $(MSP_SRC) tjp $(MASTER)
     def export_schedule(self, out_file=None):
         tj_id = self.opt_args['tj_id']
+        use_tji_file = self.opt_args.get('use_tji_file', False)
+        force = self.opt_args.get('force', False)
+
         v_major = self.schedule._version['major']
         v_minor = self.schedule._version['minor']
         v_maint = self.schedule._version['maint']
@@ -83,7 +86,7 @@ include "reports.tji"
         handler_tji.schedule.override_version(
             tj_id, v_major, v_minor, v_maint)
 
-        if self.opt_args['use_tji_file']:
+        if use_tji_file:
             out_tji_parts = version_numbers + ['export']
             out_tji_file = '-'.join(out_tji_parts) + '.tji'
             handler_tji.export_schedule(out_tji_file)
@@ -91,7 +94,7 @@ include "reports.tji"
             tjp_content = 'include "%s"' % out_tji_file
         else:  # direct schedule as string
             tjp_content = handler_tji.export_schedule()
-            
+
         # Generate tjp content - we need to return it anyway
         out = self.tjp_template % {
                 'major': v_major,
@@ -108,17 +111,17 @@ include "reports.tji"
 
 
         # Update TJP if possible, otherwise create new
-        if (os.path.exists(out_file) 
-            and self.opt_args['use_tji_file']
-            and not self.opt_args['force']):
+        if (os.path.exists(out_file)
+            and use_tji_file
+            and not force):
                 logger.info('Updating existing TJP file')
                 self.update_tjp(out_file)
-        elif out_file:            
+        elif out_file:
             logger.info('Creating new TJP file')
             self._write_to_file(out, out_file)
-            
+
         return out
-        
+
 
     # Schedule
     def update_tjp(self, filename):
@@ -137,4 +140,4 @@ include "reports.tji"
                 line = 'macro end_date      [%s]\n' % (
                     dFinish.strftime(date_format))
             print line.rstrip()
-            
+

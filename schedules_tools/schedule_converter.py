@@ -131,7 +131,7 @@ class AutodiscoverHandlers(object):
 
 class ScheduleConverter(object):
     """
-    Abstraction class to work with handles/schedules 
+    Abstraction class to work with handles/schedules
     no matter the exact handler/schedule type.
     """
     handlers_dir = 'handlers'
@@ -166,12 +166,12 @@ class ScheduleConverter(object):
         self.handlers = self.discovery.discover(handlers_path)
 
         self.provided_exports = []
-        
+
         # TODO: Don't use "key, val" when it has a meaning
         for key, val in self.handlers.iteritems():
             if val['provide_export']:
                 self.provided_exports.append(key)
-                
+
         self.provided_exports = sorted(self.provided_exports)
 
 
@@ -188,38 +188,38 @@ class ScheduleConverter(object):
         if format not in self.handlers:
             msg = "Can't find schedule handler for format: {}".format(format)
             raise ScheduleFormatNotSupported(msg)
-            
+
         return self.handlers[format]
-    
+
     def get_handler(self, handle=None, format=None):
         if format:
             handler_cls = self.get_handler_for_format(format)
         else:
             handler_cls = self.get_handler_for_handle(handle)
-            
+
         return handler_cls
-    
+
     def get_handler_cls(self, *args, **kwargs):
         return self.get_handler(*args, **kwargs)['class']
 
     # Following methods call their counterparts on handlers
 
-    def handle_modified_since(self, handle, mtime, 
+    def handle_modified_since(self, handle, mtime,
                               src_format=None, handler_opt_args=dict()):
         handler_cls = self.get_handler_cls(handle=handle, format=src_format)
-            
+
         handler = handler_cls(handle=handle, opt_args=handler_opt_args)
 
         return handler.handle_modified_since(mtime)
-    
+
 
     def import_schedule(self, handle, source_format=None, handler_opt_args=dict()):
         handler_cls = self.get_handler_cls(handle=handle, format=source_format)
-            
+
         handler = handler_cls(handle=handle, opt_args=handler_opt_args)
-        
+
         schedule = handler.import_schedule()
-        
+
         assert schedule is not None, 'Import handler {} didn\'t return filled ' \
                                      'schedule!'.format(handler_cls)
         self.schedule = schedule
@@ -233,12 +233,12 @@ class ScheduleConverter(object):
         v_maint = handler_opt_args.get('maint', '')
 
         handler_cls = self.get_handler_cls(format=target_format)
-        
+
         if not handler_cls.provide_export:
             raise HandleWithoutExport(
                 'Schedule handler for {} doesn\'t provide export.'
                 .format(target_format))
-        
+
         handler = handler_cls(schedule=self.schedule, opt_args=handler_opt_args)
 
         handler.schedule.override_version(tj_id, v_major, v_minor, v_maint)
@@ -274,9 +274,9 @@ def main(args):
 
     parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
 
-    parser.add_argument('-f', '--force', 
+    parser.add_argument('-f', '--force',
                         help='Force target overwrite',
-                        default=False, 
+                        default=False,
                         action='store_true')
 
     parser.add_argument('--tj-id', metavar='TJ_PROJECT_ID',
@@ -287,14 +287,14 @@ def main(args):
                         default='')
     parser.add_argument('--maint', help='Project maint version number',
                         default='')
-    parser.add_argument('--use-tji-file', 
+    parser.add_argument('--use-tji-file',
                         help='Use TJI file when exporting into TJP',
-                        default=False, 
+                        default=False,
                         action='store_true')
-    
+
     parser.add_argument('--rally-iter', help='Rally iteration to import',
                         default='')
-    
+
     parser.add_argument('--source-format',
                         choices=converter.provided_exports,
                         metavar='SRC_FORMAT',
@@ -303,7 +303,7 @@ def main(args):
                         help='Source handle (file/URL/...)',
                         type=str,
                         metavar='SRC')
-    
+
     parser.add_argument('target_format',
                         choices=converter.provided_exports,
                         metavar='TARGET_FORMAT',
@@ -318,10 +318,10 @@ def main(args):
     # as opt_args into handlers
     opt_args.pop('handlers_path')
 
-    converter.import_schedule(arguments.source, 
-                              arguments.source_format, 
+    converter.import_schedule(arguments.source,
+                              arguments.source_format,
                               handler_opt_args=opt_args)
-    
+
     converter.export_schedule(arguments.target,
                               arguments.target_format,
                               handler_opt_args=opt_args)
