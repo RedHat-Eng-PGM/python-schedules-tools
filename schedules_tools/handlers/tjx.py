@@ -63,6 +63,8 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
     def import_schedule(self):
         self.schedule = models.Schedule()
 
+        self._fill_mtime_from_handle_file()
+
         tree = etree.parse(self.handle)
         project_name = tree.xpath('Name')[0].text.strip()
         self.schedule.name = '%s %s' % (project_name,

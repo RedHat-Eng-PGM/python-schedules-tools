@@ -107,6 +107,7 @@ class Schedule(object):
     dStart = None
     dFinish = None
     changelog = {}
+    mtime = None
 
     phases = []
     resources = {}
