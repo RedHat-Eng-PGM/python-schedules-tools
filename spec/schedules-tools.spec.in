@@ -48,7 +48,7 @@ python setup.py install --root=%{buildroot} --record=INSTALLED_FILES
 # create bin dir if not created by python setup
 mkdir -p %{buildroot}%{_bindir}
 for bin_file in %{py_bin_files}; do
-    bin_file_src=%{py_sitedir}/schedules_tools/${bin_file}.py
+    bin_file_src=%{py_sitedir}/schedules_tools/bin/${bin_file}.py
     ln -s $bin_file_src %{buildroot}%{_bindir}/$bin_file
     chmod 755 %{buildroot}/$bin_file_src
 done

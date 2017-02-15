@@ -52,6 +52,6 @@ setup(
     test_suite='tests',
     tests_require=['testtools', 'pyral'],
     scripts=[
-        'bin/schedule_converter.py',
-        'bin/schedule_diff.py'],
+        'schedules_tools/bin/schedule_converter.py',
+        'schedules_tools/bin/schedule_diff.py'],
 )
