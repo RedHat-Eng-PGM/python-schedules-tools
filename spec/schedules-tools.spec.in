@@ -21,6 +21,8 @@ BuildArch:      noarch
 BuildRequires: python-setuptools
 BuildRequires: python-devel
 
+Requires: python-lxml
+
 
 %global log_dir /var/log/%{name}
 %global log_files debug.log
