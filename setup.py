@@ -50,7 +50,7 @@ setup(
     packages=find_packages(exclude=('scripts',)),
     include_package_data=True,
     test_suite='tests',
-    tests_require=['testtools', 'pyral'],
+    tests_require=['testtools'],
     scripts=[
         'schedules_tools/bin/schedule_converter.py',
         'schedules_tools/bin/schedule_diff.py'],
