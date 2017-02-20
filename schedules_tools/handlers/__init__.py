@@ -17,8 +17,8 @@ class ScheduleHandlerBase(object):
     handle = None
     schedule = None
     
-    # source storage to get changelog from if applicable
-    src_storage = None
+    # optional source storage handler instance to get changelog/mtime from if applicable
+    src_storage_handler = None
 
     # This flag indicate ability to export internal intermediate structure
     # (Schedule) into format of implementation. It's read by ScheduleConverter
@@ -27,11 +27,11 @@ class ScheduleHandlerBase(object):
     
     opt_args = {}
 
-    def __init__(self, handle=None, schedule=None, src_storage=None, 
+    def __init__(self, handle=None, schedule=None, src_storage_handler=None, 
                  opt_args=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
-        self.src_storage = src_storage
+        self.src_storage_handler = src_storage_handler
         self.opt_args = opt_args
         
     def _write_to_file(self, content, file):
@@ -43,7 +43,10 @@ class ScheduleHandlerBase(object):
     
     def handle_modified_since(self, mtime):
         raise NotImplementedError
-        
+    
+    def get_handle_changelog(self):
+        return []
+    
     # handle - file/link/smartsheet id
     def import_schedule(self):
         raise NotImplementedError
@@ -66,6 +69,8 @@ class ScheduleHandlerBase(object):
 
     def _fill_mtime_from_handle_file(self):
         mtime = os.path.getmtime(self.handle)
+        # TODO - don't write directly to self.schedule
+        # rather use in particular handler's get_handle_mtime methods
         self.schedule.mtime = datetime.fromtimestamp(mtime)
 
 

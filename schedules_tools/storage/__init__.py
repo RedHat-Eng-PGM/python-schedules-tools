@@ -1,27 +1,35 @@
 class ScheduleStorageBase(object):
+    handle = None
+    
     opt_args = {}
 
     def __init__(self, opt_args=dict()):
         self.opt_args = opt_args
 
-    def pull(self, handle=None, rev=None, date=None, target_dir=None):
+    def pull(self, rev=None, datetime=None, target_dir=None):
         ''' Pulls from storage
         
         Args:
-            handle: if None - pull all
             rev: if None - pull current
+            datetime: if no rev - pull content state from specified datetime
             target_dir: if None, pull to tmp dir
             
         Returns:
             Pulled file/directory
         '''
         # pull always to tmp, if need move to target
-        pass
+        raise NotImplementedError
     
-    def push(self, handle):
-        pass    
+    def push(self):
+        raise NotImplementedError    
     
-    def get_changelog(self, handle):
+    def get_mtime(self):
+        raise NotImplementedError
+
+    def modified_since(self, mtime):
+        raise NotImplementedError
+    
+    def get_changelog(self):
         return []
 
 

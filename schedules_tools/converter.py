@@ -172,11 +172,11 @@ class ScheduleConverter(object):
 
     def get_handler(self, handle=None, format=None):
         if format:
-            handler_cls = self.get_handler_for_format(format)
+            handler_struct = self.get_handler_for_format(format)
         else:
-            handler_cls = self.get_handler_for_handle(handle)
+            handler_struct = self.get_handler_for_handle(handle)
 
-        return handler_cls
+        return handler_struct
 
     def get_handler_cls(self, *args, **kwargs):
         return self.get_handler(*args, **kwargs)['class']

@@ -79,6 +79,10 @@ def main(args):
     parser.add_argument('--rally-iter', help='Rally iteration to import',
                         default='')
 
+    parser.add_argument('--source-storage-format',
+                        #choices=converter.handlers.keys(),
+                        metavar='SRC_STORAGE_FORMAT',
+                        help='Source storage format to use')
     parser.add_argument('--source-format',
                         choices=converter.handlers.keys(),
                         metavar='SRC_FORMAT',

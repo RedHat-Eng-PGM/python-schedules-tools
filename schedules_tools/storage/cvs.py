@@ -50,11 +50,10 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
         p.communicate()
         assert p.returncode == 0
 
-    def pull(self, handle=None, rev=None, date=None, target_dir=None):
+    def pull(self, rev=None, datetime=None, target_dir=None):
         """ Pulls from storage
 
         Args:
-            handle: if None - pull all
             rev: if None - pull current
             date:
             target_dir: if None, pull to tmp dir
@@ -65,6 +64,7 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
         self._clone(target_dir)
         # TODO(mpavlase): pass desired file/dir to checkout
         self._checkout(revision=rev)
+        # TODO - return resulting filename
 
     def parse_changelog(self, filename):
         changelog = []
