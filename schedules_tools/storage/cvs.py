@@ -63,7 +63,8 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
             Pulled file/directory
         """
         self._clone(target_dir)
-        self._checkout(revision=rev,)
+        # TODO(mpavlase): pass desired file/dir to checkout
+        self._checkout(revision=rev)
 
     def parse_changelog(self, filename):
         changelog = []
