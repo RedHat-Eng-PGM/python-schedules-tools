@@ -1,4 +1,4 @@
-NAME = schedules-tools
+NAME = python-schedules-tools
 
 
 all: help
