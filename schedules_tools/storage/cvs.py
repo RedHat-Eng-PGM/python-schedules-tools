@@ -1,4 +1,4 @@
-from schedules_tools.storage import ScheduleStorageBase, Changelog
+from schedules_tools.storage import ScheduleStorageBase
 import os
 import sys
 import re
@@ -127,7 +127,12 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
                 if line == log_separator:
                     # store whole log
                     comment = '\n'.join(comment)
-                    record = Changelog(revision, author, date, comment)
+                    record = {
+                        'revision': revision,
+                        'author': author,
+                        'date': date,
+                        'message': comment
+                    }
                     changelog.append(record)
                     state = STATE_REVISION
                     continue
