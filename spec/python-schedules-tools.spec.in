@@ -49,6 +49,10 @@ name_underscore=%{name}
 name_underscore=${name_underscore//-/_}
 rm -rf %{buildroot}/%{py_sitedir}/${name_underscore}*.egg-info
 
+# remove scripts - needed only for installation (CLI utils are already handled
+# by 'scripts' argument of setuptools)
+rm -rf %{buildroot}%{py_sitedir}/scripts
+
 # create log dir
 mkdir -m 755 -p %{buildroot}%{log_dir}
 for log_file in %log_files ; do

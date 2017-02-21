@@ -47,11 +47,11 @@ setup(
     author=project_author,
     author_email=project_author_email,
     description=project_description,
-    packages=find_packages(exclude=('scripts',)),
+    packages=find_packages(),
     include_package_data=True,
     test_suite='tests',
     tests_require=['testtools'],
     scripts=[
-        'schedules_tools/bin/schedule_converter.py',
-        'schedules_tools/bin/schedule_diff.py'],
+        'scripts/schedule_converter.py',
+        'scripts/schedule_diff.py'],
 )
