@@ -16,7 +16,7 @@ class Test_msp_parseExtAttrs(TestCase):
     def _prepare_inject_value(self):
         self.schedule = models.Schedule()
         self.task = models.Task(schedule=self.schedule)
-        self.handle = msp.ScheduleHandler_msp(self.schedule)
+        self.handle = msp.ScheduleHandler_msp(schedule=self.schedule)
         self.element = etree.Element('Value')
 
     def _inject_value(self, value):

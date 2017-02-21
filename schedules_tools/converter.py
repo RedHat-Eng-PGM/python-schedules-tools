@@ -4,18 +4,24 @@ import re
 import logging
 import discovery
 
-logger = logging.getLogger(__name__)
-re_schedule_handler = re.compile('^ScheduleHandler_(\S+)$')
 VALID_MODULE_NAME = re.compile(r'^(\w+)\.py$', re.IGNORECASE)
 BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
 PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
+
+logger = logging.getLogger(__name__)
+re_schedule_handler = re.compile('^ScheduleHandler_(\S+)$')
+re_storage_handler = re.compile('^ScheduleStorageHandler_(\S+)$')
 
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
 
 
 class ScheduleFormatNotSupported(Exception):
+    pass
+
+
+class StorageFormatNotSupported(Exception):
     pass
 
 
@@ -28,16 +34,25 @@ class ScheduleConverter(object):
     Abstraction class to work with handles/schedules
     no matter the exact handler/schedule type.
     """
-    handlers_dir = 'handlers'
-    handlers = {}
-    provided_exports = []
     schedule = None
-    discovery = None
+    schedule_handlers_dir = 'handlers'
+    schedule_handlers = {}
+    schedule_discovery = None
+    provided_exports = []
+    storage_handlers_dir = 'storage'
+    storage_handlers = {}
+    storage_discovery = None
 
     def __init__(self, schedule=None):
-        handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.handlers_dir)
-        self.discovery = discovery.AutodiscoverHandlers(re_schedule_handler)
-        self.add_discover_path(handlers_path)
+        schedule_handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.schedule_handlers_dir)
+        storage_handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.storage_handlers_dir)
+
+        self.schedule_discovery = discovery.AutodiscoverHandlers(re_schedule_handler)
+        self.storage_discovery = discovery.AutodiscoverHandlers(re_storage_handler)
+
+        self.add_discover_path(schedule_handlers_path)
+        self.add_discover_path(storage_handlers_path)
+
         self.schedule = schedule
 
     def add_discover_path(self, handlers_path):
@@ -55,18 +70,19 @@ class ScheduleConverter(object):
             handlers_path: Path to directory (python module) to search for handlers
         """
         logger.debug('Searching for handlers in path: {}'.format(handlers_path))
-        self.handlers = self.discovery.discover(handlers_path)
+        self.schedule_handlers = self.schedule_discovery.discover(handlers_path)
+        self.storage_handlers = self.storage_discovery.discover(handlers_path)
 
         self.provided_exports = []
         
-        for handler_name, handler in self.handlers.iteritems():
+        for handler_name, handler in self.schedule_handlers.iteritems():
             if handler['provide_export']:
                 self.provided_exports.append(handler_name)
 
         self.provided_exports = sorted(self.provided_exports)
 
     def get_handler_for_handle(self, handle):
-        for module in self.handlers.itervalues():
+        for module in self.schedule_handlers.itervalues():
             if module['class'].is_valid_source(handle):
                 return module
 
@@ -74,11 +90,18 @@ class ScheduleConverter(object):
         raise ScheduleFormatNotSupported(msg)
 
     def get_handler_for_format(self, format):
-        if format not in self.handlers:
+        if format not in self.schedule_handlers:
             msg = "Can't find schedule handler for format: {}".format(format)
             raise ScheduleFormatNotSupported(msg)
 
-        return self.handlers[format]
+        return self.schedule_handlers[format]
+
+    def get_storage_handler_for_format(self, format):
+        if format not in self.storage_handlers:
+            msg = "Can't find storage handler for format: {}".format(format)
+            raise StorageFormatNotSupported(msg)
+
+        return self.schedule_handlers[format]
 
     def get_handler(self, handle=None, format=None):
         if format:
@@ -102,9 +125,16 @@ class ScheduleConverter(object):
         return handler.handle_modified_since(mtime)
 
     def import_schedule(self, handle, source_format=None, handler_opt_args=dict()):
-        handler_cls = self.get_handler_cls(handle=handle, format=source_format)
+        src_storage_format = handler_opt_args.get('source_storage_format', None)
+        if src_storage_format:
+            storage_handler = self.get_storage_handler_for_format(src_storage_format)
+        else:
+            storage_handler = None
 
-        handler = handler_cls(handle=handle, opt_args=handler_opt_args)
+        handler_cls = self.get_handler_cls(handle=handle, format=source_format)
+        handler = handler_cls(handle=handle,
+                              src_storage_handler=storage_handler,
+                              opt_args=handler_opt_args)
 
         schedule = handler.import_schedule()
 

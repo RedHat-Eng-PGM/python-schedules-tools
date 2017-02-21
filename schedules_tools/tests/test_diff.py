@@ -1,6 +1,6 @@
 import testtools
 import datetime
-from tests import create_test_schedule
+from schedules_tools.tests import create_test_schedule
 
 
 class TestDiff(testtools.TestCase):

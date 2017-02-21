@@ -84,7 +84,7 @@ def main(args):
                         metavar='SRC_STORAGE_FORMAT',
                         help='Source storage format to use')
     parser.add_argument('--source-format',
-                        choices=converter.handlers.keys(),
+                        choices=converter.schedule_handlers.keys(),
                         metavar='SRC_FORMAT',
                         help='Source format to enforce')
     parser.add_argument('source',
