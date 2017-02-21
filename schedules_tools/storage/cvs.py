@@ -12,16 +12,23 @@ logger = logging.getLogger(__name__)
 
 class ScheduleStorage_cvs(ScheduleStorageBase):
     target_dir = None
-    envvars = dict()
     cloned = False
-    repo_url = None
+    repo_root = None
     repo_name = None
+
+    def _cvs_command(self, cmd):
+        # -q, make cvs more quiet
+        # -z9, maximum compression
+        # -d, set CVSROOT
+        cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
+        p = subprocess.Popen(cmd_str.split(), stdout=sys.stdout,
+                             cwd=self.target_dir)
+        return p
 
     def __init__(self, opt_args=dict()):
         self.repo_name = opt_args.pop('cvs_repo_name')
+        self.repo_root = opt_args.pop('cvs_root')
         self.opt_args = opt_args
-        self.envvars = os.environ
-        self.envvars['CVSROOT'] = opt_args.pop('cvs_root')
 
     def _clone(self, target_dir=None):
         if self.cloned:
@@ -33,20 +40,21 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
         tempfile.mkdtemp()
         os.makedirs(self.target_dir)
 
-        cmd = 'cvs co {}'.format(self.repo_name)
-        p = subprocess.Popen(cmd.split(), env=self.envvars, stdout=sys.stdout,
-                             cwd=self.target_dir)
+        cmd = 'co {}'.format(self.repo_name)
+        p = self._cvs_command(cmd)
         p.communicate()
+
         assert p.returncode == 0
         self.cloned = True
+
+        return self.target_dir
 
     def _checkout(self, revision=None, filename=None):
         if not filename:
             filename = ''
-        cmd = 'cvs update -r{revision} {filename}'.format(
-            revision=revision, filename=filename)
-        p = subprocess.Popen(cmd.split(), env=self.envvars, stdout=sys.stdout,
-                             cwd=self.target_dir)
+        cmd = 'update -r{revision} {filename}'.format(revision=revision,
+                                                      filename=filename)
+        p = self._cvs_command(cmd)
         p.communicate()
         assert p.returncode == 0
 
