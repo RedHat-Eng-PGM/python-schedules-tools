@@ -67,11 +67,9 @@ class ScheduleHandlerBase(object):
         """Prepare files which need a backup in case of external source"""
         return []
 
-    def _fill_mtime_from_handle_file(self):
+    def _get_mtime_from_handle_file(self):
         mtime = os.path.getmtime(self.handle)
-        # TODO - don't write directly to self.schedule
-        # rather use in particular handler's get_handle_mtime methods
-        self.schedule.mtime = datetime.fromtimestamp(mtime)
+        return datetime.fromtimestamp(mtime)
 
 
 class TJXChangelog(object):

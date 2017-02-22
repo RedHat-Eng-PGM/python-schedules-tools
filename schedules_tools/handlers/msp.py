@@ -37,7 +37,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
     # Schedule
     def import_schedule(self):
         self.schedule = models.Schedule()
-        self._fill_mtime_from_handle_file()
+        self._get_mtime_from_handle_file()
 
         # remove project's xmlns
         tmp_file = tempfile.mkstemp()[1]

@@ -74,9 +74,9 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
         self._checkout(revision=rev)
         # TODO - return resulting filename
 
-    def parse_changelog(self, filename):
+    def get_changelog(self, handle):
         changelog = []
-        cmd = 'cvs log {}'.format(filename)
+        cmd = 'cvs log {}'.format(handle)
         p = subprocess.Popen(cmd.split(), env=self.envvars, cwd=self.target_dir,
                              stdout=subprocess.PIPE)
         stdout, stderr = p.communicate()

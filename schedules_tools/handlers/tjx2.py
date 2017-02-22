@@ -97,7 +97,7 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
     def import_schedule(self):
         self.schedule = models.Schedule()
 
-        self._fill_mtime_from_handle_file()
+        self._get_mtime_from_handle_file()
 
         tree = etree.parse(self.handle)
         el_proj = tree.xpath('/taskjuggler/project')[0]

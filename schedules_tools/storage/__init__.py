@@ -23,13 +23,13 @@ class ScheduleStorageBase(object):
     def push(self):
         raise NotImplementedError    
     
-    def get_mtime(self):
+    def get_mtime(self, handle):
         raise NotImplementedError
 
     def modified_since(self, mtime):
         raise NotImplementedError
     
-    def get_changelog(self):
+    def get_changelog(self, handle):
         return []
 
 

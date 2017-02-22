@@ -59,11 +59,12 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
                 return True
         return False
 
+    def get_handle_mtime(self):
+        return self._get_mtime_from_handle_file()
+
     # Schedule
     def import_schedule(self):
         self.schedule = models.Schedule()
-
-        self._fill_mtime_from_handle_file()
 
         tree = etree.parse(self.handle)
         project_name = tree.xpath('Name')[0].text.strip()
@@ -95,8 +96,15 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
             logger.info('Can\'t find single root task in %s (found %d root tasks)' % (self.handle, len(eRoot_tasks)))
 
         self.schedule.name = self.schedule.name.strip()
-        # import changelog
-        self.parse_changelog(tree)
+
+        # import changelog, fill schedule.mtime
+        if self.src_storage_handler:
+            self.schedule.changelog = self.src_storage_handler.get_changelog(
+                self.handle)
+            self.schedule.mtime = self.src_storage_handler.get_mtime(self.handle)
+        else:
+            self.parse_changelog(tree)
+            self.schedule.mtime = self.get_handle_changelog()
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min
