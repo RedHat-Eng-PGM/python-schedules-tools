@@ -83,6 +83,10 @@ def main(args):
                         #choices=converter.handlers.keys(),
                         metavar='SRC_STORAGE_FORMAT',
                         help='Source storage format to use')
+    parser.add_argument('--cvs-repo-name',
+                        help='Name of CVS repository to checkout')
+    parser.add_argument('--cvs-root',
+                        help='Root of CVS repository')
     parser.add_argument('--source-format',
                         choices=converter.schedule_handlers.keys(),
                         metavar='SRC_FORMAT',

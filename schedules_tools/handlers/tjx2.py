@@ -28,6 +28,9 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelogMixin):
                 return True
         return False
 
+    def get_handle_mtime(self):
+        return self._get_mtime_from_handle_file()
+
     @staticmethod
     def _load_tjx_date(eTask, datetype, what=''):
         """Returns datetime with datetype = plan|actual what = start|end"""
@@ -97,8 +100,6 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelogMixin):
     def import_schedule(self):
         self.schedule = models.Schedule()
 
-        self._get_mtime_from_handle_file()
-
         tree = etree.parse(self.handle)
         el_proj = tree.xpath('/taskjuggler/project')[0]
         project_name = el_proj.get('name')
@@ -107,7 +108,14 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelogMixin):
         self.schedule.project_name = project_name
         self.schedule.proj_id = el_proj.get('id')
 
-        self.parse_tjx_changelog(tree)
+        # import changelog, fill schedule.mtime
+        if self.src_storage_handler:
+            self.schedule.changelog = self.src_storage_handler.get_changelog(
+                self.handle)
+            self.schedule.mtime = self.src_storage_handler.get_mtime(self.handle)
+        else:
+            self.parse_tjx_changelog(tree)
+            self.schedule.mtime = self.get_handle_changelog()
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min

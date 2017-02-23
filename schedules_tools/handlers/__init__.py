@@ -15,6 +15,7 @@ time.tzset()
 # 'ScheduleHandler' can be whatever.
 class ScheduleHandlerBase(object):
     handle = None
+    handle_original = None
     schedule = None
     
     # optional source storage handler instance to get changelog/mtime from if applicable
@@ -29,11 +30,16 @@ class ScheduleHandlerBase(object):
 
     def __init__(self, handle=None, schedule=None, src_storage_handler=None, 
                  opt_args=dict()):
-        self.handle = handle  # 'handle' is source/target of schedule in general
+        self.handle_original = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
         self.src_storage_handler = src_storage_handler
         self.opt_args = opt_args
-        
+
+        if self.src_storage_handler:
+            self.handle = src_storage_handler.get_local_handle(handle)
+        else:
+            self.handle = self.handle_original
+
     def _write_to_file(self, content, file):
         with open(file, 'wb') as fp:
             fp.write(content.strip().encode('UTF-8'))

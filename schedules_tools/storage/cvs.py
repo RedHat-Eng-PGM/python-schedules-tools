@@ -1,4 +1,4 @@
-from schedules_tools.storage import ScheduleStorageBase
+from schedules_tools.storage import ScheduleStorageBase, StorageNotCloned
 import os
 import sys
 import re
@@ -10,35 +10,36 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ScheduleStorage_cvs(ScheduleStorageBase):
+class ScheduleStorageHandler_cvs(ScheduleStorageBase):
     target_dir = None
     cloned = False
     repo_root = None
     repo_name = None
-
-    def _cvs_command(self, cmd):
-        # -q, make cvs more quiet
-        # -z9, maximum compression
-        # -d, set CVSROOT
-        cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
-        p = subprocess.Popen(cmd_str.split(), stdout=sys.stdout,
-                             cwd=self.target_dir)
-        return p
 
     def __init__(self, opt_args=dict()):
         self.repo_name = opt_args.pop('cvs_repo_name')
         self.repo_root = opt_args.pop('cvs_root')
         self.opt_args = opt_args
 
-    def _clone(self, target_dir=None):
+    def _cvs_command(self, cmd, stdout=sys.stdout):
+        # -q, make cvs more quiet
+        # -z9, maximum compression
+        # -d, set CVSROOT
+        cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
+        p = subprocess.Popen(cmd_str.split(), stdout=stdout,
+                             cwd=self.target_dir)
+        return p
+
+    def clone(self, target_dir=None):
         if self.cloned:
             logger.debug('Storage has been already cloned. Skipping.')
-            return
-        if not target_dir:
-            target_dir = '/tmp'
+            return self.target_dir
+
+        if target_dir and not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+        else:
+            target_dir = tempfile.mkdtemp()
         self.target_dir = target_dir
-        tempfile.mkdtemp()
-        os.makedirs(self.target_dir)
 
         cmd = 'co {}'.format(self.repo_name)
         p = self._cvs_command(cmd)
@@ -49,36 +50,43 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
 
         return self.target_dir
 
-    def _checkout(self, revision=None, filename=None):
-        if not filename:
-            filename = ''
-        cmd = 'update -r{revision} {filename}'.format(revision=revision,
-                                                      filename=filename)
+    def get_local_handle(self, handle):
+        if not self.cloned:
+            msg = 'You have to clone storage first before to take local handle.'
+            raise StorageNotCloned(msg)
+        return os.path.join(self.target_dir, handle)
+
+    def checkout(self, revision=None, datetime=None):
+        cmd_revision = ''
+        if datetime:
+            datetime_str = datetime.strftime('%Y-%m-%d %H:%M')
+            cmd_revision = '-D "{}"'.format(datetime_str)
+        if revision:
+            cmd_revision = '-r "{}"'.format(revision)
+
+        cmd = 'update {cmd_revision} {filename}'.format(
+            cmd_revision=cmd_revision, filename=self.handle)
         p = self._cvs_command(cmd)
         p.communicate()
         assert p.returncode == 0
 
-    def pull(self, rev=None, datetime=None, target_dir=None):
-        """ Pulls from storage
+    def build_handle(self, handle):
+        local_handle = self.get_local_handle(handle)
+        hadle_path = os.path.dirname(local_handle)
+        p = subprocess.Popen('make',
+                             cwd=hadle_path)
+        p.communicate()
+        assert p.returncode == 0
 
-        Args:
-            rev: if None - pull current
-            date:
-            target_dir: if None, pull to tmp dir
-
-        Returns:
-            Pulled file/directory
-        """
-        self._clone(target_dir)
-        # TODO(mpavlase): pass desired file/dir to checkout
-        self._checkout(revision=rev)
-        # TODO - return resulting filename
+    def get_mtime(self, handle):
+        changelog = self.get_changelog(handle)
+        latest_change = changelog[-1]
+        return latest_change['datetime']
 
     def get_changelog(self, handle):
         changelog = []
-        cmd = 'cvs log {}'.format(handle)
-        p = subprocess.Popen(cmd.split(), env=self.envvars, cwd=self.target_dir,
-                             stdout=subprocess.PIPE)
+        cmd = 'log {}'.format(handle)
+        p = self._cvs_command(cmd, stdout=subprocess.PIPE)
         stdout, stderr = p.communicate()
 
         STATE_HEAD = 'head'
@@ -138,7 +146,7 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
                     record = {
                         'revision': revision,
                         'author': author,
-                        'date': date,
+                        'datetime': date,
                         'message': comment
                     }
                     changelog.append(record)
@@ -148,4 +156,4 @@ class ScheduleStorage_cvs(ScheduleStorageBase):
                 continue
 
         # sort records according to date
-        return sorted(changelog, key=lambda x: x.date)
+        return sorted(changelog, key=lambda x: x['datetime'])

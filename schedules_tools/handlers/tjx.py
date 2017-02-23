@@ -99,9 +99,13 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
 
         # import changelog, fill schedule.mtime
         if self.src_storage_handler:
+            if os.path.isfile(self.handle):
+                changelog_path = os.path.dirname(self.handle_original)
+            else:
+                changelog_path = self.handle_original
             self.schedule.changelog = self.src_storage_handler.get_changelog(
-                self.handle)
-            self.schedule.mtime = self.src_storage_handler.get_mtime(self.handle)
+                changelog_path)
+            self.schedule.mtime = self.src_storage_handler.get_mtime(changelog_path)
         else:
             self.parse_tjx_changelog(tree)
             self.schedule.mtime = self.get_handle_changelog()

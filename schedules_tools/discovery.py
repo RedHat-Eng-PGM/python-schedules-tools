@@ -16,11 +16,12 @@ sys.path.append(BASE_DIR)
 
 
 class AutodiscoverHandlers(object):
-    _discovered_handlers = dict()
+    _discovered_handlers = None
     re_class_teplate = None
 
     def __init__(self, re_class_template):
         self.re_class_teplate = re_class_template
+        self._discovered_handlers = dict()
 
     def _load_parent_module(self, path):
         realpath = os.path.realpath(path)
@@ -63,7 +64,12 @@ class AutodiscoverHandlers(object):
             key = key[0]
             val = dict()
             val['class'] = obj
-            val['provide_export'] = obj.provide_export
+            try:
+                val['provide_export'] = obj.provide_export
+            except AttributeError:
+                # Not all handlers has this attr
+                # TODO(mpavlase): consider this behavior implement in subclass
+                pass
 
             ret[key] = val
             logger.debug('Discovered new handler: {} from {}'.format(key, module))
