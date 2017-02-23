@@ -108,7 +108,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
             self.schedule.mtime = self.src_storage_handler.get_mtime(changelog_path)
         else:
             self.parse_tjx_changelog(tree)
-            self.schedule.mtime = self.get_handle_changelog()
+            self.schedule.mtime = self.get_handle_mtime()
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min
