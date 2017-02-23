@@ -106,6 +106,7 @@ class StorageHandler_cvs(StorageBase):
         re_revision = re.compile('revision\s+(.+)')
         re_branches = re.compile('branches:\s+(.+);')
         log_separator = '----------------------------'
+        log_end_separator = '============================================================================='
 
         for line in stdout.splitlines():
             if state == STATE_HEAD:
@@ -141,7 +142,7 @@ class StorageHandler_cvs(StorageBase):
                 br = re_branches.match(line)
                 if not comment and br:
                     continue
-                if line == log_separator:
+                if line == log_separator or line == log_end_separator:
                     # store whole log
                     comment = '\n'.join(comment)
                     record = {
