@@ -1,4 +1,4 @@
-from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelog
+from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelogMixin
 from schedules_tools import models
 import datetime
 import logging
@@ -8,7 +8,7 @@ from lxml import etree
 logger = logging.getLogger(__name__)
 
 
-class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
+class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelogMixin):
     provide_export = False
     task_index = 1
 
@@ -107,8 +107,7 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelog):
         self.schedule.project_name = project_name
         self.schedule.proj_id = el_proj.get('id')
 
-        # import changelog
-        self.parse_changelog(el_proj)
+        self.parse_tjx_changelog(tree)
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min

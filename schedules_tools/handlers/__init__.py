@@ -72,8 +72,8 @@ class ScheduleHandlerBase(object):
         return datetime.fromtimestamp(mtime)
 
 
-class TJXChangelog(object):
-    def parse_changelog(self, tree):
+class TJXChangelogMixin(object):
+    def parse_tjx_changelog(self, tree):
         # import changelog
         for log in tree.xpath('changelog/log'):
             self.schedule.changelog[log.get('rev')] = {

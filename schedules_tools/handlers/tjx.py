@@ -1,4 +1,4 @@
-from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelog
+from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelogMixin
 from schedules_tools import models
 import datetime
 import logging
@@ -40,7 +40,7 @@ date_format = '%Y-%m-%d'
 datetime_format_tz = '%Y-%m-%d %H:%M:%S EDT'
 
 
-class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
+class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
     provide_export = True
 
     @classmethod
@@ -103,7 +103,7 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelog):
                 self.handle)
             self.schedule.mtime = self.src_storage_handler.get_mtime(self.handle)
         else:
-            self.parse_changelog(tree)
+            self.parse_tjx_changelog(tree)
             self.schedule.mtime = self.get_handle_changelog()
 
         min_date = datetime.datetime.max
