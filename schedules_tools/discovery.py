@@ -14,6 +14,16 @@ BASE_DIR = os.path.dirname(os.path.realpath(
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
 
+# don't forget about builtin handler dir
+schedule_handlers_paths = []
+storage_handlers_paths = []
+
+# implement lazy getters for:
+_schedule_handlers = {}
+_storage_handlers = {}
+
+
+
 
 class AutodiscoverHandlers(object):
     _discovered_handlers = None

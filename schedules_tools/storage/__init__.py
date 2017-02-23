@@ -2,7 +2,7 @@ class StorageNotCloned(Exception):
     pass
 
 
-class ScheduleStorageBase(object):
+class StorageBase(object):
     handle = None
     opt_args = {}
 

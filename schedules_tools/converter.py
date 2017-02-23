@@ -39,7 +39,9 @@ class ScheduleConverter(object):
     schedule_handlers_dir = 'handlers'
     schedule_handlers = {}
     schedule_discovery = None
+    
     provided_exports = []
+    
     storage_handlers_dir = 'storage'
     storage_handlers = {}
     storage_discovery = None
@@ -56,6 +58,7 @@ class ScheduleConverter(object):
 
         self.schedule = schedule
 
+    # Move this to discovery class or handler dict getter
     def add_discover_path(self, handlers_path):
         """
         Adds location in handlers_path variable to discovery path and starts to
@@ -82,6 +85,7 @@ class ScheduleConverter(object):
 
         self.provided_exports = sorted(self.provided_exports)
 
+
     def get_handler_for_handle(self, handle, storage_handle):
         handle_local = handle
         if storage_handle:
@@ -101,6 +105,7 @@ class ScheduleConverter(object):
 
         return self.schedule_handlers[format]
 
+
     def get_storage_handler_for_format(self, format):
         if format not in self.storage_handlers:
             msg = "Can't find storage handler for format: {}".format(format)
@@ -108,7 +113,8 @@ class ScheduleConverter(object):
 
         return self.storage_handlers[format]
 
-    def get_handler(self, handle=None, format=None, storage_handler=None):
+
+    def get_handler_struct(self, handle=None, format=None, storage_handler=None):
         if format:
             handler_struct = self.get_handler_for_format(format, storage_handler)
         else:
@@ -116,8 +122,13 @@ class ScheduleConverter(object):
 
         return handler_struct
 
+
     def get_handler_cls(self, *args, **kwargs):
-        return self.get_handler(*args, **kwargs)['class']
+        return self.get_handler_struct(*args, **kwargs)['class']
+
+    def get_storage_handler_cls(self, *args, **kwargs):
+        return self.get_storage_handler_for_format(*args, **kwargs)['class']
+
 
     # Following methods call their counterparts on handlers
     def handle_modified_since(self, handle, mtime,
@@ -131,8 +142,7 @@ class ScheduleConverter(object):
     def import_schedule(self, handle, source_format=None, handler_opt_args=dict()):
         src_storage_format = handler_opt_args.get('source_storage_format', None)
         if src_storage_format:
-            storage_handler_struct = self.get_storage_handler_for_format(src_storage_format)
-            storage_handler_cls = storage_handler_struct['class']
+            storage_handler_cls = self.get_storage_handler_cls(src_storage_format)
             storage_handler = storage_handler_cls(opt_args=handler_opt_args)
             storage_handler.clone()
             storage_handler.build_handle(handle)

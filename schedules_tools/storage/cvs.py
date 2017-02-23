@@ -1,4 +1,4 @@
-from schedules_tools.storage import ScheduleStorageBase, StorageNotCloned
+from schedules_tools.storage import StorageBase, StorageNotCloned
 import os
 import sys
 import re
@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ScheduleStorageHandler_cvs(ScheduleStorageBase):
+class StorageHandler_cvs(StorageBase):
     target_dir = None
     cloned = False
     repo_root = None
@@ -70,6 +70,7 @@ class ScheduleStorageHandler_cvs(ScheduleStorageBase):
         p.communicate()
         assert p.returncode == 0
 
+    # move to custom tjp handler
     def build_handle(self, handle):
         local_handle = self.get_local_handle(handle)
         hadle_path = os.path.dirname(local_handle)
