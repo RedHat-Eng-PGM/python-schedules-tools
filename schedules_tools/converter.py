@@ -76,8 +76,6 @@ class ScheduleConverter(object):
         if src_storage_format:
             storage_handler_cls = self.get_storage_handler_cls(src_storage_format)
             storage_handler = storage_handler_cls(opt_args=handler_opt_args)
-            storage_handler.clone()
-            storage_handler.build_handle(handle)
         else:
             storage_handler = None
 
