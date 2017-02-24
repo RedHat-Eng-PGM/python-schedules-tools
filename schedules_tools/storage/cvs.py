@@ -1,4 +1,4 @@
-from schedules_tools.storage import StorageBase, StorageNotCloned
+from schedules_tools.storage import StorageBase
 import os
 import sys
 import re
@@ -50,12 +50,6 @@ class StorageHandler_cvs(StorageBase):
 
         return self.target_dir
 
-    def get_local_handle(self, handle):
-        if not self.cloned:
-            msg = 'You have to clone storage first before to take local handle.'
-            raise StorageNotCloned(msg)
-        return os.path.join(self.target_dir, handle)
-
     def checkout(self, revision=None, datetime=None):
         cmd_revision = ''
         if datetime:
@@ -67,15 +61,6 @@ class StorageHandler_cvs(StorageBase):
         cmd = 'update {cmd_revision} {filename}'.format(
             cmd_revision=cmd_revision, filename=self.handle)
         p = self._cvs_command(cmd)
-        p.communicate()
-        assert p.returncode == 0
-
-    # move to custom tjp handler
-    def build_handle(self, handle):
-        local_handle = self.get_local_handle(handle)
-        hadle_path = os.path.dirname(local_handle)
-        p = subprocess.Popen('make',
-                             cwd=hadle_path)
         p.communicate()
         assert p.returncode == 0
 

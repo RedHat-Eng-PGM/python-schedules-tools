@@ -40,13 +40,6 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
-    def get_local_handle(self, handle):
-        """
-        Returns path to local (working) 'copy' of handle from storage,
-        that don't have to be always local file.
-        """
-        raise NotImplementedError
-
     def push(self):
         raise NotImplementedError    
     

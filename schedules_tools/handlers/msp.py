@@ -69,7 +69,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
         # import changelog, fill schedule.mtime
         if self.src_storage_handler:
-            changelog_path = self.handle_original
+            changelog_path = self.handle
             self.schedule.changelog = self.src_storage_handler.get_changelog(
                 changelog_path)
             self.schedule.mtime = self.src_storage_handler.get_mtime(

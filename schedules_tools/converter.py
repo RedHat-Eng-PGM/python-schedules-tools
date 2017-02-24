@@ -27,12 +27,8 @@ class ScheduleConverter(object):
         self.schedule = schedule
 
     def get_handler_for_handle(self, handle, storage_handle):
-        handle_local = handle
-        if storage_handle:
-            handle_local = storage_handle.get_local_handle(handle)
-
         for module in discovery.schedule_handlers.values():
-            if module['class'].is_valid_source(handle_local):
+            if module['class'].is_valid_source(handle):
                 return module
 
         msg = "Can't find schedule handler for handle: {}".format(handle)
