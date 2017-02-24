@@ -22,15 +22,6 @@ def get_local_path(path):
     return os.path.join(BASE_DIR, PARENT_DIRNAME, path)
 
 
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 class AutodiscoverHandlers(object):
     _discovered_handlers = None
     re_class_teplate = None
@@ -183,8 +174,7 @@ class LazyDictDiscovery(dict):
         return ret
 
 
-class ScheduleHandlerSingleton(LazyDictDiscovery):
-    __metaclass__ = Singleton
+class ScheduleHandler(LazyDictDiscovery):
     search_paths = [get_local_path('handlers')]
     _provided_exports = []
 
@@ -202,9 +192,8 @@ class ScheduleHandlerSingleton(LazyDictDiscovery):
         self._provided_exports = sorted(self._provided_exports)
 
 
-class StorageHandlerSingleton(LazyDictDiscovery):
-    __metaclass__ = Singleton
+class StorageHandler(LazyDictDiscovery):
     search_paths = [get_local_path('storage')]
 
-schedule_handlers = ScheduleHandlerSingleton(cls_template=re_schedule_handler)
-storage_handlers = StorageHandlerSingleton(cls_template=re_storage_handler)
+schedule_handlers = ScheduleHandler(cls_template=re_schedule_handler)
+storage_handlers = StorageHandler(cls_template=re_storage_handler)
