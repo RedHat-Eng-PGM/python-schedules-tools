@@ -174,7 +174,7 @@ class LazyDictDiscovery(dict):
         return ret
 
 
-class ScheduleHandler(LazyDictDiscovery):
+class ScheduleHandlerDiscovery(LazyDictDiscovery):
     search_paths = [get_local_path('handlers')]
     _provided_exports = []
 
@@ -192,8 +192,8 @@ class ScheduleHandler(LazyDictDiscovery):
         self._provided_exports = sorted(self._provided_exports)
 
 
-class StorageHandler(LazyDictDiscovery):
+class StorageHandlerDiscovery(LazyDictDiscovery):
     search_paths = [get_local_path('storage')]
 
-schedule_handlers = ScheduleHandler(cls_template=re_schedule_handler)
-storage_handlers = StorageHandler(cls_template=re_storage_handler)
+schedule_handlers = ScheduleHandlerDiscovery(cls_template=re_schedule_handler)
+storage_handlers = StorageHandlerDiscovery(cls_template=re_storage_handler)
