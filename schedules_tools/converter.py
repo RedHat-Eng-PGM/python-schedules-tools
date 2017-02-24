@@ -1,21 +1,7 @@
-import os
-import sys
-import re
 import logging
 import discovery
 
-
-VALID_MODULE_NAME = re.compile(r'^(\w+)\.py$', re.IGNORECASE)
-BASE_DIR = os.path.dirname(os.path.realpath(
-    os.path.join(__file__, os.pardir)))
-PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
-
 logger = logging.getLogger(__name__)
-re_schedule_handler = re.compile('^ScheduleHandler_(\S+)$')
-re_storage_handler = re.compile('^ScheduleStorageHandler_(\S+)$')
-
-# FIXME(mpavlase): Figure out nicer way to deal with paths
-sys.path.append(BASE_DIR)
 
 
 class ScheduleFormatNotSupported(Exception):
@@ -36,62 +22,16 @@ class ScheduleConverter(object):
     no matter the exact handler/schedule type.
     """
     schedule = None
-    schedule_handlers_dir = 'handlers'
-    schedule_handlers = {}
-    schedule_discovery = None
-    
-    provided_exports = []
-    
-    storage_handlers_dir = 'storage'
-    storage_handlers = {}
-    storage_discovery = None
 
     def __init__(self, schedule=None):
-        schedule_handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.schedule_handlers_dir)
-        storage_handlers_path = os.path.join(BASE_DIR, PARENT_DIRNAME, self.storage_handlers_dir)
-
-        self.schedule_discovery = discovery.AutodiscoverHandlers(re_schedule_handler)
-        self.storage_discovery = discovery.AutodiscoverHandlers(re_storage_handler)
-
-        self.add_discover_path(schedule_handlers_path)
-        self.add_discover_path(storage_handlers_path)
-
         self.schedule = schedule
-
-    # Move this to discovery class or handler dict getter
-    def add_discover_path(self, handlers_path):
-        """
-        Adds location in handlers_path variable to discovery path and starts to
-        search for handlers. This method can be called multiple times, if there
-        will be conflict in name of the handler, discovered implementation will
-        be used (override the old one).
-
-        Order of search paths:
-         - schedules_tools/handlers
-         - handlers_path (optionally)
-
-        Args:
-            handlers_path: Path to directory (python module) to search for handlers
-        """
-        logger.debug('Searching for handlers in path: {}'.format(handlers_path))
-        self.schedule_handlers = self.schedule_discovery.discover(handlers_path)
-        self.storage_handlers = self.storage_discovery.discover(handlers_path)
-
-        self.provided_exports = []
-        
-        for handler_name, handler in self.schedule_handlers.iteritems():
-            if handler['provide_export']:
-                self.provided_exports.append(handler_name)
-
-        self.provided_exports = sorted(self.provided_exports)
-
 
     def get_handler_for_handle(self, handle, storage_handle):
         handle_local = handle
         if storage_handle:
             handle_local = storage_handle.get_local_handle(handle)
 
-        for module in self.schedule_handlers.itervalues():
+        for module in discovery.schedule_handlers.values():
             if module['class'].is_valid_source(handle_local):
                 return module
 
@@ -99,19 +39,19 @@ class ScheduleConverter(object):
         raise ScheduleFormatNotSupported(msg)
 
     def get_handler_for_format(self, format, storage_handle):
-        if format not in self.schedule_handlers:
+        if format not in discovery.schedule_handlers:
             msg = "Can't find schedule handler for format: {}".format(format)
             raise ScheduleFormatNotSupported(msg)
 
-        return self.schedule_handlers[format]
+        return discovery.schedule_handlers[format]
 
 
     def get_storage_handler_for_format(self, format):
-        if format not in self.storage_handlers:
+        if format not in discovery.storage_handlers:
             msg = "Can't find storage handler for format: {}".format(format)
             raise StorageFormatNotSupported(msg)
 
-        return self.storage_handlers[format]
+        return discovery.storage_handlers[format]
 
 
     def get_handler_struct(self, handle=None, format=None, storage_handler=None):

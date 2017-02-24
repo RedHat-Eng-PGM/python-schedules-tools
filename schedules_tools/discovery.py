@@ -5,24 +5,30 @@ import handlers
 import logging
 import importlib
 
-logger = logging.getLogger(__name__)
-handler_class_template = re.compile('^ScheduleHandler_(\S+)$')
 VALID_MODULE_NAME = re.compile(r'^(\w+)\.py$', re.IGNORECASE)
+PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
+
+logger = logging.getLogger(__name__)
+re_schedule_handler = re.compile('^ScheduleHandler_(\S+)$')
+re_storage_handler = re.compile('^StorageHandler_(\S+)$')
 
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
 
-# don't forget about builtin handler dir
-schedule_handlers_paths = []
-storage_handlers_paths = []
 
-# implement lazy getters for:
-_schedule_handlers = {}
-_storage_handlers = {}
+def get_local_path(path):
+    return os.path.join(BASE_DIR, PARENT_DIRNAME, path)
 
 
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
 class AutodiscoverHandlers(object):
@@ -32,6 +38,9 @@ class AutodiscoverHandlers(object):
     def __init__(self, re_class_template):
         self.re_class_teplate = re_class_template
         self._discovered_handlers = dict()
+
+    def get_handlers(self):
+        return self._discovered_handlers
 
     def _load_parent_module(self, path):
         realpath = os.path.realpath(path)
@@ -121,3 +130,81 @@ class AutodiscoverHandlers(object):
             self._discover_path(filename, module_name)
 
         return self._discovered_handlers
+
+
+class LazyDictDiscovery(dict):
+    search_paths = []
+    autodiscovery = None
+
+    def __init__(self, *args, **kwargs):
+        self.autodiscovery = AutodiscoverHandlers(kwargs.pop('cls_template'))
+        self.update(dict(*args, **kwargs))  # use the free update to set keys
+        super(LazyDictDiscovery, self).__init__(*args, **kwargs)
+
+    def __getitem__(self, item):
+        if not self.items():
+            self._run_discovery()
+
+        return super(LazyDictDiscovery, self).__getitem__(item)
+
+    def keys(self):
+        if not self.items():
+            self._run_discovery()
+        return super(LazyDictDiscovery, self).keys()
+
+    def values(self):
+        if not self.items():
+            self._run_discovery()
+        return super(LazyDictDiscovery, self).values()
+
+    def _post_discovery_hook(self):
+        """
+        Override this method, if you need to do something after discovery has
+        been processed.
+        """
+        pass
+
+    def add_discover_path(self, path):
+        self.search_paths.append(path)
+
+    def _run_discovery(self):
+        ret = dict()
+
+        for path in self.search_paths:
+            logger.debug('Searching for handlers in path: {}'.format(path))
+            ret = self.autodiscovery.discover(path)
+
+        # override all existing keys/values
+        self.clear()
+        for key, value in ret.items():
+            self[key] = value
+
+        self._post_discovery_hook()
+        return ret
+
+
+class ScheduleHandlerSingleton(LazyDictDiscovery):
+    __metaclass__ = Singleton
+    search_paths = [get_local_path('handlers')]
+    _provided_exports = []
+
+    @property
+    def provided_exports(self):
+        if not self._provided_exports:
+            self._run_discovery()
+        return self._provided_exports
+
+    def _post_discovery_hook(self):
+        for handler_name, handler in self.items():
+            if handler['provide_export']:
+                self._provided_exports.append(handler_name)
+
+        self._provided_exports = sorted(self._provided_exports)
+
+
+class StorageHandlerSingleton(LazyDictDiscovery):
+    __metaclass__ = Singleton
+    search_paths = [get_local_path('storage')]
+
+schedule_handlers = ScheduleHandlerSingleton(cls_template=re_schedule_handler)
+storage_handlers = StorageHandlerSingleton(cls_template=re_storage_handler)
