@@ -18,10 +18,6 @@ import sys
 import time
 import argparse
 
-# schedules are in US TZ
-os.environ['TZ'] = 'America/New_York'
-time.tzset()
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
