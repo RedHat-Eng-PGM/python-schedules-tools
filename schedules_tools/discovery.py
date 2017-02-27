@@ -17,7 +17,6 @@ re_storage_handler = re.compile('^StorageHandler_(\S+)$')
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
 
-
 def get_local_path(path):
     return os.path.join(BASE_DIR, PARENT_DIRNAME, path)
 
@@ -124,7 +123,6 @@ class AutodiscoverHandlers(object):
 
 
 class LazyDictDiscovery(dict):
-    search_paths = []
     autodiscovery = None
 
     def __init__(self, *args, **kwargs):
@@ -155,13 +153,14 @@ class LazyDictDiscovery(dict):
         """
         pass
 
-    def add_discover_path(self, path):
-        self.search_paths.append(path)
+    @staticmethod
+    def add_discover_path(path):
+        search_paths.append(path)
 
     def _run_discovery(self):
         ret = dict()
 
-        for path in self.search_paths:
+        for path in search_paths:
             logger.debug('Searching for handlers in path: {}'.format(path))
             ret = self.autodiscovery.discover(path)
 
@@ -175,7 +174,6 @@ class LazyDictDiscovery(dict):
 
 
 class ScheduleHandlerDiscovery(LazyDictDiscovery):
-    search_paths = [get_local_path('handlers')]
     _provided_exports = []
 
     @property
@@ -193,7 +191,10 @@ class ScheduleHandlerDiscovery(LazyDictDiscovery):
 
 
 class StorageHandlerDiscovery(LazyDictDiscovery):
-    search_paths = [get_local_path('storage')]
+    pass
 
 schedule_handlers = ScheduleHandlerDiscovery(cls_template=re_schedule_handler)
 storage_handlers = StorageHandlerDiscovery(cls_template=re_storage_handler)
+
+search_paths = [get_local_path('handlers'),
+                get_local_path('storage')]
