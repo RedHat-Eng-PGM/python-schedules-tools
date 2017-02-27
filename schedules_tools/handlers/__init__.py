@@ -5,10 +5,6 @@ import os
 
 logger = logging.getLogger(__name__)
 
-# schedules are in US TZ
-os.environ['TZ'] = 'America/New_York'
-time.tzset()
-
 
 # Handle implementation must be in format ScheduleHandler_format
 # where 'format' is used as a uniq label for the format and
@@ -42,7 +38,13 @@ class ScheduleHandlerBase(object):
         raise NotImplementedError
     
     def handle_modified_since(self, mtime):
-        raise NotImplementedError
+        # Return False only when able to tell
+        if isinstance(mtime, datetime):
+            handle_mtime = self.get_handle_mtime()
+            if handle_mtime and handle_mtime <= mtime:
+                return False
+        
+        return True
     
     def get_handle_changelog(self):
         return []
