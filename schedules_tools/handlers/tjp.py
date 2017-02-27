@@ -3,7 +3,7 @@ import logging
 import fileinput
 import os
 
-import tji
+from schedules_tools.discovery import schedule_handlers
 from schedules_tools.handlers import ScheduleHandlerBase
 
 
@@ -60,6 +60,8 @@ include "reports.tji"
     # Schedule
     # $(COMMON_DIR)/schedule_convert.py --tj-id $(CONTENT) ${MAJOR_STR} ${MINOR_STR} ${MAINT_STR} $(MSP_SRC) tjp $(MASTER)
     def export_schedule(self):
+        if 'tji' not in schedule_handlers:
+            raise Exception('TJP export requires TJI handler')
         tj_id = self.opt_args['tj_id']
         use_tji_file = self.opt_args.get('use_tji_file', False)
         force = self.opt_args.get('force', False)
@@ -82,7 +84,8 @@ include "reports.tji"
 
         # export as TJI first
         logger.info('Producing tji file to include in tjp')
-        handler_tji = tji.ScheduleHandler_tji(schedule=self.schedule)
+        tji_cls = schedule_handlers['tji']['class']
+        handler_tji = tji_cls(schedule=self.schedule)
         handler_tji.schedule.override_version(
             tj_id, v_major, v_minor, v_maint)
 
