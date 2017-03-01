@@ -39,9 +39,9 @@ class Task(object):
         self.level = level
 
     def __unicode__(self):
-        return '%s %s MS:%s  (%s - %s) ac(%s - %s) [%s]' % (
+        return '%s %s MS:%s  (%s - %s) ac(%s - %s)  F%s  [%s]' % (
             self.tjx_id, self.name, self.milestone, self.dStart, self.dFinish,
-            self.dAcStart, self.dAcFinish, len(self.tasks))
+            self.dAcStart, self.dAcFinish, self.flags, len(self.tasks))
 
     def __str__(self):
         return unicode(self).encode('utf-8')

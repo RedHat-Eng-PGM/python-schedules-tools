@@ -7,7 +7,7 @@ import tempfile
 import logging
 from lxml import etree
 
-MSP_FLAGS_ATTRS = 'Flags', 'Text1'
+MSP_FLAGS_ATTRS = ('Flags', )
 datetime_format = '%Y-%m-%dT%H:%M:%S'
 
 PREFIX_FLAG = 'Flags'
