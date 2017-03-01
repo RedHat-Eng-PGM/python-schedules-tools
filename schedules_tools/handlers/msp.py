@@ -75,7 +75,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             self.schedule.mtime = self.src_storage_handler.get_mtime(
                 changelog_path)
         else:
-            self.parse_tjx_changelog(tree)
             self.schedule.mtime = self.get_handle_mtime()
 
         # extended attributes
