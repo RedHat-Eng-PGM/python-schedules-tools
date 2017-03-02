@@ -38,7 +38,7 @@ last_commit =  get_last_changelog_commit(CHANGELOG_FILENAME_PATH)
 if last_commit:
     first_tag_commit = last_commit
 
-proc = Popen(['git', 'log', "--branches='master or develop'",
+proc = Popen(['git', 'log', "--branches='master or stable'",
               "--pretty=format:* %ct %an <%ae> %h%n- %s%n",
               '%s..' % first_tag_commit],
              stdout=PIPE, stderr=PIPE)
@@ -53,7 +53,7 @@ for ver_line in ver_lines:
         timestamp, sep, rest = ver_line[2:].partition(' ')
         actual_ts = timestamp
         rest, sep, commit_hash = rest.rpartition(' ')
-        #TODO:3 git log -3 --pretty --walk-reflogs master develop
+        #TODO:3 git log -3 --pretty --walk-reflogs master stable
         date = datetime.date.fromtimestamp(float(timestamp))
         beg_date = date.strftime('%a %b %d %Y')
         ver_date = date.strftime('%Y%m%d')
