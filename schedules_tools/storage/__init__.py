@@ -2,6 +2,10 @@ class StorageNotCloned(Exception):
     pass
 
 
+class ExceptionCheckoutPathExistst(Exception):
+    pass
+
+
 class StorageBase(object):
     handle = None
     opt_args = {}

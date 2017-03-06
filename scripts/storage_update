@@ -4,7 +4,7 @@ import os
 import sys
 import re
 import logging
-from schedules_tools import discovery
+from schedules_tools import discovery, converter
 
 logger = logging.getLogger(__name__)
 handler_class_template = re.compile('^ScheduleHandler_(\S+)$')
@@ -31,6 +31,16 @@ def setup_logging(level):
     inst.addHandler(sh)
 
 
+class StorageUpdate(object):
+    storage_handler = None
+
+    def __init__(self, handle, source_storage_format, handler_opt_args):
+        conv = converter.ScheduleConverter()
+        storage_handler_cls = conv.get_storage_handler_cls(source_storage_format)
+        self.storage_handler = storage_handler_cls(opt_args=handler_opt_args)
+        self.storage_handler.clone()
+
+
 def main(args):
     handlers_args_def = '--handlers-path',
     handlers_kwargs_def = {
@@ -43,15 +53,12 @@ def main(args):
     }
     setup_logging(logging.DEBUG)
 
-    # Separate parser to handle '--handlers-path' argument and prepare
-    # converter.provided_exports to be used in main parser
     add_handler_parser = argparse.ArgumentParser(add_help=False)
     add_handler_parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
     known_args = add_handler_parser.parse_known_args(args)
 
     opt_args = vars(known_args[0])  # 0. index contains successfully parsed args
     for path in opt_args.pop('handlers_path'):
-        #discovery.schedule_handlers.add_discover_path(path)
         discovery.storage_handlers.add_discover_path(path)
 
     parser = argparse.ArgumentParser(
@@ -62,8 +69,8 @@ def main(args):
     parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
 
     parser.add_argument('--clean-checkout', action='store_true', default=False,
-                        help='Remove previously fetched working copy of '
-                             'repository before doing updates.')
+                        help='Remove previously fetched working copy (if '
+                             'exists) of repository before doing updates.')
 
     parser.add_argument('--source-storage-format',
                         choices=discovery.storage_handlers.keys(),
@@ -76,7 +83,7 @@ def main(args):
     parser.add_argument('--cvs-root',
                         help='Root of CVS repository')
     parser.add_argument('source',
-                        help='Source handle (file/URL/...)',
+                        help='Source schedule handle (file/URL/...)',
                         type=str,
                         metavar='SRC')
 
@@ -86,6 +93,10 @@ def main(args):
     # --handlers-path argument is already procesed, it shouldn't be passed
     # as opt_args into handlers
     opt_args.pop('handlers_path')
+
+    updater = StorageUpdate(arguments.source,
+                            arguments.source_storage_format,
+                            opt_args)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
