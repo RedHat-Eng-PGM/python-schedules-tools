@@ -33,12 +33,19 @@ def setup_logging(level):
 
 class StorageUpdate(object):
     storage_handler = None
+    handle = None
 
     def __init__(self, handle, source_storage_format, handler_opt_args):
+        self.handle = handle
         conv = converter.ScheduleConverter()
         storage_handler_cls = conv.get_storage_handler_cls(source_storage_format)
         self.storage_handler = storage_handler_cls(opt_args=handler_opt_args)
         self.storage_handler.clone()
+        self.update()
+
+    def update(self):
+        changed_paths = self.storage_handler.update(self.handle)
+        logger.debug('changed paths: {}'.format(changed_paths))
 
 
 def main(args):
