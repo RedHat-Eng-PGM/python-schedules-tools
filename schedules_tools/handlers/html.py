@@ -60,8 +60,8 @@ class ScheduleHandler_html(ScheduleHandlerBase):
             e_note.text = task.note
 
         if task.link:
-            e_br = etree.SubElement(e_td, 'div')
-            e_link = etree.SubElement(e_br, 'a')
+            e_div = etree.SubElement(e_td, 'div')
+            e_link = etree.SubElement(e_div, 'a')
             e_link.attrib['href'] = task.link
             e_link.text = task.link
 
