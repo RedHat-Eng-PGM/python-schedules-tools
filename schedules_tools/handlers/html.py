@@ -59,6 +59,12 @@ class ScheduleHandler_html(ScheduleHandlerBase):
             e_note.attrib['class'] = 'note'
             e_note.text = task.note
 
+        if task.link:
+            e_br = etree.SubElement(e_td, 'div')
+            e_link = etree.SubElement(e_br, 'a')
+            e_link.attrib['href'] = task.link
+            e_link.text = task.link
+
         e_td = etree.SubElement(e_tr, 'td')
         e_td.text = str(task.dAcStart.strftime(date_format))
 
