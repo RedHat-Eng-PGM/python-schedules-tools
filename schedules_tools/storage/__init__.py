@@ -10,29 +10,13 @@ class StorageBase(object):
     handle = None
     opt_args = {}
 
-    def __init__(self, opt_args=dict()):
+    def __init__(self, handle=None, opt_args=dict()):
+        self.handle = handle  # 'handle' is source/target of schedule in general        
         self.opt_args = opt_args
 
-    def clone(self, target_dir=None):
+    def checkout_handle(self, revision=None, datetime=None):
         """
-        Download repo into target_dir, optionally checkout (cvs terminology)
-        content accoding to passed revision or date - this behavior don't
-        have to be always implemented due different workflow (i.e. cvs vs. git).
-        If they are specified both, revision has precedence.
-
-        Args:
-            target_dir: if None, clone to tmp dir
-
-        Returns:
-            Path to downloaded local working copy of repository
-
-        """
-        # always download to /tmp, if need move to target
-        raise NotImplementedError
-
-    def checkout(self, revision=None, datetime=None):
-        """
-        Get specific version of handle (usualy file) based on revision
+        Get specific version of handle (usually file) based on revision
         or datetime. If they are specified both, revision has precedence.
 
         Args:
@@ -47,17 +31,22 @@ class StorageBase(object):
     def push(self):
         raise NotImplementedError    
     
-    def get_mtime(self, handle):
+    def get_handle_mtime(self):
         raise NotImplementedError
 
-    def modified_since(self, mtime):
-        raise NotImplementedError
+    def handle_modified_since(self, mtime):
+        # Return False only when able to tell
+        if isinstance(mtime, datetime):
+            handle_mtime = self.get_handle_mtime()
+            if handle_mtime and handle_mtime <= mtime:
+                return False
+        
+        return True
+
     
-    def get_changelog(self, handle):
+    def get_handle_changelog(self):
         return []
 
-    def build_handle(self, handle):
-        raise NotImplementedError
 
 
 def sync_nfs(local, remote, path=None):
