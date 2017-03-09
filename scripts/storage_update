@@ -13,6 +13,8 @@ BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
 PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 
+# TODO: Rename script to get_local_handle
+
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
 
@@ -75,6 +77,7 @@ def main(args):
 
     parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
 
+    # TODO: remove
     parser.add_argument('--clean-checkout', action='store_true', default=False,
                         help='Remove previously fetched working copy (if '
                              'exists) of repository before doing updates.')

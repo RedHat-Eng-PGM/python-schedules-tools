@@ -14,7 +14,7 @@ class StorageBase(object):
         self.handle = handle  # 'handle' is source/target of schedule in general        
         self.opt_args = opt_args
 
-    def checkout_handle(self, revision=None, datetime=None):
+    def get_local_handle(self, revision=None, datetime=None):
         """
         Get specific version of handle (usually file) based on revision
         or datetime. If they are specified both, revision has precedence.
