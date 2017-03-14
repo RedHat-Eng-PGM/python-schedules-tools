@@ -71,11 +71,15 @@ class ScheduleConverter(object):
 
         return handler.handle_modified_since(mtime)
 
-    def import_schedule(self, handle, source_format=None, handler_opt_args=dict()):
-        src_storage_format = handler_opt_args.get('source_storage_format', None)
-        if src_storage_format:
-            storage_handler_cls = self.get_storage_handler_cls(src_storage_format)
-            storage_handler = storage_handler_cls(opt_args=handler_opt_args)
+    def import_schedule(self, handle, source_format=None,
+                        handler_opt_args=dict()):
+        storage_format = handler_opt_args.get('source_storage_format', None)
+        if storage_format:
+            storage_handler_cls = self.get_storage_handler_cls(storage_format)
+            storage_handler = storage_handler_cls(
+                handle=handle,
+                checkout_dir=handler_opt_args['cvs_checkout_path'],
+                opt_args=handler_opt_args)
         else:
             storage_handler = None
 

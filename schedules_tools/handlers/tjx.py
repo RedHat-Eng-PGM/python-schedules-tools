@@ -47,6 +47,8 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
     def is_valid_source(cls, handle=None):
         if not handle:
             handle = cls.handle
+        if cls.src_storage_handler:
+            handle = cls.src_storage_handler.get_local_handle()
         file_ext = os.path.splitext(handle)[1]
 
         if file_ext == '.tjx':

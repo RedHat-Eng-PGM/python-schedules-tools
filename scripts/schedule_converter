@@ -89,6 +89,8 @@ def main(args):
                         help='Name of CVS repository to checkout')
     parser.add_argument('--cvs-root',
                         help='Root of CVS repository')
+    parser.add_argument('--cvs-checkout-path',
+                        help='Path to shared working copy of CVS repository')
     parser.add_argument('--source-format',
                         choices=discovery.schedule_handlers.keys(),
                         metavar='SRC_FORMAT',

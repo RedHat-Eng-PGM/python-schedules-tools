@@ -26,6 +26,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if not handle:
             handle = cls.handle
         try:
+            if cls.src_storage_handler:
+                handle = cls.src_storage_handler.get_local_handle()
             tree = etree.parse(handle)
         except etree.XMLSyntaxError:
             return False
