@@ -1,9 +1,4 @@
-class StorageNotCloned(Exception):
-    pass
-
-
-class ExceptionCheckoutPathExistst(Exception):
-    pass
+import datetime
 
 
 class StorageBase(object):
@@ -40,13 +35,11 @@ class StorageBase(object):
             handle_mtime = self.get_handle_mtime()
             if handle_mtime and handle_mtime <= mtime:
                 return False
-        
+
         return True
 
-    
     def get_handle_changelog(self):
         return []
-
 
 
 def sync_nfs(local, remote, path=None):
