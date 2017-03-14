@@ -29,7 +29,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             if cls.src_storage_handler:
                 handle = cls.src_storage_handler.get_local_handle()
             tree = etree.parse(handle)
-        except etree.XMLSyntaxError:
+        except (etree.XMLSyntaxError, IOError):
             return False
 
         if 'http://schemas.microsoft.com/project' in tree.getroot().tag:
