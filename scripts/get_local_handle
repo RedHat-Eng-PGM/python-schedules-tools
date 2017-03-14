@@ -13,8 +13,6 @@ BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
 PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 
-# TODO: Rename script to get_local_handle
-
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
 
@@ -31,23 +29,6 @@ def setup_logging(level):
     inst = logging.getLogger('')
     inst.setLevel(level)
     inst.addHandler(sh)
-
-
-class StorageUpdate(object):
-    storage_handler = None
-    handle = None
-
-    def __init__(self, handle, source_storage_format, handler_opt_args):
-        self.handle = handle
-        conv = converter.ScheduleConverter()
-        storage_handler_cls = conv.get_storage_handler_cls(source_storage_format)
-        self.storage_handler = storage_handler_cls(opt_args=handler_opt_args)
-        self.storage_handler.clone()
-        self.update()
-
-    def update(self):
-        changed_paths = self.storage_handler.update(self.handle)
-        logger.debug('changed paths: {}'.format(changed_paths))
 
 
 def main(args):
@@ -77,11 +58,6 @@ def main(args):
 
     parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
 
-    # TODO: remove
-    parser.add_argument('--clean-checkout', action='store_true', default=False,
-                        help='Remove previously fetched working copy (if '
-                             'exists) of repository before doing updates.')
-
     parser.add_argument('--source-storage-format',
                         choices=discovery.storage_handlers.keys(),
                         metavar='SRC_STORAGE_FORMAT',
@@ -100,13 +76,16 @@ def main(args):
     arguments = parser.parse_args(args)
     opt_args = vars(arguments)
 
-    # --handlers-path argument is already procesed, it shouldn't be passed
+    # --handlers-path argument is already processed, it shouldn't be passed
     # as opt_args into handlers
     opt_args.pop('handlers_path')
 
-    updater = StorageUpdate(arguments.source,
-                            arguments.source_storage_format,
-                            opt_args)
+    conv = converter.ScheduleConverter()
+    sch = conv.import_schedule(arguments.source, handler_opt_args=opt_args)
+
+    print sch.name
+    print sch.project_name
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
