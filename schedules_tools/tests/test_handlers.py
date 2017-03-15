@@ -2,6 +2,9 @@ from testtools import TestCase
 from schedules_tools.handlers import msp
 from schedules_tools import models
 from lxml import etree
+import logging
+
+logging.basicConfig()
 
 
 class Test_msp_parseExtAttrs(TestCase):
