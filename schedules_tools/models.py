@@ -97,6 +97,34 @@ class Task(object):
         else:
             return 'Task'
 
+    def dump_as_dict(self, recursive=True):
+        attrs = copy.copy(vars(self))
+        exclude = ['_schedule']
+
+        if recursive:
+            attrs['tasks'] = []
+            for task in self.tasks:
+                attrs['tasks'].append(task.dump_as_dict())
+        else:
+            exclude.append('tasks')
+
+        [attrs.pop(item) for item in exclude]
+
+        return attrs
+
+    @classmethod
+    def load_from_dict(cls, input_dict, schedule):
+        task = cls(schedule)
+
+        for key, val in input_dict.items():
+            task.__setattr__(key, val)
+
+        task.tasks = []
+        for new_task in input_dict.get('tasks', []):
+            task.tasks.append(Task.load_from_dict(new_task, schedule))
+
+        return task
+
 
 class Schedule(object):
     tj_id = ''
@@ -354,3 +382,39 @@ class Schedule(object):
             logger.info('Duplicate Task Names: %s, adding: %s' % (source, test_id))
 
         return test_id
+
+    def dump_as_dict(self):
+        schedule = copy.copy(vars(self))
+        exclude = ['unique_task_id_re']
+        [schedule.pop(item) for item in exclude]
+
+        schedule['tasks'] = []
+        for task in self.tasks:
+            schedule['tasks'].append(task.dump_as_dict())
+
+        schedule['phases'] = []
+        for phase in self.phases:
+            schedule['phases'].append(phase.dump_as_dict(recursive=False))
+
+        # set() is not serializable into json
+        schedule['used_flags'] = sorted(list(self.used_flags))
+        return schedule
+
+    @classmethod
+    def load_from_dict(cls, input_dict):
+        # This will preserve reference to original class attributes
+        schedule = cls()
+        for key, val in input_dict.items():
+            schedule.__setattr__(key, val)
+
+        schedule.tasks = []
+        for task in input_dict['tasks']:
+            schedule.tasks.append(Task.load_from_dict(task, schedule))
+
+        schedule.phases = []
+        for phase in input_dict['phases']:
+            schedule.phases.append(Task.load_from_dict(phase, schedule))
+
+        schedule.used_flags = set(input_dict['used_flags'])
+
+        return schedule
