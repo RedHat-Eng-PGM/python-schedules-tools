@@ -27,7 +27,11 @@ class ScheduleHandlerBase(object):
                  opt_args=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
+        
         self.src_storage_handler = src_storage_handler
+        if self.handle:
+            self.src_storage_handler.handle = self.handle
+        
         self.opt_args = opt_args
 
     def _write_to_file(self, content, file):
