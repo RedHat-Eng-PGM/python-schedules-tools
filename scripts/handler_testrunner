@@ -1,0 +1,175 @@
+#!/usr/bin/env python
+import argparse
+import os
+import sys
+import re
+import logging
+import tempfile
+from schedules_tools import discovery
+from schedules_tools import jsondate
+from schedules_tools import converter
+from schedules_tools import models
+
+
+logger = logging.getLogger(__name__)
+handler_class_template = re.compile('^ScheduleHandler_(\S+)$')
+BASE_DIR = os.path.dirname(os.path.realpath(
+    os.path.join(__file__, os.pardir)))
+
+# FIXME(mpavlase): Figure out nicer way to deal with paths
+sys.path.append(BASE_DIR)
+
+
+def setup_logging(level):
+    log_format = '%(name)-10s %(levelname)7s: %(message)s'
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(level)
+
+    formatter = logging.Formatter(log_format)
+    sh.setFormatter(formatter)
+
+    # setup root logger
+    inst = logging.getLogger('')
+    inst.setLevel(level)
+    inst.addHandler(sh)
+
+
+class TestRunner(object):
+    handler = None
+    json_reference_file = None
+
+    def __init__(self, handler, json_reference_file):
+        """
+        Args:
+            handler: name as str, such as 'tjx'
+            json_reference_file: reference to make comparison
+        """
+        self.handler = handler
+        self.json_reference_file = json_reference_file
+
+    def make_json_reference(self, input_file):
+        conv = converter.ScheduleConverter()
+        conv.import_schedule(input_file,
+                             source_format=self.handler)
+        input_dict = conv.schedule.dump_as_dict()
+        with open(self.json_reference_file, 'w+') as fd:
+            # pretty print output to be able do diff outside this tool
+            jsondate.dump(
+                input_dict, fd,
+                sort_keys=True,
+                indent=4,
+                separators=(',', ': ')
+            )
+
+    def _load_reference_as_dict(self):
+        with open(self.json_reference_file) as fd:
+            return jsondate.load(fd)
+
+    def _load_reference_as_json_str(self):
+        json_loaded = self._load_reference_as_dict()
+        # load and dump again to not be sensitive by whitespaces etc.
+        return self._dict_to_string(json_loaded)
+
+    @staticmethod
+    def _dict_to_string(input_dict):
+        return jsondate.dumps(input_dict, sort_keys=True)
+
+    def test_input(self, input_file):
+        reference_str = self._load_reference_as_json_str()
+        conv = converter.ScheduleConverter()
+        conv.import_schedule(input_file,
+                             source_format=self.handler)
+        input_dict = conv.schedule.dump_as_dict()
+        input_str = self._dict_to_string(input_dict)
+        if input_str != reference_str:
+            print 'Input file and reference JSON is not same!'
+            sys.exit(1)
+
+    def test_output(self, output_file):
+        reference_dict = self._load_reference_as_dict()
+        reference_schedule = models.Schedule.load_from_dict(reference_dict)
+        _, temp_output_file = tempfile.mkstemp()
+
+        conv = converter.ScheduleConverter(reference_schedule)
+        conv.export_schedule(temp_output_file,
+                             target_format=self.handler)
+
+        with open(temp_output_file) as fd:
+            reference = fd.read()
+        os.unlink(temp_output_file)
+
+        with open(output_file) as fd:
+            test_out = fd.read()
+
+        if reference != test_out:
+            print 'Output file and reference JSON is not same!'
+            sys.exit(1)
+
+
+def main(args):
+    handlers_args_def = '--handlers-path',
+    handlers_kwargs_def = {
+        'help': 'Add path to discover handlers (needs to be python'
+                ' module), can be called several times '
+                '(conflicting names will be overriden - the last '
+                'implementation will be used)',
+        'action': 'append',
+        'default': []
+    }
+    setup_logging(logging.DEBUG)
+
+    # Separate parser to handle '--handlers-path' argument and prepare
+    # converter.provided_exports to be used in main parser
+    add_handler_parser = argparse.ArgumentParser(add_help=False)
+    add_handler_parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
+    known_args = add_handler_parser.parse_known_args(args)
+
+    opt_args = vars(known_args[0])  # 0. index contains successfully parsed args
+    for path in opt_args.pop('handlers_path'):
+        discovery.schedule_handlers.add_discover_path(path)
+        discovery.storage_handlers.add_discover_path(path)
+
+    parser = argparse.ArgumentParser(description='Perform schedule conversions.')
+
+    parser.add_argument(*handlers_args_def, **handlers_kwargs_def)
+    subparser = parser.add_mutually_exclusive_group()
+
+    subparser.add_argument('--test-input',
+                           help='Test input file',
+                           type=str,
+                           metavar='TEST_INPUT')
+    subparser.add_argument('--test-output',
+                           help='Test output file',
+                           type=str,
+                           metavar='TEST_OUTPUT')
+    parser.add_argument('--json-reference',
+                        help='JSON reference dump of intermediary Schedule '
+                             'model',
+                        type=str,
+                        metavar='JSON_FILE')
+    parser.add_argument('--dump-as-reference',
+                        action='store_true')
+    parser.add_argument('handler',
+                        choices=discovery.schedule_handlers.keys(),
+                        metavar='HANDLER',
+                        help='Name of handler to test with given test files')
+
+    arguments = parser.parse_args(args)
+    opt_args = vars(arguments)
+
+    # --handlers-path argument is already procesed, it shouldn't be passed
+    # as opt_args into handlers
+    opt_args.pop('handlers_path')
+
+    runner = TestRunner(arguments.handler, arguments.json_reference)
+    if arguments.test_input:
+        if arguments.dump_as_reference:
+            runner.make_json_reference(arguments.test_input)
+        else:
+            runner.test_input(arguments.test_input)
+    elif arguments.test_output:
+        runner.test_output(arguments.test_output)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
