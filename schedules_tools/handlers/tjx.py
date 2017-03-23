@@ -300,11 +300,6 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
                                     date_format))
         eEnd.text = self.schedule.dFinish.strftime('%s')
 
-        now = datetime.datetime.now()
-        eNow = etree.SubElement(eProject, 'now',
-                                humanReadable=now.strftime(date_format))
-        eNow.text = now.strftime('%s')
-
         self.schedule.id_reg = set()
 
         for item in self.schedule.tasks:
