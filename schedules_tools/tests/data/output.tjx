@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Project Id="proj10" WeekStart="Mon">
+  <Name>Test project</Name>
+  <Version></Version>
+  <Priority>500</Priority>
+  <start humanReadable="2000-01-01">946702800</start>
+  <end humanReadable="2000-03-29">954306000</end>
+  <Task Id="proj10">
+    <Index>1</Index>
+    <Name>Test project 10</Name>
+    <ProjectID>proj10</ProjectID>
+    <Priority>500</Priority>
+    <complete>100.0</complete>
+    <Type>Container</Type>
+    <actualStart humanReadable="2000-01-01 06:00:00 EDT">946702800</actualStart>
+    <actualEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</actualEnd>
+    <planStart humanReadable="2000-01-01 06:00:00 EDT">946702800</planStart>
+    <planEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</planEnd>
+    <SubTasks>
+      <Task Id="proj10.test1">
+        <Index>2</Index>
+        <Name>Test 1</Name>
+        <ProjectID>proj10</ProjectID>
+        <Priority>500</Priority>
+        <complete>100.0</complete>
+        <Type>Container</Type>
+        <ParentTask>proj10</ParentTask>
+        <actualStart humanReadable="2000-01-01 06:00:00 EDT">946702800</actualStart>
+        <actualEnd humanReadable="2000-03-27 07:00:00 EDT">954133200</actualEnd>
+        <planStart humanReadable="2000-01-01 06:00:00 EDT">946702800</planStart>
+        <planEnd humanReadable="2000-03-27 07:00:00 EDT">954133200</planEnd>
+        <SubTasks>
+          <Task Id="proj10.test1.devel">
+            <Index>3</Index>
+            <Name>Development</Name>
+            <ProjectID>proj10</ProjectID>
+            <Priority>500</Priority>
+            <complete>100.0</complete>
+            <Type>Task</Type>
+            <ParentTask>proj10.test1</ParentTask>
+            <custom id="PTask" url="https://github.com/1"/>
+            <actualStart humanReadable="2000-01-01 06:00:00 EDT">946702800</actualStart>
+            <actualEnd humanReadable="2000-03-18 06:00:00 EDT">953355600</actualEnd>
+            <planStart humanReadable="2000-01-01 06:00:00 EDT">946702800</planStart>
+            <planEnd humanReadable="2000-03-18 06:00:00 EDT">953355600</planEnd>
+          </Task>
+          <Task Id="proj10.test1.devel2">
+            <Index>4</Index>
+            <Name>Dev</Name>
+            <ProjectID>proj10</ProjectID>
+            <Priority>500</Priority>
+            <complete>100.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>proj10.test1</ParentTask>
+            <actualStart humanReadable="2000-03-18 06:00:00 EDT">953355600</actualStart>
+            <actualEnd humanReadable="2000-03-18 06:00:00 EDT">953355600</actualEnd>
+            <planStart humanReadable="2000-03-18 06:00:00 EDT">953355600</planStart>
+            <planEnd humanReadable="2000-03-18 06:00:00 EDT">953355600</planEnd>
+          </Task>
+          <Task Id="proj10.test1.release">
+            <Index>5</Index>
+            <Name>Release</Name>
+            <ProjectID>proj10</ProjectID>
+            <Priority>500</Priority>
+            <complete>100.0</complete>
+            <Type>Task</Type>
+            <Flag>flag2</Flag>
+            <ParentTask>proj10.test1</ParentTask>
+            <custom id="PTask" url="https://github.com/2"/>
+            <actualStart humanReadable="2000-03-18 06:00:00 EDT">953355600</actualStart>
+            <actualEnd humanReadable="2000-03-27 07:00:00 EDT">954133200</actualEnd>
+            <planStart humanReadable="2000-03-18 06:00:00 EDT">953355600</planStart>
+            <planEnd humanReadable="2000-03-27 07:00:00 EDT">954133200</planEnd>
+          </Task>
+          <Task Id="proj10.test1.test">
+            <Index>6</Index>
+            <Name>Testing Phase</Name>
+            <ProjectID>proj10</ProjectID>
+            <Priority>500</Priority>
+            <complete>100.0</complete>
+            <Type>Milestone</Type>
+            <Flag>flag1</Flag>
+            <ParentTask>proj10.test1</ParentTask>
+            <actualStart humanReadable="2000-03-27 07:00:00 EDT">954133200</actualStart>
+            <actualEnd humanReadable="2000-03-27 07:00:00 EDT">954133200</actualEnd>
+            <planStart humanReadable="2000-03-27 07:00:00 EDT">954133200</planStart>
+            <planEnd humanReadable="2000-03-27 07:00:00 EDT">954133200</planEnd>
+          </Task>
+        </SubTasks>
+      </Task>
+      <Task Id="proj10.test2">
+        <Index>7</Index>
+        <Name>Test 2</Name>
+        <ProjectID>proj10</ProjectID>
+        <Priority>500</Priority>
+        <complete>100.0</complete>
+        <Type>Container</Type>
+        <ParentTask>proj10</ParentTask>
+        <actualStart humanReadable="2000-03-27 07:00:00 EDT">954133200</actualStart>
+        <actualEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</actualEnd>
+        <planStart humanReadable="2000-03-27 07:00:00 EDT">954133200</planStart>
+        <planEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</planEnd>
+        <SubTasks>
+          <Task Id="proj10.test2.devel">
+            <Index>8</Index>
+            <Name>Development</Name>
+            <ProjectID>proj10</ProjectID>
+            <Priority>500</Priority>
+            <complete>100.0</complete>
+            <Type>Task</Type>
+            <ParentTask>proj10.test2</ParentTask>
+            <actualStart humanReadable="2000-03-27 07:00:00 EDT">954133200</actualStart>
+            <actualEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</actualEnd>
+            <planStart humanReadable="2000-03-27 07:00:00 EDT">954133200</planStart>
+            <planEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</planEnd>
+          </Task>
+          <Task Id="proj10.test2.another">
+            <Index>9</Index>
+            <Name>Another task</Name>
+            <ProjectID>proj10</ProjectID>
+            <Priority>500</Priority>
+            <complete>100.0</complete>
+            <Type>Milestone</Type>
+            <Flag>flag1</Flag>
+            <Flag>flag2</Flag>
+            <Flag>flag3</Flag>
+            <ParentTask>proj10.test2</ParentTask>
+            <actualStart humanReadable="2000-03-29 07:00:00 EDT">954306000</actualStart>
+            <actualEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</actualEnd>
+            <planStart humanReadable="2000-03-29 07:00:00 EDT">954306000</planStart>
+            <planEnd humanReadable="2000-03-29 07:00:00 EDT">954306000</planEnd>
+            <Note>test2 note</Note>
+          </Task>
+        </SubTasks>
+      </Task>
+    </SubTasks>
+  </Task>
+</Project>
