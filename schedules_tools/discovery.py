@@ -132,18 +132,18 @@ class LazyDictDiscovery(dict):
 
     def __getitem__(self, item):
         if not self.items():
-            self._run_discovery()
+            self.run_discovery()
 
         return super(LazyDictDiscovery, self).__getitem__(item)
 
     def keys(self):
         if not self.items():
-            self._run_discovery()
+            self.run_discovery()
         return super(LazyDictDiscovery, self).keys()
 
     def values(self):
         if not self.items():
-            self._run_discovery()
+            self.run_discovery()
         return super(LazyDictDiscovery, self).values()
 
     def _post_discovery_hook(self):
@@ -157,7 +157,7 @@ class LazyDictDiscovery(dict):
     def add_discover_path(path):
         search_paths.append(path)
 
-    def _run_discovery(self):
+    def run_discovery(self):
         ret = dict()
 
         for path in search_paths:
@@ -179,7 +179,7 @@ class ScheduleHandlerDiscovery(LazyDictDiscovery):
     @property
     def provided_exports(self):
         if not self._provided_exports:
-            self._run_discovery()
+            self.run_discovery()
         return self._provided_exports
 
     def _post_discovery_hook(self):
