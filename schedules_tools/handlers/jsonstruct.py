@@ -7,7 +7,7 @@ from schedules_tools.handlers import ScheduleHandlerBase
 class ScheduleHandler_json(ScheduleHandlerBase):
     provide_export = True
 
-    def export_schedule(self, flat=False):
+    def export_schedule(self, out_file, flat=False):
         json_schedule = dict()
         json_schedule['name'] = self.schedule.project_name
         json_schedule['version'] = self.schedule.version
@@ -40,8 +40,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         
         out = json.dumps(json_schedule)
         
-        if self.handle:
-            self._write_to_file(out, self.handle)
+        self._write_to_file(out, out_file)
         
         return out        
 
