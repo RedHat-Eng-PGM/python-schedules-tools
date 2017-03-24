@@ -29,7 +29,7 @@ class ScheduleHandlerBase(object):
         self.schedule = schedule
         
         self.src_storage_handler = src_storage_handler
-        if self.handle:
+        if self.handle and self.src_storage_handler:
             self.src_storage_handler.handle = self.handle
         
         self.opt_args = opt_args
