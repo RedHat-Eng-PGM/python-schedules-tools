@@ -124,6 +124,7 @@ class AutodiscoverHandlers(object):
 
 class LazyDictDiscovery(dict):
     autodiscovery = None
+    discovery_run_flag = True
 
     def __init__(self, *args, **kwargs):
         self.autodiscovery = AutodiscoverHandlers(kwargs.pop('cls_template'))
@@ -131,18 +132,18 @@ class LazyDictDiscovery(dict):
         super(LazyDictDiscovery, self).__init__(*args, **kwargs)
 
     def __getitem__(self, item):
-        if not self.items():
+        if not self.items() or self.discovery_run_flag:
             self.run_discovery()
 
         return super(LazyDictDiscovery, self).__getitem__(item)
 
     def keys(self):
-        if not self.items():
+        if not self.items() or self.discovery_run_flag:
             self.run_discovery()
         return super(LazyDictDiscovery, self).keys()
 
     def values(self):
-        if not self.items():
+        if not self.items() or self.discovery_run_flag:
             self.run_discovery()
         return super(LazyDictDiscovery, self).values()
 
@@ -153,9 +154,9 @@ class LazyDictDiscovery(dict):
         """
         pass
 
-    @staticmethod
-    def add_discover_path(path):
+    def add_discover_path(self, path):
         search_paths.append(path)
+        self.discovery_run_flag = True
 
     def run_discovery(self):
         ret = dict()
@@ -170,6 +171,7 @@ class LazyDictDiscovery(dict):
             self[key] = value
 
         self._post_discovery_hook()
+        self.discovery_run_flag = False
         return ret
 
 
@@ -178,7 +180,7 @@ class ScheduleHandlerDiscovery(LazyDictDiscovery):
 
     @property
     def provided_exports(self):
-        if not self._provided_exports:
+        if not self._provided_exports or self.discovery_run_flag:
             self.run_discovery()
         return self._provided_exports
 
