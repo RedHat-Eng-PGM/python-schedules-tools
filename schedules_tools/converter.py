@@ -78,7 +78,6 @@ class ScheduleConverter(object):
             storage_handler_cls = self.get_storage_handler_cls(storage_format)
             storage_handler = storage_handler_cls(
                 handle=handle,
-                checkout_dir=handler_opt_args['cvs_checkout_path'],
                 opt_args=handler_opt_args)
         else:
             storage_handler = None
