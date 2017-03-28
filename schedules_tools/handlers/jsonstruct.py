@@ -37,7 +37,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         json_schedule['phases'] = []
         for phase in self.schedule.phases:
             json_schedule['phases'].append(self.task_export_json_phase(phase))
-        
+
         out = json.dumps(json_schedule)
         
         self._write_to_file(out, out_file)
