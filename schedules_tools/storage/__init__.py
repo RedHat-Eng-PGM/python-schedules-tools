@@ -4,6 +4,7 @@ import datetime
 class StorageBase(object):
     handle = None
     opt_args = {}
+    tmp_root = None
 
     def __init__(self, handle=None, opt_args=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general        
@@ -23,6 +24,9 @@ class StorageBase(object):
         """
         raise NotImplementedError
 
+    def clean_local_handle(self):
+        raise NotImplementedError
+
     def push(self):
         raise NotImplementedError    
     
@@ -38,7 +42,7 @@ class StorageBase(object):
 
         return True
 
-    def get_handle_changelog(self):
+    def get_changelog(self):
         return []
 
 
