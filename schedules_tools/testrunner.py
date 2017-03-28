@@ -6,22 +6,24 @@ from schedules_tools import models
 
 
 class TestRunner(object):
-    handler = None
+    handler_name = None
+    opt_args = None
     json_reference_file = None
 
-    def __init__(self, handler, json_reference_file):
+    def __init__(self, handler_name, json_reference_file, opt_args=None):
         """
         Args:
-            handler: name as str, such as 'tjx'
+            handler_name: name as str, such as 'tjx'
             json_reference_file: reference to make comparison
         """
-        self.handler = handler
+        self.handler_name = handler_name
+        self.opt_args = opt_args
         self.json_reference_file = json_reference_file
 
     def make_json_reference(self, input_file):
         conv = converter.ScheduleConverter()
         conv.import_schedule(input_file,
-                             source_format=self.handler)
+                             source_format=self.handler_name)
         input_dict = conv.schedule.dump_as_dict()
         with open(self.json_reference_file, 'w+') as fd:
             # pretty print output to be able do diff outside this tool
@@ -49,7 +51,8 @@ class TestRunner(object):
         reference_str = self._load_reference_as_json_str()
         conv = converter.ScheduleConverter()
         conv.import_schedule(input_file,
-                             source_format=self.handler)
+                             source_format=self.handler_name,
+                             handler_opt_args=self.opt_args)
         input_dict = conv.schedule.dump_as_dict()
         input_str = self._dict_to_string(input_dict)
         return input_str == reference_str
@@ -61,7 +64,7 @@ class TestRunner(object):
 
         conv = converter.ScheduleConverter(reference_schedule)
         conv.export_schedule(temp_output_file,
-                             target_format=self.handler)
+                             target_format=self.handler_name)
 
         with open(temp_output_file) as fd:
             reference = fd.read()
