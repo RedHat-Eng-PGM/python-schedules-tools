@@ -151,6 +151,7 @@ class Schedule(object):
 
     _eTask_list = []
     _task_index = 1
+    _taskname_flat_registry = None
 
     def __init__(self):
         self.tasks = []
@@ -420,3 +421,44 @@ class Schedule(object):
         schedule.used_flags = set(input_dict['used_flags'])
 
         return schedule
+
+    def _build_tasks_flat_registry(self, tasks_param):
+        if self._taskname_flat_registry is None:
+            self._taskname_flat_registry = set()
+
+        for task in tasks_param:
+            self._taskname_flat_registry.add(task.name)
+            self._build_tasks_flat_registry(task.tasks)
+
+    def check_for_taskname(self, tasks):
+        """
+        Method consume list of task names to check their existence specified
+        as dict
+        Args:
+            tasks: dict specification of task names to check. Example:
+            {'exactTaskname': False, 'matchBeginningTaskname': True}
+
+        Returns:
+            Set of task names, that haven't been found in schedule.
+
+        """
+        if not self._taskname_flat_registry:
+            self._build_tasks_flat_registry(self.tasks)
+
+        missing_tasks = set()
+        for task_name, start_with_flag in tasks.items():
+            if start_with_flag:
+                re_task_str = re.escape(task_name)
+                re_task = re.compile(re_task_str + '.*')
+                found = False
+
+                for task in self._taskname_flat_registry:
+                    if re_task.match(task):
+                        found = True
+                        break
+                if not found:
+                    missing_tasks.add(task_name)
+            elif task_name not in self._taskname_flat_registry:
+                missing_tasks.add(task_name)
+
+        return missing_tasks

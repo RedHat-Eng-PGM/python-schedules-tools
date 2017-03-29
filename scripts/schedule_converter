@@ -81,6 +81,16 @@ def main(args):
     parser.add_argument('--rally-iter', help='Rally iteration to import',
                         default='')
 
+    parser.add_argument('--check-taskname',
+                        help='Check existence given task name as exact match '
+                             '(can be used multiple times)',
+                        action='append', metavar='TASKNAME', default=[])
+    parser.add_argument('--check-taskname-startswith',
+                        help='Check existence given task by matching beginning '
+                             'name (can be used multiple times)',
+                        action='append', metavar='TASKNAME_STARTSWITH',
+                        default=[])
+
     parser.add_argument('--source-storage-format',
                         choices=discovery.storage_handlers.keys(),
                         metavar='SRC_STORAGE_FORMAT',
@@ -117,6 +127,17 @@ def main(args):
     converter.import_schedule(arguments.source,
                               arguments.source_format,
                               handler_opt_args=opt_args)
+
+    check_tasks = dict()
+    for task_name in arguments.check_taskname:
+        check_tasks[task_name] = False
+
+    for task_name in arguments.check_taskname_startswith:
+        check_tasks[task_name] = True
+
+    missing_tasks = converter.schedule.check_for_taskname(check_tasks)
+    if missing_tasks:
+        logger.info('Missing tasks: {}'.format(list(missing_tasks)))
 
     converter.export_schedule(arguments.target,
                               arguments.target_format,
