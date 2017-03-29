@@ -442,6 +442,11 @@ class Schedule(object):
             Set of task names, that haven't been found in schedule.
 
         """
+        if not isinstance(tasks, dict):
+            raise Exception(
+                "'tasks' argument has to be dict, for example: {'task1': False,"
+                " 'matchBeginningTaskname': True}")
+
         if not self._taskname_flat_registry:
             self._build_tasks_flat_registry(self.tasks)
 
