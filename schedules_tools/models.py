@@ -187,37 +187,39 @@ class Schedule(object):
             for t in task.tasks:
                 _raise_index(t)
 
-        if len(self.tasks) > 1:
-            # need one top task
-            top_task = Task(self)
-            top_task.index = 1
-            #top_task.name = '%s %s' % (self.name, self.version)
-            # removed version as per BZ#1396303 - see how that works
-            top_task.name = self.name
+        if len(self.tasks) <= 1:
+            return
 
-            for task in self.tasks:
-                if top_task.dStart:
-                    top_task.dStart = min(top_task.dStart,
-                                          task.dStart,
-                                          task.dAcStart)
-                else:
-                    top_task.dStart = task.dStart
+        # need one top task
+        top_task = Task(self)
+        top_task.index = 1
+        #top_task.name = '%s %s' % (self.name, self.version)
+        # removed version as per BZ#1396303 - see how that works
+        top_task.name = self.name
 
-                top_task.dAcStart = top_task.dStart
+        for task in self.tasks:
+            if top_task.dStart:
+                top_task.dStart = min(top_task.dStart,
+                                      task.dStart,
+                                      task.dAcStart)
+            else:
+                top_task.dStart = task.dStart
 
-                if top_task.dFinish:
-                    top_task.dFinish = max(top_task.dFinish,
-                                           task.dAcFinish,
-                                           task.dFinish)
-                else:
-                    top_task.dFinish = task.dFinish
+            top_task.dAcStart = top_task.dStart
 
-                top_task.dAcFinish = top_task.dFinish
+            if top_task.dFinish:
+                top_task.dFinish = max(top_task.dFinish,
+                                       task.dAcFinish,
+                                       task.dFinish)
+            else:
+                top_task.dFinish = task.dFinish
 
-                _raise_index(task)
-                top_task.tasks.append(task)
+            top_task.dAcFinish = top_task.dFinish
 
-            self.tasks = [top_task]
+            _raise_index(task)
+            top_task.tasks.append(task)
+
+        self.tasks = [top_task]
 
     def print_tasks(self, tasks=None, level=0):
         if tasks is None:
