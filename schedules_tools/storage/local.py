@@ -13,7 +13,7 @@ class StorageHandler_local(storage.StorageBase):
         return os.path.join(self.tmp_root, handle_filename)
 
     def clean_local_handle(self):
-        shutil.remove_tree(self.tmp_root)
+        shutil.rmtree(self.tmp_root)
 
     def get_changelog(self, path=None):
         return []
