@@ -48,11 +48,16 @@ class ScheduleConverter(object):
 
         return discovery.storage_handlers[format]
 
-    def get_handler_struct(self, handle=None, format=None):
+    def get_handler_struct(self, handle=None, storage_handler=None, format=None):
         if format:
             handler_struct = self.get_handler_for_format(format)
         else:
-            handler_struct = self.get_handler_for_handle(handle)
+            local_handle = handle
+            if storage_handler:
+                local_handle = storage_handler.get_local_handle()
+            handler_struct = self.get_handler_for_handle(local_handle)
+            if storage_handler:
+                storage_handler.clean_local_handle()
 
         return handler_struct
 
@@ -83,6 +88,7 @@ class ScheduleConverter(object):
             storage_handler = None
 
         handler_cls = self.get_handler_cls(handle=handle,
+                                           storage_handler=storage_handler,
                                            format=source_format)
         handler = handler_cls(handle=handle,
                               src_storage_handler=storage_handler,
