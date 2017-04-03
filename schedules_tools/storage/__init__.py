@@ -1,6 +1,10 @@
 import datetime
 
 
+class AcquireLockException(Exception):
+    pass
+
+
 class StorageBase(object):
     handle = None
     opt_args = {}
