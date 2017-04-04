@@ -15,10 +15,26 @@ Follows 'diff' exit codes:
 import schedules_tools.converter as conv
 import sys
 import argparse
+import logging
 from schedules_tools import discovery
 
 
+def setup_logging(level):
+    log_format = '%(name)-10s %(levelname)7s: %(message)s'
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(level)
+
+    formatter = logging.Formatter(log_format)
+    sh.setFormatter(formatter)
+
+    # setup root logger
+    inst = logging.getLogger('')
+    inst.setLevel(level)
+    inst.addHandler(sh)
+
+
 if __name__ == '__main__':
+    setup_logging(logging.DEBUG)
     parser = argparse.ArgumentParser(
         description='Tool to show differences between two schedules.')
     parser.add_argument(
