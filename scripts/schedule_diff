@@ -13,15 +13,21 @@ Follows 'diff' exit codes:
 """
 
 import schedules_tools.converter as conv
-import os
 import sys
-import time
 import argparse
+from schedules_tools import discovery
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Tool to show differences between two schedules.')
+    parser.add_argument(
+        '--handlers-path',
+        help='Add path to discover handlers (needs to be python module), can '
+             'be called several times (conflicting names will be overriden - '
+             'the last implementation will be used)',
+        action='append',
+        default=[])
     parser.add_argument('--whole-days',
                         help='Compare just date part of timestamp (will '
                              'ignore differences in time)',
@@ -30,6 +36,10 @@ if __name__ == '__main__':
     parser.add_argument('left')
     parser.add_argument('right')
     args = parser.parse_args()
+
+    for path in args.handlers_path:
+        discovery.schedule_handlers.add_discover_path(path)
+        discovery.storage_handlers.add_discover_path(path)
 
     left = conv.ScheduleConverter()
     left.import_schedule(args.left)
