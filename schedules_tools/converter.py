@@ -26,7 +26,8 @@ class ScheduleConverter(object):
     def __init__(self, schedule=None):
         self.schedule = schedule
 
-    def get_handler_for_handle(self, handle):
+    @staticmethod
+    def get_handler_for_handle(handle):
         for module in discovery.schedule_handlers.values():
             if module['class'].is_valid_source(handle):
                 return module
@@ -34,38 +35,43 @@ class ScheduleConverter(object):
         msg = "Can't find schedule handler for handle: {}".format(handle)
         raise ScheduleFormatNotSupported(msg)
 
-    def get_handler_for_format(self, format):
-        if format not in discovery.schedule_handlers:
+    @staticmethod
+    def get_handler_for_format(format):
+        if format not in discovery.schedule_handlers.keys():
             msg = "Can't find schedule handler for format: {}".format(format)
             raise ScheduleFormatNotSupported(msg)
 
         return discovery.schedule_handlers[format]
 
-    def get_storage_handler_for_format(self, format):
-        if format not in discovery.storage_handlers:
+    @staticmethod
+    def get_storage_handler_for_format(format):
+        if format not in discovery.storage_handlers.keys():
             msg = "Can't find storage handler for format: {}".format(format)
             raise StorageFormatNotSupported(msg)
 
         return discovery.storage_handlers[format]
 
-    def get_handler_struct(self, handle=None, storage_handler=None, format=None):
+    @classmethod
+    def get_handler_struct(cls, handle=None, storage_handler=None, format=None):
         if format:
-            handler_struct = self.get_handler_for_format(format)
+            handler_struct = cls.get_handler_for_format(format)
         else:
             local_handle = handle
             if storage_handler:
                 local_handle = storage_handler.get_local_handle()
-            handler_struct = self.get_handler_for_handle(local_handle)
+            handler_struct = cls.get_handler_for_handle(local_handle)
             if storage_handler:
                 storage_handler.clean_local_handle()
 
         return handler_struct
 
-    def get_handler_cls(self, *args, **kwargs):
-        return self.get_handler_struct(*args, **kwargs)['class']
+    @classmethod
+    def get_handler_cls(cls, *args, **kwargs):
+        return cls.get_handler_struct(*args, **kwargs)['class']
 
-    def get_storage_handler_cls(self, *args, **kwargs):
-        return self.get_storage_handler_for_format(*args, **kwargs)['class']
+    @classmethod
+    def get_storage_handler_cls(cls, *args, **kwargs):
+        return cls.get_storage_handler_for_format(*args, **kwargs)['class']
 
     # Following methods call their counterparts on handlers
     def handle_modified_since(self, handle, mtime,
@@ -78,7 +84,7 @@ class ScheduleConverter(object):
 
     def import_schedule(self, handle, source_format=None,
                         handler_opt_args=dict()):
-        storage_format = handler_opt_args.get('source_storage_format', None)
+        storage_format = handler_opt_args.get('source_storage_format', 'local')
         if storage_format:
             storage_handler_cls = self.get_storage_handler_cls(storage_format)
             storage_handler = storage_handler_cls(
