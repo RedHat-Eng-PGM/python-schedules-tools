@@ -69,8 +69,11 @@ class ScheduleHandlerBase(object):
     def get_handle_changelog(self):
         if self.src_storage_handler.provide_changelog:
             return self.src_storage_handler.get_handle_changelog()
-        else:
+        elif self.provide_changelog:
             return self._get_handle_changelog_from_content()
+        
+        # Maybe raise Exception and handle it on higher level?        
+        return []
             
                 
     # handle - file/link/smartsheet id

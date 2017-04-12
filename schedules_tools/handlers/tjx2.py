@@ -30,9 +30,6 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
                 return True
         return False
 
-    def get_handle_mtime(self):
-        return self._get_mtime_from_handle_file()
-
     @staticmethod
     def _load_tjx_date(eTask, datetype, what=''):
         """Returns datetime with datetype = plan|actual what = start|end"""
