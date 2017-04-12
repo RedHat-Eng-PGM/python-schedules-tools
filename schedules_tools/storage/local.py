@@ -1,8 +1,9 @@
 from schedules_tools import storage
-import datetime
 import os
 import shutil
 import tempfile
+
+from datetime import datetime
 
 
 class StorageHandler_local(storage.StorageBase):
@@ -15,13 +16,10 @@ class StorageHandler_local(storage.StorageBase):
     def clean_local_handle(self):
         shutil.rmtree(self.tmp_root)
 
-    def get_changelog(self, path=None):
-        return []
-
-    def get_mtime(self, path=None):
+    def get_handle_mtime(self, path=None):
         mtime_timestamp = os.path.getmtime(self.handle)
 
-        return datetime.datetime.fromtimestamp(mtime_timestamp)
+        return datetime.fromtimestamp(mtime_timestamp)
 
     def _copy_subtree_to_tmp(self):
         """

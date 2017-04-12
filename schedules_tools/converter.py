@@ -85,13 +85,11 @@ class ScheduleConverter(object):
     def import_schedule(self, handle, source_format=None,
                         handler_opt_args=dict()):
         storage_format = handler_opt_args.get('source_storage_format', 'local')
-        if storage_format:
-            storage_handler_cls = self.get_storage_handler_cls(storage_format)
-            storage_handler = storage_handler_cls(
-                handle=handle,
-                opt_args=handler_opt_args)
-        else:
-            storage_handler = None
+
+        storage_handler_cls = self.get_storage_handler_cls(storage_format)
+        storage_handler = storage_handler_cls(
+            handle=handle,
+            opt_args=handler_opt_args)
 
         handler_cls = self.get_handler_cls(handle=handle,
                                            storage_handler=storage_handler,

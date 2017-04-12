@@ -9,6 +9,8 @@ class StorageBase(object):
     handle = None
     opt_args = {}
     tmp_root = None
+    
+    provide_changelog = False
 
     def __init__(self, handle=None, opt_args=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general        
@@ -46,8 +48,8 @@ class StorageBase(object):
 
         return True
 
-    def get_changelog(self):
-        return []
+    def get_handle_changelog(self):
+        raise NotImplementedError
 
 
 def sync_nfs(local, remote, path=None):

@@ -1,4 +1,4 @@
-from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelogMixin
+from schedules_tools.handlers import ScheduleHandlerBase, TJXCommonMixin
 from schedules_tools import models
 import datetime
 import logging
@@ -40,9 +40,9 @@ date_format = '%Y-%m-%d'
 datetime_format_tz = '%Y-%m-%d %H:%M:%S EDT'
 
 
-class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
+class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
     provide_export = True
-
+    
     @classmethod
     def is_valid_source(cls, handle=None):
         if not handle:
@@ -60,15 +60,12 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
             if tree.xpath('//Project[@Id and @WeekStart]'):
                 return True
         return False
-
-    def get_handle_mtime(self):
-        return self._get_mtime_from_handle_file()
-
+    
     # Schedule
     def import_schedule(self):
         self.schedule = models.Schedule()
 
-        tree = etree.parse(self.handle)
+        tree = self._get_parsed_tree()
         project_name = tree.xpath('Name')[0].text.strip()
         self.schedule.name = '%s %s' % (project_name,
                                         tree.xpath('Version')[0].text)
@@ -100,17 +97,8 @@ class ScheduleHandler_tjx(ScheduleHandlerBase, TJXChangelogMixin):
         self.schedule.name = self.schedule.name.strip()
 
         # import changelog, fill schedule.mtime
-        if self.src_storage_handler:
-            if os.path.isfile(self.handle):
-                changelog_path = os.path.dirname(self.handle)
-            else:
-                changelog_path = self.handle
-            self.schedule.changelog = self.src_storage_handler.get_changelog(
-                changelog_path)
-            self.schedule.mtime = self.src_storage_handler.get_mtime(changelog_path)
-        else:
-            self.parse_tjx_changelog(tree)
-            self.schedule.mtime = self.get_handle_mtime()
+        self.schedule.changelog = self.get_handle_changelog()
+        self.schedule.mtime = self.get_handle_mtime()
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min

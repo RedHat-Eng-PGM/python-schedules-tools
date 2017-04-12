@@ -1,4 +1,4 @@
-from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelogMixin
+from schedules_tools.handlers import ScheduleHandlerBase
 import logging
 from lxml.html import etree
 

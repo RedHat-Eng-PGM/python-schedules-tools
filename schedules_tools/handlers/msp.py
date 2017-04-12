@@ -36,9 +36,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             return True
         return False
 
-    def get_handle_mtime(self):
-        return self._get_mtime_from_handle_file()
-
     # Schedule
     def import_schedule(self):
         self.schedule = models.Schedule()
@@ -70,15 +67,9 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         self.schedule.name = self.schedule.name.strip()
 
         # import changelog, fill schedule.mtime
-        if self.src_storage_handler:
-            changelog_path = self.handle
-            self.schedule.changelog = self.src_storage_handler.get_changelog(
-                changelog_path)
-            self.schedule.mtime = self.src_storage_handler.get_mtime(
-                changelog_path)
-        else:
-            self.schedule.mtime = self.get_handle_mtime()
-
+        self.schedule.changelog = self.get_handle_changelog()
+        self.schedule.mtime = self.get_handle_mtime()
+        
         # extended attributes
         for eExtAttr in tree.xpath('ExtendedAttributes/ExtendedAttribute'):
             fieldID = int(eExtAttr.xpath('FieldID')[0].text)

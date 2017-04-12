@@ -3,6 +3,8 @@ import logging
 import time
 import os
 
+from lxml import etree
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,26 +22,37 @@ class ScheduleHandlerBase(object):
     # (Schedule) into format of implementation. It's read by ScheduleConverter
     # during autodiscovery and used to provide actual help message in CLI
     provide_export = False
+    provide_changelog = False
     
     opt_args = {}
 
     def __init__(self, handle=None, schedule=None, src_storage_handler=None, 
                  opt_args=dict()):
+        from schedules_tools.converter import ScheduleConverter
+
         self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
-        
-        self.src_storage_handler = src_storage_handler
-        if self.handle and self.src_storage_handler:
+
+        self.opt_args = opt_args
+
+        if src_storage_handler: 
+            self.src_storage_handler = src_storage_handler
+        else:  # Use local storage handler as default
+            local_storage_handler_cls = ScheduleConverter.get_storage_handler_cls('local')
+            self.src_storage_handler = local_storage_handler_cls(
+                                            handle=self.handle,
+                                            opt_args=self.opt_args)
+
+        if self.handle:
             self.src_storage_handler.handle = self.handle
         
-        self.opt_args = opt_args
 
     def _write_to_file(self, content, file):
         with open(file, 'wb') as fp:
             fp.write(content.strip().encode('UTF-8'))
 
     def get_handle_mtime(self):
-        raise NotImplementedError
+        return self.src_storage_handler.get_handle_mtime()
     
     def handle_modified_since(self, mtime):
         # Return False only when able to tell
@@ -49,10 +62,17 @@ class ScheduleHandlerBase(object):
                 return False
         
         return True
+  
+    def _get_handle_changelog_from_content(self):
+        raise NotImplementedError   
     
     def get_handle_changelog(self):
-        return []
-    
+        if self.src_storage_handler.provide_changelog:
+            return self.src_storage_handler.get_handle_changelog()
+        else:
+            return self._get_handle_changelog_from_content()
+            
+                
     # handle - file/link/smartsheet id
     def import_schedule(self):
         raise NotImplementedError
@@ -73,17 +93,26 @@ class ScheduleHandlerBase(object):
         """Prepare files which need a backup in case of external source"""
         return []
 
-    def _get_mtime_from_handle_file(self):
-        mtime = os.path.getmtime(self.handle)
-        return datetime.fromtimestamp(mtime)
 
-
-class TJXChangelogMixin(object):
-    def parse_tjx_changelog(self, tree):
+class TJXCommonMixin(object):   
+    src_tree = None
+    
+    def _get_parsed_tree(self):
+        if not self.src_tree:
+            self.src_tree = etree.parse(self.handle)
+        
+        return self.src_tree
+    
+    def _get_handle_changelog_from_content(self):
         # import changelog
-        for log in tree.xpath('changelog/log'):
-            self.schedule.changelog[log.get('rev')] = {
+        changelog = {}
+        
+        for log in self._get_parsed_tree().xpath('changelog/log'):
+            changelog[log.get('rev')] = {
                 'date': datetime.strptime(log.get('date'), '%Y/%m/%d'),
                 'user': log.get('user'),
                 'msg': log.text.strip(),
             }
+            
+        return changelog
+

@@ -1,4 +1,4 @@
-from schedules_tools.handlers import ScheduleHandlerBase, TJXChangelogMixin
+from schedules_tools.handlers import ScheduleHandlerBase, TJXCommonMixin
 from schedules_tools import models
 import datetime
 import logging
@@ -8,7 +8,7 @@ from lxml import etree
 logger = logging.getLogger(__name__)
 
 
-class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelogMixin):
+class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
     provide_export = False
     task_index = 1
 
@@ -102,7 +102,7 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelogMixin):
     def import_schedule(self):
         self.schedule = models.Schedule()
 
-        tree = etree.parse(self.handle)
+        tree = self._get_parsed_tree()
         el_proj = tree.xpath('/taskjuggler/project')[0]
         project_name = el_proj.get('name')
         self.schedule.name = '%s %s' % (project_name,
@@ -111,18 +111,9 @@ class ScheduleHandler_tjx2(ScheduleHandlerBase, TJXChangelogMixin):
         self.schedule.proj_id = el_proj.get('id')
 
         # import changelog, fill schedule.mtime
-        if self.src_storage_handler:
-            if os.path.isfile(self.handle):
-                changelog_path = os.path.dirname(self.handle)
-            else:
-                changelog_path = self.handle
-            self.schedule.changelog = self.src_storage_handler.get_changelog(
-                changelog_path)
-            self.schedule.mtime = self.src_storage_handler.get_mtime(changelog_path)
-        else:
-            self.parse_tjx_changelog(tree)
-            self.schedule.mtime = self.get_handle_mtime()
-
+        self.schedule.changelog = self.get_handle_changelog()
+        self.schedule.mtime = self.get_handle_mtime()
+        
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min
 

@@ -15,8 +15,12 @@ class StorageHandler_cvs(StorageBase):
     cloned = False
     repo_root = None
     repo_name = None
+    
+    provide_changelog = True
 
-    def __init__(self, opt_args=dict()):
+    def __init__(self, handle, opt_args=dict()):
+        super(StorageHandler_cvs, self).__init__(handle, opt_args)
+        
         self.repo_name = opt_args.pop('cvs_repo_name')
         self.repo_root = opt_args.pop('cvs_root')
         self.opt_args = opt_args
@@ -64,14 +68,14 @@ class StorageHandler_cvs(StorageBase):
         p.communicate()
         assert p.returncode == 0
 
-    def get_mtime(self, handle):
-        changelog = self.get_changelog(handle)
+    def get_handle_mtime(self):
+        changelog = self.get_changelog(self.handle)
         latest_change = changelog[-1]
         return latest_change['datetime']
 
-    def get_changelog(self, handle):
+    def get_handle_changelog(self):
         changelog = []
-        cmd = 'log {}'.format(handle)
+        cmd = 'log {}'.format(self.handle)
         p = self._cvs_command(cmd, stdout=subprocess.PIPE)
         stdout, stderr = p.communicate()
 
