@@ -56,6 +56,7 @@ class ScheduleConverter(object):
         if format:
             handler_struct = cls.get_handler_for_format(format)
         else:
+            # Why here? Will prolly need completely separate schedule and storage handling
             local_handle = handle
             if storage_handler:
                 local_handle = storage_handler.get_local_handle()

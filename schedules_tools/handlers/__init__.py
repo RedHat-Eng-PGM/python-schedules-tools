@@ -99,6 +99,7 @@ class ScheduleHandlerBase(object):
 
 class TJXCommonMixin(object):   
     src_tree = None
+    provide_changelog = True
     
     def _get_parsed_tree(self):
         if not self.src_tree:
