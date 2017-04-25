@@ -73,7 +73,7 @@ class ScheduleHandlerBase(object):
             return self._get_handle_changelog_from_content()
         
         # Maybe raise Exception and handle it on higher level?        
-        return []
+        return {}
             
                 
     # handle - file/link/smartsheet id

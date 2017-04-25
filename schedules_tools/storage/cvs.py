@@ -74,8 +74,11 @@ class StorageHandler_cvs(StorageBase):
         return latest_change['datetime']
 
     def get_handle_changelog(self):
-        changelog = []
+        changelog_list = []
         cmd = 'log {}'.format(self.handle)
+        
+        # TODO: move process communication into cvs_command and return just stdout,stderr
+        # easier to mock for testing
         p = self._cvs_command(cmd, stdout=subprocess.PIPE)
         stdout, stderr = p.communicate()
 
@@ -140,11 +143,14 @@ class StorageHandler_cvs(StorageBase):
                         'datetime': date,
                         'message': comment
                     }
-                    changelog.append(record)
+                    changelog_list.append(record)
                     state = STATE_REVISION
                     continue
                 comment.append(line)
                 continue
 
-        # sort records according to date
-        return sorted(changelog, key=lambda x: x['datetime'])
+        # sort records according to date asc
+        ord_changelog_list = sorted(changelog_list, key=lambda x: x['datetime'])
+        # return needed dict with unique rev as key to quickly tell if rev is in changelog
+        return {log_entry['revision']: log_entry for log_entry in ord_changelog_list}
+
