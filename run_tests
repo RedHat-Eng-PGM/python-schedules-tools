@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# Unified test runner
+#
+
+#set -x
+
+##### INIT #####
+
+PWD=$(pwd)
+
+
+##### PROCESS PARAMS #####
+
+HELP=false
+COVERAGE=false
+VERBOSE=false
+LASTFAILED=false
+REST="schedules_tools/tests"
+COVERAGE_OUTPUT="coverage_html"
+
+while [[ $# > 0 ]]; do
+    key="$1"
+    case $key in
+        -c|--coverage)
+        COVERAGE=true
+        ;;
+        -v|--verbose)
+        VERBOSE=true
+        ;;
+        -h|--help)
+        HELP=true
+        ;;
+        -l|--last-failed)
+        LASTFAILED=true
+        ;;
+        *)
+        REST="$REST $key"
+        ;;
+    esac
+    shift # past argument or value
+done
+
+if [ $HELP = true ]; then
+    echo "Product Pages tests runner.
+===========================
+-h|--help                       Display this help
+-c|--coverage                   Produce coverage report
+-v|--verbose                    Use more verbose output
+-l|--last-failed                Run only tests, those failed last time"
+    exit 0;
+fi
+
+verbosity_str=""
+if [ "$VERBOSE" == "true" ]; then
+    verbosity_str='-s -vv'
+fi
+
+# coverage configuration
+params=""
+if [ "$COVERAGE" == "true" ]; then
+    params="${params} --cov-report=html:$COVERAGE_OUTPUT --cov=eng_pgm_utils/storage_handlers --cov=eng_pgm_utils/schedule_handlers"
+fi
+
+if [ "$LASTFAILED" == "true" ]; then
+    params="${params} --last-failed"
+fi
+
+# run tests
+py.test $verbosity_str $params $REST
+
+if [ "$COVERAGE" == "true" ]; then
+    echo "Coverage HTML output: $COVERAGE_OUTPUT/index.html"
+fi
