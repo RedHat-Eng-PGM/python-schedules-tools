@@ -349,7 +349,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         elif key == PREFIX_LINK.lower():
             task.link = val
         elif key == PREFIX_NOTE.lower():
-            task.note = val
+            # in case of multiple notes - concatenate
+            task.note = ' '.join([task.note, val]).lstrip()
         else:
             logger.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
