@@ -16,13 +16,17 @@ class ScheduleHandlerBase(object):
     schedule = None
     
     # optional source storage handler instance to get changelog/mtime from if applicable
+    # TODO: REMOVE!!
     src_storage_handler = None
 
     # This flag indicate ability to export internal intermediate structure
     # (Schedule) into format of implementation. It's read by ScheduleConverter
     # during autodiscovery and used to provide actual help message in CLI
+    
+    # TODO: add provide_import to be complete? 
     provide_export = False
     provide_changelog = False
+    provide_mtime = False
     
     opt_args = {}
 
@@ -52,10 +56,12 @@ class ScheduleHandlerBase(object):
             fp.write(content.strip().encode('UTF-8'))
 
     def get_handle_mtime(self):
+        # TODO: NotImplement by default, if possible to tell without storage - implement directly
         return self.src_storage_handler.get_handle_mtime()
     
     def handle_modified_since(self, mtime):
-        # Return False only when able to tell
+        """ Return boolean to be able to bypass processing """
+        # Return False only when able to tell otherwise return True
         if isinstance(mtime, datetime):
             handle_mtime = self.get_handle_mtime()
             if handle_mtime and handle_mtime <= mtime:
@@ -64,9 +70,12 @@ class ScheduleHandlerBase(object):
         return True
   
     def _get_handle_changelog_from_content(self):
+        # TODO: remove - if possible, changelog is get in get_handle_changelog
         raise NotImplementedError   
     
     def get_handle_changelog(self):
+        # TODO: Not implemented by default
+        # When handler can get changelog - implement it in this method, not *_from _content
         if self.src_storage_handler.provide_changelog:
             return self.src_storage_handler.get_handle_changelog()
         elif self.provide_changelog:

@@ -11,6 +11,7 @@ class StorageBase(object):
     tmp_root = None
     
     provide_changelog = False
+    # TODO: add provide_mtime (same as schedule handler)
 
     def __init__(self, handle=None, opt_args=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general        
