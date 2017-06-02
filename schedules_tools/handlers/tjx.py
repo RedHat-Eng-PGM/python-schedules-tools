@@ -42,13 +42,12 @@ datetime_format_tz = '%Y-%m-%d %H:%M:%S EDT'
 
 class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
     provide_export = True
-    
+    provide_changelog = True
+
     @classmethod
     def is_valid_source(cls, handle=None):
         if not handle:
             handle = cls.handle
-        if cls.src_storage_handler:
-            handle = cls.src_storage_handler.get_local_handle()
         file_ext = os.path.splitext(handle)[1]
 
         if file_ext == '.tjx':
@@ -96,9 +95,8 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
         self.schedule.name = self.schedule.name.strip()
 
-        # import changelog, fill schedule.mtime
+        # import changelog from content of TJX
         self.schedule.changelog = self.get_handle_changelog()
-        self.schedule.mtime = self.get_handle_mtime()
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min

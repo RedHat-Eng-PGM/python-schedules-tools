@@ -17,6 +17,7 @@ class StorageHandler_cvs(StorageBase):
     repo_name = None
     
     provide_changelog = True
+    provide_mtime = True
 
     def __init__(self, handle, opt_args=dict()):
         super(StorageHandler_cvs, self).__init__(handle, opt_args)

@@ -26,8 +26,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if not handle:
             handle = cls.handle
         try:
-            if cls.src_storage_handler:
-                handle = cls.src_storage_handler.get_local_handle()
             tree = etree.parse(handle)
         except (etree.XMLSyntaxError, IOError):
             return False
@@ -66,10 +64,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
         self.schedule.name = self.schedule.name.strip()
 
-        # import changelog, fill schedule.mtime
-        self.schedule.changelog = self.get_handle_changelog()
-        self.schedule.mtime = self.get_handle_mtime()
-        
         # extended attributes
         for eExtAttr in tree.xpath('ExtendedAttributes/ExtendedAttribute'):
             fieldID = int(eExtAttr.xpath('FieldID')[0].text)

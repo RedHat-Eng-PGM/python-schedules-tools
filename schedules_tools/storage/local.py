@@ -7,6 +7,8 @@ from datetime import datetime
 
 
 class StorageHandler_local(storage.StorageBase):
+    provide_mtime = True
+
     def get_local_handle(self, revision=None, datetime=None):
         self.tmp_root = self._copy_subtree_to_tmp()
         handle_filename = os.path.basename(self.handle)

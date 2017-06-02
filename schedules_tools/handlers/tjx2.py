@@ -16,8 +16,6 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
     def is_valid_source(cls, handle=None):
         if not handle:
             handle = cls.handle
-        if cls.src_storage_handler:
-            handle = cls.src_storage_handler.get_local_handle()
         file_ext = os.path.splitext(handle)[1]
 
         if file_ext == '.tjx':
@@ -107,10 +105,6 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
         self.schedule.project_name = project_name
         self.schedule.proj_id = el_proj.get('id')
 
-        # import changelog, fill schedule.mtime
-        self.schedule.changelog = self.get_handle_changelog()
-        self.schedule.mtime = self.get_handle_mtime()
-        
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min
 

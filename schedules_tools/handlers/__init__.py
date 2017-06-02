@@ -14,10 +14,6 @@ logger = logging.getLogger(__name__)
 class ScheduleHandlerBase(object):
     handle = None
     schedule = None
-    
-    # optional source storage handler instance to get changelog/mtime from if applicable
-    # TODO: REMOVE!!
-    src_storage_handler = None
 
     # This flag indicate ability to export internal intermediate structure
     # (Schedule) into format of implementation. It's read by ScheduleConverter
@@ -30,61 +26,37 @@ class ScheduleHandlerBase(object):
     
     opt_args = {}
 
-    def __init__(self, handle=None, schedule=None, src_storage_handler=None, 
-                 opt_args=dict()):
-        from schedules_tools.converter import ScheduleConverter
-
+    def __init__(self, handle=None, schedule=None, opt_args=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
-
         self.opt_args = opt_args
-
-        if src_storage_handler: 
-            self.src_storage_handler = src_storage_handler
-        else:  # Use local storage handler as default
-            local_storage_handler_cls = ScheduleConverter.get_storage_handler_cls('local')
-            self.src_storage_handler = local_storage_handler_cls(
-                                            handle=self.handle,
-                                            opt_args=self.opt_args)
-
-        if self.handle:
-            self.src_storage_handler.handle = self.handle
-        
 
     def _write_to_file(self, content, file):
         with open(file, 'wb') as fp:
             fp.write(content.strip().encode('UTF-8'))
 
     def get_handle_mtime(self):
-        # TODO: NotImplement by default, if possible to tell without storage - implement directly
-        return self.src_storage_handler.get_handle_mtime()
-    
+        """ Implement only if schedule handler is able to get mtime directly
+        without storage """
+        raise NotImplementedError
+
     def handle_modified_since(self, mtime):
         """ Return boolean to be able to bypass processing """
         # Return False only when able to tell otherwise return True
         if isinstance(mtime, datetime):
-            handle_mtime = self.get_handle_mtime()
+            try:
+                handle_mtime = self.get_handle_mtime()
+            except NotImplementedError:
+                return True
+
             if handle_mtime and handle_mtime <= mtime:
                 return False
-        
+
         return True
-  
-    def _get_handle_changelog_from_content(self):
-        # TODO: remove - if possible, changelog is get in get_handle_changelog
-        raise NotImplementedError   
-    
+
     def get_handle_changelog(self):
-        # TODO: Not implemented by default
-        # When handler can get changelog - implement it in this method, not *_from _content
-        if self.src_storage_handler.provide_changelog:
-            return self.src_storage_handler.get_handle_changelog()
-        elif self.provide_changelog:
-            return self._get_handle_changelog_from_content()
-        
-        # Maybe raise Exception and handle it on higher level?        
-        return {}
-            
-                
+        raise NotImplementedError
+
     # handle - file/link/smartsheet id
     def import_schedule(self):
         raise NotImplementedError
@@ -93,7 +65,7 @@ class ScheduleHandlerBase(object):
         raise NotImplementedError   
     
     def build_schedule(self):
-        raise NotImplementedError 
+        raise NotImplementedError
 
     @classmethod
     def is_valid_source(cls, handle=None):
@@ -116,7 +88,7 @@ class TJXCommonMixin(object):
         
         return self.src_tree
     
-    def _get_handle_changelog_from_content(self):
+    def get_handle_changelog(self):
         # import changelog
         changelog = {}
         

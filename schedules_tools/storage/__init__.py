@@ -11,7 +11,7 @@ class StorageBase(object):
     tmp_root = None
     
     provide_changelog = False
-    # TODO: add provide_mtime (same as schedule handler)
+    provide_mtime = False
 
     def __init__(self, handle=None, opt_args=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general        
@@ -43,7 +43,10 @@ class StorageBase(object):
     def handle_modified_since(self, mtime):
         # Return False only when able to tell
         if isinstance(mtime, datetime):
-            handle_mtime = self.get_handle_mtime()
+            try:
+                handle_mtime = self.get_handle_mtime()
+            except NotImplementedError:
+                return True
             if handle_mtime and handle_mtime <= mtime:
                 return False
 
