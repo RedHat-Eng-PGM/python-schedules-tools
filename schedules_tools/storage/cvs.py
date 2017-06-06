@@ -22,8 +22,8 @@ class StorageHandler_cvs(StorageBase):
     def __init__(self, handle, opt_args=dict()):
         super(StorageHandler_cvs, self).__init__(handle, opt_args)
         
-        self.repo_name = opt_args.pop('cvs_repo_name')
-        self.repo_root = opt_args.pop('cvs_root')
+        self.repo_name = opt_args.get('cvs_repo_name')
+        self.repo_root = opt_args.get('cvs_root')
         self.opt_args = opt_args
 
     def _cvs_command(self, cmd, stdout=sys.stdout):
