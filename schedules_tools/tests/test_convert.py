@@ -1,8 +1,12 @@
 import testtools
 from schedules_tools import converter
+from schedules_tools.storage import StorageBase
 #from scripts import schedule_converter as converter_cli
 import tempfile
 import os
+import datetime
+import mock
+import pytest
 
 DATA_DIR = 'data'
 
@@ -87,6 +91,73 @@ class TestConverter(BaseTestConvert):
     def test_smartsheet_tjx(self):
         self._test_format_combination(self.file_smartsheet, 'tjx', '.tjx')
 
+    def test_init_storage_handler(self):
+        handler_opt_args = {
+            'source_storage_format': 'cvs'
+        }
+        handle = 'source.tjx'
+
+        conv = converter.ScheduleConverter()
+        assert conv.storage_handler is None
+
+        conv._init_storage_handler(handle, handler_opt_args)
+        inst_storage = conv.storage_handler
+
+        assert isinstance(inst_storage, StorageBase)
+
+        # try to reinitialize
+        conv._init_storage_handler(handle, handler_opt_args)
+        assert conv.storage_handler is inst_storage
+
+    @mock.patch('schedules_tools.converter.ScheduleConverter.storage_handler',
+                new_callable=mock.PropertyMock)
+    @mock.patch.object(converter.ScheduleConverter, '_get_schedule_handler_cls')
+    @mock.patch.object(converter.ScheduleConverter, '_get_handle_from_storage')
+    def test_handle_modified_since_from_handle(self,
+                                               mock_get_handle_from_storage,
+                                               mock_get_schedule_handler_cls,
+                                               mock_storage_handler):
+        conv = converter.ScheduleConverter()
+        handle = 'source.tjx'
+        curr_date = datetime.datetime(2010, 3, 13)
+        mock_storage_handler.return_value = None
+
+        conv.handle_modified_since(handle, curr_date)
+
+        mock_get_schedule_handler_cls.assert_called()
+        mock_storage_handler.get_handle_mtime.assert_not_called()
+
+    @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
+    @mock.patch.object(converter.ScheduleConverter, '_get_schedule_handler_cls')
+    @mock.patch.object(converter.ScheduleConverter, '_get_handle_from_storage')
+    def test_handle_modified_since_from_storage(self,
+                                                mock_get_handle_from_storage,
+                                                mock_get_schedule_handler_cls,
+                                                mock_storage_handler):
+        handle = 'source.tjx'
+        date_mtime_newer = datetime.datetime(2011, 3, 13)
+        date_mtime_older = datetime.datetime(2009, 3, 13)
+        date_storage_handler = datetime.datetime(2010, 3, 13)
+
+        mock_provide_mtime = mock.PropertyMock()
+        mock_provide_mtime.return_value = True
+        mock_storage_handler.get_handle_mtime.return_value = date_storage_handler
+        type(mock_storage_handler).provide_mtime = mock_provide_mtime
+
+        conv = converter.ScheduleConverter()
+        assert conv.handle_modified_since(handle, date_mtime_older)
+
+        mock_storage_handler.get_handle_mtime.assert_called()
+
+        assert not conv.handle_modified_since(handle, date_mtime_newer)
+
+    @pytest.mark.skip('not implemented yet')
+    def test_import_schedule_with_storage_provides_mtime_changelog(self):
+        pass
+
+    @pytest.mark.skip('not implemented yet')
+    def test_import_schedule_schedule_handler_provides_mtime_changelog(self):
+        pass
 
 #class TestConverterCLI(BaseTestConvert):
 #    def test_discover_handlers(self):
