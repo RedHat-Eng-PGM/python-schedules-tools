@@ -1,6 +1,6 @@
 import logging
 import discovery
-import datetime
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
