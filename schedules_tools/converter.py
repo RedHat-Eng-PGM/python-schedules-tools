@@ -112,9 +112,8 @@ class ScheduleConverter(object):
         local_handle = self._get_handle_from_storage(handle, handler_opt_args)
         if self.storage_handler and self.storage_handler.provide_mtime:
             handle_mtime = self.storage_handler.get_handle_mtime()
-            if isinstance(mtime, datetime):
-                if handle_mtime and handle_mtime <= mtime:
-                    return False
+            if isinstance(mtime, datetime) and handle_mtime:
+                return handle_mtime > mtime
 
         schedule_handler_cls = self._get_schedule_handler_cls(
             handle=local_handle, format=src_format)
