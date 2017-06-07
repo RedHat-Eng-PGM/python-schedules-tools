@@ -59,7 +59,7 @@ fi
 # coverage configuration
 params=""
 if [ "$COVERAGE" == "true" ]; then
-    params="${params} --cov-report=html:$COVERAGE_OUTPUT --cov=eng_pgm_utils/storage_handlers --cov=eng_pgm_utils/schedule_handlers"
+    params="${params} --cov-report=html:$COVERAGE_OUTPUT --cov=schedules_tools"
 fi
 
 if [ "$LASTFAILED" == "true" ]; then
