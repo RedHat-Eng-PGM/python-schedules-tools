@@ -93,29 +93,26 @@ class TestConverter(BaseTestConvert):
         self._test_format_combination(self.file_smartsheet, 'tjx', '.tjx')
 
     def test_init_storage_handler(self):
-        options = {
-            'source_storage_format': 'cvs'
-        }
         handle = 'source.tjx'
 
         conv = converter.ScheduleConverter()
         assert conv.storage_handler is None
 
-        conv._init_storage_handler(handle, options)
+        conv._init_storage_handler(handle, storage_src_format='cvs')
         inst_storage = conv.storage_handler
 
         assert isinstance(inst_storage, StorageBase)
 
         # try to reinitialize
-        conv._init_storage_handler(handle, options)
+        conv._init_storage_handler(handle, storage_src_format='cvs')
         assert conv.storage_handler is inst_storage
 
     @mock.patch('schedules_tools.converter.ScheduleConverter.storage_handler',
                 new_callable=mock.PropertyMock)
     @mock.patch.object(converter.ScheduleConverter, '_get_schedule_handler_cls')
-    @mock.patch.object(converter.ScheduleConverter, '_get_handle_from_storage')
+    @mock.patch.object(converter.ScheduleConverter, '_get_local_handle_from_storage')
     def test_handle_modified_since_from_handle(self,
-                                               mock_get_handle_from_storage,
+                                               mock_get_local_handle_from_storage,
                                                mock_get_schedule_handler_cls,
                                                mock_storage_handler):
         conv = converter.ScheduleConverter()
@@ -130,14 +127,12 @@ class TestConverter(BaseTestConvert):
 
     @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
     @mock.patch.object(converter.ScheduleConverter, '_get_schedule_handler_cls')
-    @mock.patch.object(converter.ScheduleConverter, '_get_handle_from_storage')
+    @mock.patch.object(converter.ScheduleConverter, '_get_local_handle_from_storage')
     def test_handle_modified_since_from_storage(self,
-                                                mock_get_handle_from_storage,
+                                                mock_get_local_handle_from_storage,
                                                 mock_get_schedule_handler_cls,
                                                 mock_storage_handler):
         handle = 'source.tjx'
-        date_mtime_newer = datetime.datetime(2011, 3, 13)
-        date_mtime_older = datetime.datetime(2009, 3, 13)
         date_storage_handler = datetime.datetime(2010, 3, 13)
 
         mock_provide_mtime = mock.PropertyMock()
@@ -146,18 +141,15 @@ class TestConverter(BaseTestConvert):
         type(mock_storage_handler).provide_mtime = mock_provide_mtime
 
         conv = converter.ScheduleConverter()
-        assert conv.handle_modified_since(handle, date_mtime_older)
-
-        mock_storage_handler.get_handle_mtime.assert_called()
-
-        assert not conv.handle_modified_since(handle, date_mtime_newer)
+        conv.handle_modified_since(handle, date_storage_handler)
+        mock_storage_handler.handle_modified_since.assert_called()
 
     @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
     @mock.patch.object(converter.ScheduleConverter, '_get_schedule_handler_cls')
-    @mock.patch.object(converter.ScheduleConverter, '_get_handle_from_storage')
+    @mock.patch.object(converter.ScheduleConverter, '_get_local_handle_from_storage')
     def test_import_schedule_with_storage_provides_mtime_changelog(
             self,
-            mock_get_handle_from_storage,
+            mock_get_local_handle_from_storage,
             mock_get_schedule_handler_cls,
             mock_storage_handler):
         mock_schedule_handler_cls = mock.Mock()
@@ -192,10 +184,10 @@ class TestConverter(BaseTestConvert):
 
     @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
     @mock.patch.object(converter.ScheduleConverter, '_get_schedule_handler_cls')
-    @mock.patch.object(converter.ScheduleConverter, '_get_handle_from_storage')
+    @mock.patch.object(converter.ScheduleConverter, '_get_local_handle_from_storage')
     def test_import_schedule_schedule_handler_provides_changelog(
             self,
-            mock_get_handle_from_storage,
+            mock_get_local_handle_from_storage,
             mock_get_schedule_handler_cls,
             mock_storage_handler):
         mock_schedule_handler_cls = mock.Mock()
@@ -230,10 +222,10 @@ class TestConverter(BaseTestConvert):
 
     @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
     @mock.patch.object(converter.ScheduleConverter, '_get_schedule_handler_cls')
-    @mock.patch.object(converter.ScheduleConverter, '_get_handle_from_storage')
+    @mock.patch.object(converter.ScheduleConverter, '_get_local_handle_from_storage')
     def test_import_schedule_storage_handler_overrides_schedule_changelog(
             self,
-            mock_get_handle_from_storage,
+            mock_get_local_handle_from_storage,
             mock_get_schedule_handler_cls,
             mock_storage_handler):
         mock_schedule_handler_cls = mock.Mock()
@@ -264,58 +256,20 @@ class TestConverter(BaseTestConvert):
         mock_storage_handler.get_handle_mtime.assert_not_called()
 
     @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
-    def test_get_local_handle_first_time(self, mock_storage_handler):
-        mock_storage_handler.get_local_handle.return_value = 'local-handle'
-
-        conv = converter.ScheduleConverter()
-        assert conv._get_local_handle() == 'local-handle'
-        mock_storage_handler.get_local_handle.assert_called()
-
-    @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
-    def test_get_local_handle_several_times(self, mock_storage_handler):
-        mock_storage_handler.get_local_handle.return_value = 'local-handle'
-
-        conv = converter.ScheduleConverter()
-        assert conv._get_local_handle() == 'local-handle'
-        assert conv._get_local_handle() == 'local-handle'
-        assert conv._get_local_handle() == 'local-handle'
-        assert conv._get_local_handle() == 'local-handle'
-
-        mock_storage_handler.get_local_handle.assert_called()
-        mock_storage_handler.get_local_handle.call_count == 1
-
-    @mock.patch.object(converter.ScheduleConverter, 'local_handle')
-    @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
     def test_cleanup_local_handle(
             self,
-            mock_storage_handle,
-            mock_local_handle):
+            mock_storage_handle):
         conv = converter.ScheduleConverter()
         conv.cleanup_local_handle()
 
         mock_storage_handle.clean_local_handle.assert_called()
 
-    @mock.patch.object(converter.ScheduleConverter, 'local_handle')
     @mock.patch('schedules_tools.converter.ScheduleConverter.storage_handler',
                 new_callable=mock.PropertyMock)
     def test_cleanup_local_handle_without_storage(
             self,
-            mock_storage_handle,
-            mock_local_handle):
+            mock_storage_handle):
         mock_storage_handle.return_value = None
-        conv = converter.ScheduleConverter()
-        conv.cleanup_local_handle()
-
-        mock_storage_handle.clean_local_handle.assert_not_called()
-
-    @mock.patch('schedules_tools.converter.ScheduleConverter.local_handle',
-                new_callable=mock.PropertyMock)
-    @mock.patch.object(converter.ScheduleConverter, 'storage_handler')
-    def test_cleanup_local_handle_without_local_handle(
-            self,
-            mock_storage_handle,
-            mock_local_handle):
-        mock_local_handle.return_value = None
         conv = converter.ScheduleConverter()
         conv.cleanup_local_handle()
 

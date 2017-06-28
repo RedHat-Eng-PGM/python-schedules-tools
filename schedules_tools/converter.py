@@ -23,7 +23,6 @@ class ScheduleConverter(object):
     no matter the exact handler/schedule type.
     """
     schedule = None
-    local_handle = None
     storage_handler = None
 
     def __init__(self, schedule=None):
