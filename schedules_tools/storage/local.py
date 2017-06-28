@@ -15,4 +15,17 @@ class StorageHandler_local(storage.StorageBase):
     def get_handle_mtime(self, path=None):
         mtime_timestamp = os.path.getmtime(self.handle)
 
-        return datetime.fromtimestamp(mtime_timestamp)
+        return datetime.fromtimestamp(mtime_timestamp).replace(microsecond=0)
+
+    def _copy_subtree_to_tmp(self):
+        """
+        Create an independent copy of product (from main-cvs-checkout),
+        located in /tmp and
+
+        Returns:
+            Path to process_path copied directory  in /tmp
+        """
+        dst_tmp_dir = tempfile.mkdtemp(prefix='sch_')
+        shutil.copy2(self.handle, dst_tmp_dir)
+
+        return dst_tmp_dir
