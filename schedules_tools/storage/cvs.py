@@ -19,12 +19,12 @@ class StorageHandler_cvs(StorageBase):
     provide_changelog = True
     provide_mtime = True
 
-    def __init__(self, handle, opt_args=dict()):
-        super(StorageHandler_cvs, self).__init__(handle, opt_args)
+    def __init__(self, handle, options=dict()):
+        super(StorageHandler_cvs, self).__init__(handle, options)
         
-        self.repo_name = opt_args.get('cvs_repo_name')
-        self.repo_root = opt_args.get('cvs_root')
-        self.opt_args = opt_args
+        self.repo_name = options.get('cvs_repo_name')
+        self.repo_root = options.get('cvs_root')
+        self.options = options
 
     def _cvs_command(self, cmd, stdout=sys.stdout):
         # -q, make cvs more quiet

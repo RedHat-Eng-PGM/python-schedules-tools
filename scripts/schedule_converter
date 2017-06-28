@@ -132,9 +132,10 @@ def main(args):
     opt_args.pop('handlers_path')
 
     try:
-        converter.import_schedule(arguments.source,
-                                  arguments.source_format,
-                                  handler_opt_args=opt_args)
+        converter.import_schedule(handle=arguments.source,
+                                  schedule_src_format=arguments.source_format,
+                                  storage_src_format=arguments.source_storage_format,
+                                  options=opt_args)
     except AcquireLockException as e:
         logger.error(e)
         sys.exit(1)

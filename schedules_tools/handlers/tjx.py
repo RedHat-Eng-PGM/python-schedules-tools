@@ -95,8 +95,9 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
         self.schedule.name = self.schedule.name.strip()
 
-        # import changelog from content of TJX
+        # import changelog/mtime from content of TJX
         self.schedule.changelog = self.get_handle_changelog()
+        self.schedule.mtime = self.get_handle_mtime()
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min

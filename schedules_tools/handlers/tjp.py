@@ -14,7 +14,7 @@ date_format = '%Y-%m-%d'
 class ScheduleHandler_tjp(ScheduleHandlerBase):
     """Handles TJP schedules
 
-    opt_args:
+    options:
         tj_id
         use_tji_file: At first export schedule into TJI file and include it into TJP
         force: Force TJP overwrite
@@ -62,9 +62,9 @@ include "reports.tji"
     def export_schedule(self):
         if 'tji' not in schedule_handlers:
             raise Exception('TJP export requires TJI handler')
-        tj_id = self.opt_args['tj_id']
-        use_tji_file = self.opt_args.get('use_tji_file', False)
-        force = self.opt_args.get('force', False)
+        tj_id = self.options['tj_id']
+        use_tji_file = self.options.get('use_tji_file', False)
+        force = self.options.get('force', False)
 
         v_major = self.schedule._version['major']
         v_minor = self.schedule._version['minor']

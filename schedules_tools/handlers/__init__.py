@@ -24,12 +24,12 @@ class ScheduleHandlerBase(object):
     provide_changelog = False
     provide_mtime = False
     
-    opt_args = {}
+    options = {}
 
-    def __init__(self, handle=None, schedule=None, opt_args=dict()):
+    def __init__(self, handle=None, schedule=None, options=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
-        self.opt_args = opt_args
+        self.options = options
 
     def _write_to_file(self, content, file):
         with open(file, 'wb') as fp:
@@ -81,6 +81,7 @@ class ScheduleHandlerBase(object):
 class TJXCommonMixin(object):   
     src_tree = None
     provide_changelog = True
+    provide_mtime = True
     
     def _get_parsed_tree(self):
         if not self.src_tree:
@@ -100,4 +101,14 @@ class TJXCommonMixin(object):
             }
             
         return changelog
+
+    def get_handle_mtime(self):
+        mtime = None
+        
+        changelog = self.get_handle_changelog()
+        
+        if changelog:
+            mtime = changelog.values()[0]['date']
+        
+        return mtime
 

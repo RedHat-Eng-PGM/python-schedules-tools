@@ -7,17 +7,17 @@ from schedules_tools import models
 
 class TestRunner(object):
     handler_name = None
-    opt_args = None
+    options = None
     json_reference_file = None
 
-    def __init__(self, handler_name, json_reference_file, opt_args=None):
+    def __init__(self, handler_name, json_reference_file, options=None):
         """
         Args:
             handler_name: name as str, such as 'tjx'
             json_reference_file: reference to make comparison
         """
         self.handler_name = handler_name
-        self.opt_args = opt_args
+        self.options = options
         self.json_reference_file = json_reference_file
 
     def make_json_reference(self, input_file):
@@ -51,8 +51,8 @@ class TestRunner(object):
         reference_str = self._load_reference_as_json_str()
         conv = converter.ScheduleConverter()
         conv.import_schedule(input_file,
-                             source_format=self.handler_name,
-                             handler_opt_args=self.opt_args)
+                             schedule_src_format=self.handler_name,
+                             options=self.options)
         input_dict = conv.schedule.dump_as_dict()
         input_str = self._dict_to_string(input_dict)
         return input_str == reference_str

@@ -68,10 +68,10 @@ class TestHandlers(object):
     def test_handler(self, handler, basedir, reference, testfile, action):
         testfile_abspath = os.path.join(basedir, testfile)
         reffile_abspath = os.path.join(basedir, reference)
-        opt_args = {
+        options = {
             'source_storage_format': 'local'
         }
-        runner = testrunner.TestRunner(handler, reffile_abspath, opt_args=opt_args)
+        runner = testrunner.TestRunner(handler, reffile_abspath, options=options)
         if action == EXPORT:
             runner.test_output(testfile_abspath)
         elif action == IMPORT:

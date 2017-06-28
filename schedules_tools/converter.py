@@ -56,7 +56,7 @@ class ScheduleConverter(object):
         return discovery.storage_handlers[format]
 
     @classmethod
-    def _get_schedule_handler_struct(cls, handle=None, storage_handler=None, format=None):
+    def _get_schedule_handler_struct(cls, handle=None, format=None):
         if format:
             handler_struct = cls._get_schedule_handler_for_format(format)
         else:
@@ -72,88 +72,110 @@ class ScheduleConverter(object):
     def _get_storage_handler_cls(cls, *args, **kwargs):
         return cls._get_storage_handler_for_format(*args, **kwargs)['class']
 
-    def cleanup_local_handle(self):
-        if self.storage_handler and self.local_handle:
-            self.storage_handler.clean_local_handle()
 
-    def _init_storage_handler(self, handle, handler_opt_args=dict()):
+    def _init_storage_handler(self, handle, storage_src_format, options=dict()):
         """ Prepare storage handler if it's necessary and isn't already prepared """
         if self.storage_handler:
             return
-
-        storage_format = handler_opt_args.get('source_storage_format')
-        if storage_format:
-            storage_handler_cls = self._get_storage_handler_cls(storage_format)
-            storage_handler = storage_handler_cls(
-                handle=handle,
-                opt_args=handler_opt_args)
+        
+        if storage_src_format:
+            storage_handler_cls = self._get_storage_handler_cls(storage_src_format)
+            storage_handler = storage_handler_cls(handle=handle,
+                                                  options=options)
             self.storage_handler = storage_handler
 
-    def _get_local_handle(self):
-        if not self.local_handle:
-            self.local_handle = self.storage_handler.get_local_handle()
-        return self.local_handle
-
-    def _get_handle_from_storage(self, handle, handler_opt_args):
-        """Initialize storage and get local handle only if the storage is specified"""
+    def _get_local_handle_from_storage(self, handle, storage_src_format, options):
+        """Init storage and get local handle from storage if specified otherwise return original handle"""
         local_handle = handle
 
-        self._init_storage_handler(local_handle, handler_opt_args)
+        self._init_storage_handler(handle, storage_src_format, options)
+        
         if self.storage_handler:
-            local_handle = self._get_local_handle()
+            local_handle = self.storage_handler.get_local_handle()
 
         return local_handle
 
+    def cleanup_local_handle(self):
+        if self.storage_handler:
+            self.storage_handler.clean_local_handle()
+
+
     # Following methods call their counterparts on handlers
-    def handle_modified_since(self, handle, mtime,
-                              src_format=None, handler_opt_args=dict()):
+    def handle_modified_since(self, 
+                              handle, 
+                              mtime,
+                              schedule_src_format=None, 
+                              storage_src_format=None,
+                              options=dict()
+                              ):
         """ Return boolean (call schedule_handler specific method) to be able to bypass processing """
 
-        local_handle = self._get_handle_from_storage(handle, handler_opt_args)
+        local_handle = self._get_local_handle_from_storage(handle, 
+                                                           storage_src_format,
+                                                           options
+                                                           )        
+        # use storage if possible, otherwise schedule
         if self.storage_handler and self.storage_handler.provide_mtime:
-            handle_mtime = self.storage_handler.get_handle_mtime()
-            if isinstance(mtime, datetime) and handle_mtime:
-                return handle_mtime > mtime
+            mtime_providing_handler = self.storage_handler
+        else:
+            schedule_handler_cls = self._get_schedule_handler_cls(
+                                            handle=local_handle, 
+                                            format=schedule_src_format
+                                            )
+    
+            mtime_providing_handler = schedule_handler_cls(
+                                            handle=local_handle, 
+                                            options=options
+                                            )
+            
+        return mtime_providing_handler.handle_modified_since(mtime)
+
+
+    def import_schedule(self, 
+                        handle, 
+                        schedule_src_format=None,
+                        storage_src_format=None,
+                        options=dict()
+                        ):
+        
+        # convert to local handle if needed
+        local_handle = self._get_local_handle_from_storage(handle, 
+                                                           storage_src_format,
+                                                           options
+                                                           )
 
         schedule_handler_cls = self._get_schedule_handler_cls(
-            handle=local_handle, format=src_format)
-
-        schedule_handler = schedule_handler_cls(handle=local_handle, opt_args=handler_opt_args)
-
-        return schedule_handler.handle_modified_since(mtime)
-
-    def import_schedule(self, handle, source_format=None,
-                        handler_opt_args=dict()):
-        local_handle = self._get_handle_from_storage(handle, handler_opt_args)
-
-        schedule_handler_cls = self._get_schedule_handler_cls(
-            handle=local_handle, format=source_format)
+                                        handle=local_handle, 
+                                        format=schedule_src_format
+                                        )
         schedule_handler = schedule_handler_cls(
-            handle=local_handle, opt_args=handler_opt_args)
+                                        handle=local_handle, 
+                                        options=options
+                                        )
 
         # imports changelog and mtime - if implemented
         schedule = schedule_handler.import_schedule()
-
-        if schedule_handler.provide_changelog:
-            schedule.changelog = schedule_handler.get_handle_changelog()
 
         # if storage defined and provides changelog/mtime - use storage handler to overwrite it
         if self.storage_handler:
             if self.storage_handler.provide_changelog:
                 schedule.changelog = self.storage_handler.get_handle_changelog()
+                
             if self.storage_handler.provide_mtime:
                 schedule.mtime = self.storage_handler.get_handle_mtime()
 
         assert schedule is not None, 'Import schedule_handler {} didn\'t return filled ' \
                                      'schedule!'.format(schedule_handler_cls)
+        
         self.schedule = schedule
         return self.schedule
 
-    def export_schedule(self, output, target_format, handler_opt_args=dict()):
-        tj_id = handler_opt_args.get('tj_id', '')
-        v_major = handler_opt_args.get('major', '')
-        v_minor = handler_opt_args.get('minor', '')
-        v_maint = handler_opt_args.get('maint', '')
+
+    def export_schedule(self, output, target_format, options=dict()):
+        tj_id = options.get('tj_id', '')
+        v_major = options.get('major', '')
+        v_minor = options.get('minor', '')
+        v_maint = options.get('maint', '')
 
         schedule_handler_cls = self._get_schedule_handler_cls(format=target_format)
 
@@ -162,7 +184,7 @@ class ScheduleConverter(object):
                 'Schedule handler for {} doesn\'t provide export.'
                 .format(target_format))
 
-        schedule_handler = schedule_handler_cls(schedule=self.schedule, opt_args=handler_opt_args)
+        schedule_handler = schedule_handler_cls(schedule=self.schedule, options=options)
 
         schedule_handler.schedule.override_version(tj_id, v_major, v_minor, v_maint)
 

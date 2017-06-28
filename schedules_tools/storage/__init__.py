@@ -7,15 +7,15 @@ class AcquireLockException(Exception):
 
 class StorageBase(object):
     handle = None
-    opt_args = {}
+    options = {}
     tmp_root = None
     
     provide_changelog = False
     provide_mtime = False
 
-    def __init__(self, handle=None, opt_args=dict()):
+    def __init__(self, handle=None, options=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general        
-        self.opt_args = opt_args
+        self.options = options
 
     def get_local_handle(self, revision=None, datetime=None):
         """
@@ -42,7 +42,7 @@ class StorageBase(object):
 
     def handle_modified_since(self, mtime):
         # Return False only when able to tell
-        if isinstance(mtime, datetime):
+        if isinstance(mtime, datetime.datetime):
             try:
                 handle_mtime = self.get_handle_mtime()
             except NotImplementedError:

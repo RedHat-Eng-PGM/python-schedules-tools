@@ -93,7 +93,7 @@ class TestConverter(BaseTestConvert):
         self._test_format_combination(self.file_smartsheet, 'tjx', '.tjx')
 
     def test_init_storage_handler(self):
-        handler_opt_args = {
+        options = {
             'source_storage_format': 'cvs'
         }
         handle = 'source.tjx'
@@ -101,13 +101,13 @@ class TestConverter(BaseTestConvert):
         conv = converter.ScheduleConverter()
         assert conv.storage_handler is None
 
-        conv._init_storage_handler(handle, handler_opt_args)
+        conv._init_storage_handler(handle, options)
         inst_storage = conv.storage_handler
 
         assert isinstance(inst_storage, StorageBase)
 
         # try to reinitialize
-        conv._init_storage_handler(handle, handler_opt_args)
+        conv._init_storage_handler(handle, options)
         assert conv.storage_handler is inst_storage
 
     @mock.patch('schedules_tools.converter.ScheduleConverter.storage_handler',
