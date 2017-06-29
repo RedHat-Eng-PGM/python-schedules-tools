@@ -81,13 +81,15 @@ class TestHandlers(object):
             'source_storage_format': 'local'
         }
         runner = testrunner.TestRunner(handler, reffile_abspath, options=options)
-        if action == EXPORT:
-            runner.test_output(testfile_abspath)
-        elif action == IMPORT:
-            runner.test_input(testfile_abspath)
-        else:
-            logger.warn('Unknown action to test: {}'.format(action))
-
-        if teardown:
-            teardown_method = self.__getattribute__(teardown)
-            teardown_method(handler, basedir, reference, testfile, action)
+        try:
+            if action == EXPORT:
+                runner.test_output(testfile_abspath)
+            elif action == IMPORT:
+                #import pudb; pudb.set_trace()
+                runner.test_input(testfile_abspath)
+            else:
+                logger.warn('Unknown action to test: {}'.format(action))
+        finally:
+            if teardown:
+                teardown_method = self.__getattribute__(teardown)
+                teardown_method(handler, basedir, reference, testfile, action)
