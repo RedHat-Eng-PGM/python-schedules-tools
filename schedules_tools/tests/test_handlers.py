@@ -32,40 +32,49 @@ class TestHandlers(object):
             ('tjx-in', {'handler': 'tjx',
                         'reference': 'ref.json',
                         'testfile': 'data/input.tjx',
-                        'action': IMPORT}),
+                        'action': IMPORT,
+                        'teardown': '',
+                        }),
             ('tjx-out', {'handler': 'tjx',
                          'reference': 'ref.json',
                          'testfile': 'data/output.tjx',
-                         'action': EXPORT}),
+                         'action': EXPORT,
+                         'teardown': ''}),
             ('msp-in', {'handler': 'msp',
                         'reference': 'ref.json',
                         'testfile': 'data/input.xml',
-                        'action': IMPORT}),
+                        'action': IMPORT,
+                        'teardown': ''}),
             ('msp-out', {'handler': 'msp',
                          'reference': 'ref.json',
                          'testfile': 'data/output.xml',
-                         'action': EXPORT}),
+                         'action': EXPORT,
+                         'teardown': ''}),
             ('tjx2-in', {'handler': 'tjx2',
                          'reference': 'ref.json',
                          'testfile': 'data/input-v2.tjx',
-                         'action': IMPORT}),
+                         'action': IMPORT,
+                         'teardown': ''}),
             ('html-out', {'handler': 'html',
                           'reference': 'ref.json',
                           'testfile': 'data/output.html',
-                          'action': EXPORT}),
+                          'action': EXPORT,
+                          'teardown': ''}),
             ('json-out', {'handler': 'json',
                           'reference': 'ref.json',
                           'testfile': 'data/output-struct.json',
-                          'action': EXPORT}),
+                          'action': EXPORT,
+                          'teardown': ''}),
             ('jsonflat-out', {'handler': 'jsonflat',
                               'reference': 'ref.json',
                               'testfile': 'data/output-flat.json',
-                              'action': EXPORT}),
+                              'action': EXPORT,
+                              'teardown': ''}),
             ]
          }
     ]
 
-    def test_handler(self, handler, basedir, reference, testfile, action):
+    def test_handler(self, handler, basedir, reference, testfile, action, teardown):
         testfile_abspath = os.path.join(basedir, testfile)
         reffile_abspath = os.path.join(basedir, reference)
         options = {
@@ -78,3 +87,7 @@ class TestHandlers(object):
             runner.test_input(testfile_abspath)
         else:
             logger.warn('Unknown action to test: {}'.format(action))
+
+        if teardown:
+            teardown_method = self.__getattribute__(teardown)
+            teardown_method(handler, basedir, reference, testfile, action)
