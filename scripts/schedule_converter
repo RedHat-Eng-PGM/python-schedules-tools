@@ -153,7 +153,7 @@ def main(args):
 
     converter.export_schedule(arguments.target,
                               arguments.target_format,
-                              handler_opt_args=opt_args)
+                              options=opt_args)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
