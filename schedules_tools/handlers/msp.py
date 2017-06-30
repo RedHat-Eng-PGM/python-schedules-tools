@@ -229,7 +229,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                 return return_tasks
 
             # process task
-            task = models.Task(self.schedule)
+            task = models.Task(self.schedule, level=level)
             if self.task_load_msp_node(task, eTask):
                 # update schedule start/end
                 if self.schedule.dStart:
