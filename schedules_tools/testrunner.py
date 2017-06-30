@@ -23,7 +23,7 @@ class TestRunner(object):
     def make_json_reference(self, input_file):
         conv = converter.ScheduleConverter()
         conv.import_schedule(input_file,
-                             source_format=self.handler_name)
+                             schedule_src_format=self.handler_name)
         input_dict = conv.schedule.dump_as_dict()
         with open(self.json_reference_file, 'w+') as fd:
             # pretty print output to be able do diff outside this tool
@@ -40,6 +40,7 @@ class TestRunner(object):
 
     def _load_reference_as_json_str(self):
         json_loaded = self._load_reference_as_dict()
+        json_loaded['mtime'] = None
         # load and dump again to not be sensitive by whitespaces etc.
         return self._dict_to_string(json_loaded)
 
@@ -54,23 +55,29 @@ class TestRunner(object):
                              schedule_src_format=self.handler_name,
                              options=self.options)
         input_dict = conv.schedule.dump_as_dict()
+        input_dict['mtime'] = None
         input_str = self._dict_to_string(input_dict)
-        return input_str == reference_str
 
-    def test_output(self, output_file):
+        assert input_str == reference_str
+
+    def test_output(self, output_file, patch_output=None):
         reference_dict = self._load_reference_as_dict()
         reference_schedule = models.Schedule.load_from_dict(reference_dict)
-        _, temp_output_file = tempfile.mkstemp()
-
+        _, temp_reference_file = tempfile.mkstemp()
         conv = converter.ScheduleConverter(reference_schedule)
-        conv.export_schedule(temp_output_file,
+        conv.export_schedule(temp_reference_file,
                              target_format=self.handler_name)
 
-        with open(temp_output_file) as fd:
+        with open(temp_reference_file) as fd:
             reference = fd.read()
-        os.unlink(temp_output_file)
+        os.unlink(temp_reference_file)
 
         with open(output_file) as fd:
             test_out = fd.read()
 
-        return reference == test_out
+        # Patch outputs, if needed
+        if patch_output and callable(patch_output):
+            reference = patch_output(reference)
+            test_out = patch_output(test_out)
+
+        assert reference == test_out
