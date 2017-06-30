@@ -35,7 +35,7 @@ while [[ $# > 0 ]]; do
         LASTFAILED=true
         ;;
         *)
-        REST="$REST $key"
+        REST="$key"
         ;;
     esac
     shift # past argument or value
