@@ -2,6 +2,7 @@ from schedules_tools import testrunner
 from schedules_tools import discovery
 import logging
 import os
+import re
 
 logger = logging.getLogger(__name__)
 discovery.schedule_handlers.run_discovery()
@@ -33,59 +34,86 @@ class TestHandlers(object):
                         'reference': 'ref.json',
                         'testfile': 'data/input.tjx',
                         'action': IMPORT,
+                        'patch_output': '',
                         'teardown': '',
                         }),
             ('tjx-out', {'handler': 'tjx',
                          'reference': 'ref.json',
                          'testfile': 'data/output.tjx',
                          'action': EXPORT,
+                         'patch_output': '',
                          'teardown': ''}),
             ('msp-in', {'handler': 'msp',
-                        'reference': 'ref.json',
+                        'reference': 'ref-msp.json',
                         'testfile': 'data/input.xml',
                         'action': IMPORT,
+                        'patch_output': '',
                         'teardown': ''}),
             ('msp-out', {'handler': 'msp',
                          'reference': 'ref.json',
                          'testfile': 'data/output.xml',
                          'action': EXPORT,
+                         'patch_output': '',
                          'teardown': ''}),
             ('tjx2-in', {'handler': 'tjx2',
-                         'reference': 'ref.json',
+                         'reference': 'ref-tjx2.json',
                          'testfile': 'data/input-v2.tjx',
                          'action': IMPORT,
+                         'patch_output': '',
                          'teardown': ''}),
             ('html-out', {'handler': 'html',
                           'reference': 'ref.json',
                           'testfile': 'data/output.html',
                           'action': EXPORT,
+                          'patch_output': '',
                           'teardown': ''}),
             ('json-out', {'handler': 'json',
                           'reference': 'ref.json',
                           'testfile': 'data/output-struct.json',
                           'action': EXPORT,
+                          'patch_output': '_mask_json_now_field',
                           'teardown': ''}),
             ('jsonflat-out', {'handler': 'jsonflat',
                               'reference': 'ref.json',
                               'testfile': 'data/output-flat.json',
                               'action': EXPORT,
+                              'patch_output': '_mask_json_now_field',
                               'teardown': ''}),
             ]
          }
     ]
 
-    def test_handler(self, handler, basedir, reference, testfile, action, teardown):
+    def test_handler(self, handler, basedir, reference, testfile, action, patch_output, teardown):
+        """
+
+        Args:
+            handler: name of handler to test ('tjx'|'msp'|'html'|'json'|'jsonflat'...)
+            basedir: path used to locate reference and test files in
+            reference: JSON file to compare with test outputs
+            testfile: File path that will be converted
+            action: ('import'|'export')
+            patch_output: Used in export only. Function name (string) in the same
+                          class to patch reference and test output
+            teardown: Function name (string) that will run always after asserting,
+                      usually to cleanup side products of test
+
+        Returns:
+
+        """
         testfile_abspath = os.path.join(basedir, testfile)
         reffile_abspath = os.path.join(basedir, reference)
         options = {
             'source_storage_format': 'local'
         }
+        patch_method = None
         runner = testrunner.TestRunner(handler, reffile_abspath, options=options)
         try:
             if action == EXPORT:
-                runner.test_output(testfile_abspath)
+                if patch_output:
+                    patch_method = self.__getattribute__(patch_output)
+
+                runner.test_output(testfile_abspath, patch_method)
             elif action == IMPORT:
-                #import pudb; pudb.set_trace()
                 runner.test_input(testfile_abspath)
             else:
                 logger.warn('Unknown action to test: {}'.format(action))
@@ -93,3 +121,10 @@ class TestHandlers(object):
             if teardown:
                 teardown_method = self.__getattribute__(teardown)
                 teardown_method(handler, basedir, reference, testfile, action)
+
+    def _mask_json_now_field(self, input_str):
+        """JSON format contains field "now" with current timestamp, so output
+        is always uniq. To be able to compare two outputs, we need to ignore
+        this field, by replacing to static string.
+        """
+        return re.sub('"now": "\d+"', '"now": "123456789"', input_str)
