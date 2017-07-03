@@ -9,8 +9,11 @@ class TestRunner(object):
     handler_name = None
     options = None
     json_reference_file = None
+    test_failures_output_dir = None
+    test_id = None
 
-    def __init__(self, handler_name, json_reference_file, options=None):
+    def __init__(self, handler_name, json_reference_file, options=None,
+                 test_id=None, test_failures_output_dir=None):
         """
         Args:
             handler_name: name as str, such as 'tjx'
@@ -19,6 +22,8 @@ class TestRunner(object):
         self.handler_name = handler_name
         self.options = options
         self.json_reference_file = json_reference_file
+        self.test_id = test_id
+        self.test_failures_output_dir = test_failures_output_dir
 
     def make_json_reference(self, input_file):
         conv = converter.ScheduleConverter()
@@ -44,6 +49,19 @@ class TestRunner(object):
         # load and dump again to not be sensitive by whitespaces etc.
         return self._dict_to_string(json_loaded)
 
+    def _dump_output_as_file(self, reference, test_output):
+        if not (self.test_failures_output_dir and
+                self.test_id):
+            return
+
+        output_file_prefix = os.path.join(self.test_failures_output_dir,
+                                          self.test_id)
+        with open(output_file_prefix + '_reference.json', 'w+') as fd:
+            fd.write(reference)
+
+        with open(output_file_prefix + '_test.json', 'w+') as fd:
+            fd.write(test_output)
+
     @staticmethod
     def _dict_to_string(input_dict):
         return jsondate.dumps(input_dict, sort_keys=True)
@@ -57,6 +75,9 @@ class TestRunner(object):
         input_dict = conv.schedule.dump_as_dict()
         input_dict['mtime'] = None
         input_str = self._dict_to_string(input_dict)
+
+        if input_str != reference_str:
+            self._dump_output_as_file(reference_str, input_str)
 
         assert input_str == reference_str
 
@@ -79,5 +100,8 @@ class TestRunner(object):
         if patch_output and callable(patch_output):
             reference = patch_output(reference)
             test_out = patch_output(test_out)
+
+        if reference != test_out:
+            self._dump_output_as_file(reference, test_out)
 
         assert reference == test_out

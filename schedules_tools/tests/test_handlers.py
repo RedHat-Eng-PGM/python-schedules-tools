@@ -16,10 +16,11 @@ def pytest_generate_tests(metafunc):
     argvalues = []
     for scenario in metafunc.cls.test_suite:
         for combination in scenario['combinations']:
-            idlist.append(combination[0])
+            test_id = combination[0]
+            idlist.append(test_id)
             items = combination[1].items()
-            argnames = ['basedir'] + [x[0] for x in items]
-            argvalues.append([scenario['basedir']] + [x[1] for x in items])
+            argnames = ['basedir', 'test_id'] + [x[0] for x in items]
+            argvalues.append([scenario['basedir'], test_id] + [x[1] for x in items])
     metafunc.parametrize(argnames, argvalues, ids=idlist, scope="class")
 
 IMPORT = 'import'
@@ -27,6 +28,7 @@ EXPORT = 'export'
 
 
 class TestHandlers(object):
+    test_failures_output_dir = 'failed_tests_output'
     test_suite = [
         {'basedir': BASE_DIR,
          'combinations': [
@@ -83,12 +85,14 @@ class TestHandlers(object):
          }
     ]
 
-    def test_handler(self, handler, basedir, reference, testfile, action, patch_output, teardown):
+    def test_handler(self, handler, basedir, test_id, reference, testfile,
+                     action, patch_output, teardown):
         """
 
         Args:
             handler: name of handler to test ('tjx'|'msp'|'html'|'json'|'jsonflat'...)
             basedir: path used to locate reference and test files in
+            test_id: label/caption of actual parametrized combination test case
             reference: JSON file to compare with test outputs
             testfile: File path that will be converted
             action: ('import'|'export')
@@ -102,11 +106,22 @@ class TestHandlers(object):
         """
         testfile_abspath = os.path.join(basedir, testfile)
         reffile_abspath = os.path.join(basedir, reference)
+        test_failures_output_dir = os.path.join(basedir,
+                                                self.test_failures_output_dir)
+        if not os.path.exists(test_failures_output_dir):
+            os.mkdir(test_failures_output_dir)
+
         options = {
             'source_storage_format': 'local'
         }
         patch_method = None
-        runner = testrunner.TestRunner(handler, reffile_abspath, options=options)
+        runner = testrunner.TestRunner(
+            handler,
+            reffile_abspath,
+            options=options,
+            test_id=test_id,
+            test_failures_output_dir=test_failures_output_dir)
+
         try:
             if action == EXPORT:
                 if patch_output:
