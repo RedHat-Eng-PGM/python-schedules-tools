@@ -1,6 +1,6 @@
 import logging
 import discovery
-from datetime import datetime
+from schedules_tools import ERR_SCHEDULE, error_container
 
 logger = logging.getLogger(__name__)
 
@@ -129,8 +129,7 @@ class ScheduleConverter(object):
             
         return mtime_providing_handler.handle_modified_since(mtime)
 
-
-    def import_schedule(self, 
+    def import_schedule(self,
                         handle, 
                         schedule_src_format=None,
                         storage_src_format=None,
@@ -163,12 +162,14 @@ class ScheduleConverter(object):
             if self.storage_handler.provide_mtime:
                 schedule.mtime = self.storage_handler.get_handle_mtime()
 
-        assert schedule is not None, 'Import schedule_handler {} didn\'t return filled ' \
-                                     'schedule!'.format(schedule_handler_cls)
-        
+        if schedule is None:
+            msg = 'Import schedule_handler {} didn\'t return filled ' \
+                  'schedule!'.format(schedule_handler_cls)
+            logger.error(msg)
+            error_container.add_error_log(ERR_SCHEDULE, msg)
+
         self.schedule = schedule
         return self.schedule
-
 
     def export_schedule(self, output, target_format, options=dict()):
         tj_id = options.get('tj_id', '')
