@@ -5,7 +5,7 @@ import sys
 import re
 import logging
 from schedules_tools.converter import ScheduleConverter
-from schedules_tools import discovery, error_container
+from schedules_tools import discovery
 from schedules_tools.storage import AcquireLockException
 
 logger = logging.getLogger(__name__)
@@ -139,10 +139,6 @@ def main(args):
     except AcquireLockException as e:
         logger.error(e)
         sys.exit(1)
-    finally:
-        msg = error_container.get_error_logs(pretty=True)
-        if msg:
-            logger.error(msg)
 
     check_tasks = dict()
     for task_name in arguments.check_taskname:

@@ -153,7 +153,6 @@ class Schedule(object):
     _task_index = 1
     _taskname_flat_registry = None
 
-
     def __init__(self):
         self.tasks = []
         self.phases = []
