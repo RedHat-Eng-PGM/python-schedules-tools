@@ -1,0 +1,32 @@
+[
+    {
+        "author": "user5",
+        "datetime": "2013-08-22T15:24:33Z",
+        "message": "rename file",
+        "revision": "1.1"
+    },
+    {
+        "author": "anotherbody",
+        "datetime": "2013-08-26T13:59:13Z",
+        "message": "another comment on this line",
+        "revision": "1.2"
+    },
+    {
+        "author": "user123",
+        "datetime": "2013-08-28T10:04:17Z",
+        "message": "new change",
+        "revision": "1.2.2.1"
+    },
+    {
+        "author": "anybody",
+        "datetime": "2014-01-09T16:51:09Z",
+        "message": "Update date\nsome so long commit message\nsplitted to multiple\nlines",
+        "revision": "1.3"
+    },
+    {
+        "author": "nobody",
+        "datetime": "2016-10-13T13:48:18Z",
+        "message": "cleanup, no schedule changes",
+        "revision": "1.4"
+    }
+]
