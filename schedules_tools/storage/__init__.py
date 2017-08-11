@@ -1,7 +1,8 @@
 import datetime
+from schedules_tools import SchedulesToolsException
 
 
-class AcquireLockException(Exception):
+class AcquireLockException(SchedulesToolsException):
     pass
 
 

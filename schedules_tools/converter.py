@@ -1,6 +1,7 @@
 import logging
 import discovery
-from datetime import datetime
+from schedules_tools import SchedulesToolsException
+from schedules_tools.models import Schedule
 
 logger = logging.getLogger(__name__)
 
@@ -129,8 +130,7 @@ class ScheduleConverter(object):
             
         return mtime_providing_handler.handle_modified_since(mtime)
 
-
-    def import_schedule(self, 
+    def import_schedule(self,
                         handle, 
                         schedule_src_format=None,
                         storage_src_format=None,
@@ -153,22 +153,26 @@ class ScheduleConverter(object):
                                         )
 
         # imports changelog and mtime - if implemented
-        schedule = schedule_handler.import_schedule()
+        schedule = Schedule()
+        try:
+            schedule = schedule_handler.import_schedule()
 
-        # if storage defined and provides changelog/mtime - use storage handler to overwrite it
-        if self.storage_handler:
-            if self.storage_handler.provide_changelog:
-                schedule.changelog = self.storage_handler.get_handle_changelog()
-                
-            if self.storage_handler.provide_mtime:
-                schedule.mtime = self.storage_handler.get_handle_mtime()
+            # if storage defined and provides changelog/mtime - use storage handler to overwrite it
+            if self.storage_handler:
+                if self.storage_handler.provide_changelog:
+                    schedule.changelog = self.storage_handler.get_handle_changelog()
 
-        assert schedule is not None, 'Import schedule_handler {} didn\'t return filled ' \
-                                     'schedule!'.format(schedule_handler_cls)
-        
+                if self.storage_handler.provide_mtime:
+                    schedule.mtime = self.storage_handler.get_handle_mtime()
+
+                    if self.storage_handler.provide_mtime:
+                        schedule.mtime = self.storage_handler.get_handle_mtime()
+        except SchedulesToolsException as e:
+            logger.exception(e)
+            schedule.errors_import.append(e)
+
         self.schedule = schedule
         return self.schedule
-
 
     def export_schedule(self, output, target_format, options=dict()):
         tj_id = options.get('tj_id', '')

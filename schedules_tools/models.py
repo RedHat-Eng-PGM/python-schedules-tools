@@ -153,6 +153,8 @@ class Schedule(object):
     _task_index = 1
     _taskname_flat_registry = None
 
+    errors_import = []
+
     def __init__(self):
         self.tasks = []
         self.phases = []
@@ -160,6 +162,7 @@ class Schedule(object):
         self.changelog = {}
         self.ext_attr = {}
         self.unique_task_id_re = re.compile('[\W_]+')
+        self.errors_import = []
 
     def override_version(self, tj_id='', v_major='', v_minor='', v_maint=''):
         if tj_id:

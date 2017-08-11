@@ -72,6 +72,7 @@ class TestRunner(object):
         conv.import_schedule(input_file,
                              schedule_src_format=self.handler_name,
                              options=self.options)
+        assert len(conv.schedule.errors_import) == 0
         input_dict = conv.schedule.dump_as_dict()
         input_dict['mtime'] = None
         input_str = self._dict_to_string(input_dict)

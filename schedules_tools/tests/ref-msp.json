@@ -4,6 +4,7 @@
     "dStart": "2000-01-01T06:00:00Z",
     "ext_attr": {},
     "name": "Test project 10",
+    "errors_import": [],
     "phases": [
         {
             "dAcFinish": "2000-03-27T07:00:00Z",

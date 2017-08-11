@@ -1,13 +1,8 @@
 from datetime import datetime
 import logging
-
 from lxml import etree
 
 logger = logging.getLogger(__name__)
-
-
-class CmdException(Exception):
-    pass
 
 
 # Handle implementation must be in format ScheduleHandler_format
