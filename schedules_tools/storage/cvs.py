@@ -1,87 +1,427 @@
-from schedules_tools.storage import StorageBase
+from schedules_tools import SchedulesToolsException
+from schedules_tools.storage import StorageBase, AcquireLockException
 import os
-import sys
 import re
 import subprocess
-import datetime
+import datetime as datetime_mod
 import tempfile
 import logging
+from distutils.dir_util import remove_tree, copy_tree
+import shutil
+import redis
+import time
+import random
+
 
 logger = logging.getLogger(__name__)
 
 
-class StorageHandler_cvs(StorageBase):
-    target_dir = None
-    cloned = False
-    repo_root = None
-    repo_name = None
-    
-    provide_changelog = True
-    provide_mtime = True
+class CvsCommandException(SchedulesToolsException):
+    pass
 
-    def __init__(self, handle, options=dict()):
-        super(StorageHandler_cvs, self).__init__(handle, options)
-        
+
+class NotImplementedFeature(SchedulesToolsException):
+    pass
+
+
+class StorageHandler_cvs(StorageBase):
+    provide_mtime = True
+    provide_changelog = True
+
+    checkout_dir = None  # path to shared local working copy of repository
+    repo_root = None  # :gserver:$USER@cvs.myserver.com:/cvs/reporoot
+    repo_name = None  # repo
+    exclusive_access = False
+    redis = None
+
+    tmp_root = None  # local tmp handle dir
+
+    redis_key = 'cvs_schedule_exclusive'
+    lock_try_count = 30
+    lock_try_interval = 2  # seconds
+
+    local_handle = None
+
+    def __init__(self, handle=None, options=dict(), **kwargs):
+        super(StorageHandler_cvs, self).__init__(handle, options, **kwargs)
+
+        self.checkout_dir = options.get('cvs_checkout_path')
         self.repo_name = options.get('cvs_repo_name')
         self.repo_root = options.get('cvs_root')
-        self.options = options
+        self.exclusive_access = options.get('cvs_exclusive_access', self.exclusive_access)
 
-    def _cvs_command(self, cmd, stdout=sys.stdout):
+        if self.exclusive_access:
+            # Default Redis settings
+            redis_host = 'localhost'
+            redis_port = 6379
+            redis_db = 0
+            redis_uri = options.get('cvs_lock_redis_uri', '')
+            match = re.findall('^([^:]+):([0-9]+)/([0-9]+)$', redis_uri)
+            if not match and redis_uri != '':
+                logger.debug('"{}" is not valid redis URI, using default '
+                             'config.'.format(redis_uri))
+            if match:
+                match = match[0]
+                redis_host = match[0]
+                redis_port = int(match[1])
+                redis_db = int(match[2])
+            self.redis = redis.StrictRedis(
+                host=redis_host,
+                port=redis_port,
+                db=redis_db
+            )
+
+    def _cvs_command(self, cmd,
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE,
+                     cwd=None,
+                     exclusive=False):
+        if not cwd:
+            cwd = self.checkout_dir
         # -q, make cvs more quiet
         # -z9, maximum compression
         # -d, set CVSROOT
         cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
-        p = subprocess.Popen(cmd_str.split(), stdout=stdout,
-                             cwd=self.target_dir)
-        return p
+        logger.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
 
-    def clone(self, target_dir=None):
-        if self.cloned:
-            logger.debug('Storage has been already cloned. Skipping.')
-            return self.target_dir
+        if self.exclusive_access and exclusive:
+            for i in range(self.lock_try_count):
+                logger.debug('{}. (of {}) try to exclusive run CVS '
+                             'command'.format(i + 1, self.lock_try_count))
+                acquired_flag = self.redis.setnx(self.redis_key, '1')
+                logger.debug('Exclusive lock acquired: {}'.format(
+                    acquired_flag))
+                if acquired_flag:
+                    break
 
-        if target_dir and not os.path.exists(target_dir):
-            os.makedirs(target_dir)
+                # random shift timeout +/- 1s
+                interval = self.lock_try_interval + random.uniform(-1, 1)
+                interval += i * self.lock_try_interval
+
+                # don't wait, if it's already last try
+                if i < self.lock_try_count - 1:
+                    time.sleep(interval)
+
+            if not acquired_flag:
+                raise AcquireLockException(
+                    'Unable to acquire lock for command "{}"'.format(cmd_str),
+                    source=self
+                )
+
+        p = subprocess.Popen(cmd_str.split(),
+                             stdout=stdout,
+                             stderr=stderr,
+                             cwd=cwd)
+        stdout, stderr = p.communicate()
+        if self.exclusive_access and exclusive and acquired_flag:
+            logger.debug('Exclusive lock released.')
+            self.redis.delete(self.redis_key)
+
+        if p.returncode != 0:
+            msg = str({'stdout': stdout, 'stderr': stderr})
+            raise CvsCommandException(msg, source=self)
+        return stdout, stderr
+
+    @staticmethod
+    def _wipe_out_dir(target_dir):
+        if os.path.exists(target_dir):
+            logger.debug('Wipping out {}'.format(target_dir))
+            remove_tree(target_dir)
+
+    def _is_valid_cvs_dir(self, path):
+        """
+        Verifies that given (local) path comes from CVS local working copy
+         - contains CVS directory
+         - <path>/CVS/Root ends like: '@cvs.myserver.com:/cvs/reporoot'
+         - <path>/CVS/Repository 'repo/' - path to tracked directory
+
+        Args:
+            path: local path of versioned directory (/tmp/cvsXZY/repo/schedule)
+
+        Returns:
+            True, if the path come from the already checked out repo
+        """
+        def get_subpath(*subpath):
+            return os.path.join(path, *subpath)
+
+        def cvs_root_parser(string):
+            # :gserver:$USER@cvs.myserver.com:/cvs/reporoot
+            chunks = string.split(':')
+            server_url = chunks[2].split('@')[1]
+            server_path = chunks[3]
+            return server_url, server_path
+
+        if not os.path.exists(path):
+            return False
+
+        # CVS has to be a directory
+        if not os.path.isdir(get_subpath('CVS')):
+            return False
+
+        # verify CVS module name (repo_name)
+        with open(get_subpath('CVS', 'Repository')) as fd:
+            line = fd.readline().strip()
+            if not line.startswith(self.repo_name):
+                return False
+
+        # verify CVS Root
+        with open(get_subpath('CVS', 'Root')) as fd:
+            line = fd.readline().strip()
+            if cvs_root_parser(line) != cvs_root_parser(self.repo_root):
+                return False
+
+        return True
+
+    def _get_local_shared_path(self, path):
+        """
+        Returns path to file that belongs local working copy of repository
+
+        Args:
+            path: relative path in repo (repo/schedule)
+
+        Returns:
+            Real local path to given file within repo (/tmp/tmpXYZ/repo/schedule)
+        """
+        ret = os.path.join(self.checkout_dir, path)
+        return os.path.realpath(ret)
+
+    def _refresh_local(self):
+        """
+        Check if local copy exists (not just path but also CVS content) and
+        decide if checkout is needed or not
+        If empty:
+            do a cvs checkout to mkdtmp dir and then copy to local path
+        If exists:
+            do a cvs update - handle conflicts,...
+        """
+        cvs_content_root_dir = os.path.join(self.checkout_dir, self.repo_name)
+        if not self._is_valid_cvs_dir(cvs_content_root_dir):
+            self._cvs_checkout()
         else:
-            target_dir = tempfile.mkdtemp()
-        self.target_dir = target_dir
+            self._update_shared_repo()
 
+    def _copy_subtree_to_tmp(self, process_path):
+        """
+        Create an independent copy of schedule (from main-cvs-checkout),
+        located in /tmp and
+
+        Args:
+            process_path: relative subtree path of shared checkout dir
+
+        Returns:
+            Path to process_path copied directory  in /tmp
+        """
+        src = os.path.join(self.checkout_dir, process_path)
+        dst_tmp_dir = tempfile.mkdtemp(prefix='sch_')
+        dst = os.path.join(dst_tmp_dir, process_path)
+        copy_tree(src, dst)
+
+        return dst_tmp_dir
+
+    def _process_path(self):
+        """
+        Get handle and figure out, which directory subtree needs to be check
+        out
+        Example: schedule/schedule-1-0.tjp -> schedule
+
+        Returns:
+            Path to schedule, that handle is part of ('schedule')
+        """
+        return os.path.dirname(self.handle)
+
+    def get_local_handle(self, enforce=False, revision=None, datetime=None):
+        """
+        Facilitate update/clone of shared working copy of repository,
+
+        Args:
+            revision:
+            datetime:
+
+        Returns:
+            Tuple (path_to_handle, path_to_tmp_dir)
+
+        """
+        if not self.local_handle or enforce:
+            # Checkout exact revision/datetime if defined
+            if revision or datetime:
+                raise NotImplementedFeature(
+                    'Checking out specific revision is not currently '
+                    'implemented.')
+
+            self._refresh_local()  # refresh shared local tree
+            subtree_rel_path = self._process_path()
+            self.tmp_root = self._copy_subtree_to_tmp(subtree_rel_path)
+
+            self.local_handle = os.path.join(self.tmp_root, self.handle)
+
+        return self.local_handle
+
+    def clean_local_handle(self):
+        if self.local_handle:
+            remove_tree(self.tmp_root)
+            self.local_handle = None
+
+    def _cvs_checkout(self, force=False):
+        """
+        Clones the repo into:
+            1) cvs_checkout_path optional param
+            2) made temp directory
+
+        Set self.checkout_dir to new, proper path accordingly.
+        """
+        verify_existing_dif = True
+
+        if not self.checkout_dir:
+            verify_existing_dif = False
+            self.checkout_dir = tempfile.mkdtemp(prefix='sch_repo_')
+
+        logger.debug('Using {} as checkout dir'.format(self.checkout_dir))
+
+        if force:
+            verify_existing_dif = False
+
+        local_repo_path = self._get_local_shared_path(self.repo_name)
+        if verify_existing_dif and self._is_valid_cvs_dir(local_repo_path):
+            return self.checkout_dir
+
+        temp_checkout_dir = tempfile.mkdtemp(prefix='sch_tmp_repo_')
         cmd = 'co {}'.format(self.repo_name)
-        p = self._cvs_command(cmd)
-        p.communicate()
 
-        assert p.returncode == 0
-        self.cloned = True
+        self._cvs_command(cmd, cwd=temp_checkout_dir, exclusive=True)
 
-        return self.target_dir
+        # Finally move whole content into required destination. Due behavior of
+        # 'move', the destination don't have to exists. That's why it can't be
+        # done as atomic operation.
+        # 'atomic' part start
+        self._wipe_out_dir(self.checkout_dir)
+        shutil.move(temp_checkout_dir, self.checkout_dir)
+        # 'atomic' part end
 
-    def checkout(self, revision=None, datetime=None):
+        return self.checkout_dir
+
+    def _cvs_update(self, filename='', revision=None, datetime_rev=None):
+        """
+        Run 'cvs update' with given filename or if it's not specified whole
+        local working copy of repository and specification of revision
+        to get, if it's specified.
+
+        Args:
+            filename: relative path (repo/schedule/schedule-1-0)
+            revision: Optional, pick specific revision by revision number
+            datetime_rev: Optional, pick specific revision by date
+
+        Returns:
+            stdout/err of 'cvs' command
+        """
         cmd_revision = ''
-        if datetime:
-            datetime_str = datetime.strftime('%Y-%m-%d %H:%M')
+        cvs_params = ''
+        cmd_params = '-d'  # -d = retrieve also new directories
+
+        if revision and datetime_rev:
+            raise CvsCommandException('Revision specification by number and '
+                                      'date are disjunctive. Pick just one.',
+                                      source=self)
+
+        if datetime_rev:
+            datetime_str = datetime_rev.strftime('%Y-%m-%d %H:%M')
             cmd_revision = '-D "{}"'.format(datetime_str)
         if revision:
             cmd_revision = '-r "{}"'.format(revision)
 
-        cmd = 'update {cmd_revision} {filename}'.format(
-            cmd_revision=cmd_revision, filename=self.handle)
-        p = self._cvs_command(cmd)
-        p.communicate()
-        assert p.returncode == 0
+        cmd = '{cvs_params} update {cmd_params} {cmd_revision} {filename}'.format(
+            cvs_params=cvs_params,
+            cmd_params=cmd_params,
+            cmd_revision=cmd_revision, filename=filename).strip()
+        stdout, stderr = self._cvs_command(cmd, exclusive=True)
+        return stdout, stderr
+
+    def _update_shared_repo(self):
+        """
+        Wraps 'cvs update' and in case of problems, fix the shared working copy
+        of the repo (remove the dir, checkout it again), or as a last chance,
+        do complete checkout of the repository from scratch.
+        """
+        try:
+            stdout, stderr = self._cvs_update()
+
+            # Are there any directories with troubles? Remove them (afterwards).
+            to_cleanup = self._parse_cvs_update_output(stdout)
+
+            # There are no problems - nothing to do, leaving.
+            if not to_cleanup:
+                return
+
+            for path in to_cleanup:
+                self._clean_checkout_directory(path)
+
+            # This step is just for sure - shouldn't occur usually
+            stdout, stderr = self._cvs_update()
+            to_cleanup = self._parse_cvs_update_output(stdout)
+            if to_cleanup:
+                # Something went wrong by update, do complete fresh checkout
+                self._cvs_checkout(force=True)
+        except CvsCommandException as e:
+            logger.exception(e)
+            self._cvs_checkout(force=True)
+
+    @staticmethod
+    def _parse_cvs_update_output(cvsoutput):
+        """
+        Parse line by line from given argument and returns list of paths, that's
+        somehow corrupted and have to be updated/checkouted from scratch.
+
+        Args:
+            cvsoutput: string with (usually) multiple lines, stdout of
+                       'cvs update' command
+
+        Returns:
+            list of paths, that's corrupted
+
+        """
+        re_flags = re.compile('^(\S)\s+(\S+)')
+        to_cleanup = set()
+
+        for line in cvsoutput.splitlines():
+            match = re.findall(re_flags, line)
+            if not match:
+                continue
+            flag, filename = match[0]
+            path = os.path.dirname(filename)
+            # Conflict, Added, Modified locally, ? not versioned yet
+            if flag in ('C', 'A', 'M', '?'):
+                if path != '':
+                    to_cleanup.add(path)
+            # Updated, Patched
+            elif flag in ('U', 'P'):
+                # it's valid state - there exists remote changes,
+                # local working copy doesn't have any external changes
+                pass
+            else:
+                logger.debug('Unknown CVS status flag: ' + flag)
+                # Don't know what it means, so clean it to be sure
+                if path != '':
+                    to_cleanup.add(path)
+        return to_cleanup
+
+    def _clean_checkout_directory(self, directory):
+        logger.debug('re-checkout directory {}'.format(directory))
+        rm_dir = os.path.join(self.checkout_dir, directory)
+        remove_tree(rm_dir)
 
     def get_handle_mtime(self):
-        changelog = self.get_changelog(self.handle)
-        latest_change = changelog[-1]
-        return latest_change['datetime']
+        self._refresh_local()
+
+        local_handle = self._get_local_shared_path(self.handle)
+        mtime_timestamp = os.path.getmtime(local_handle)
+
+        return datetime_mod.datetime.fromtimestamp(mtime_timestamp)
 
     def get_handle_changelog(self):
-        changelog_list = []
+        self._refresh_local()
+
+        changelog = []
         cmd = 'log {}'.format(self.handle)
-        
-        # TODO: move process communication into cvs_command and return just stdout,stderr
-        # easier to mock for testing
-        p = self._cvs_command(cmd, stdout=subprocess.PIPE)
-        stdout, stderr = p.communicate()
+        stdout, stderr = self._cvs_command(cmd)
 
         STATE_HEAD = 'head'
         STATE_REVISION = 'revision'
@@ -106,7 +446,6 @@ class StorageHandler_cvs(StorageBase):
                 matches = re_head.findall(line)
                 if not matches:
                     continue
-                self.latest_change = matches[0]
 
                 state = STATE_REVISION
                 continue
@@ -124,8 +463,8 @@ class StorageHandler_cvs(StorageBase):
                 continue
             elif state == STATE_DATE_AUTHOR:
                 matches = re_date_author.findall(line)
-                date = datetime.datetime.strptime(matches[0][0],
-                                                  '%Y/%m/%d %H:%M:%S')
+                date = datetime_mod.datetime.strptime(
+                    matches[0][0], '%Y/%m/%d %H:%M:%S')
                 author = matches[0][1]
                 comment = []
 
@@ -144,14 +483,12 @@ class StorageHandler_cvs(StorageBase):
                         'datetime': date,
                         'message': comment
                     }
-                    changelog_list.append(record)
+                    changelog.append(record)
                     state = STATE_REVISION
                     continue
                 comment.append(line)
                 continue
 
-        # sort records according to date asc
-        ord_changelog_list = sorted(changelog_list, key=lambda x: x['datetime'])
-        # return needed dict with unique rev as key to quickly tell if rev is in changelog
-        return {log_entry['revision']: log_entry for log_entry in ord_changelog_list}
+        # sort records according to date
+        return sorted(changelog, key=lambda x: x['datetime'])
 
