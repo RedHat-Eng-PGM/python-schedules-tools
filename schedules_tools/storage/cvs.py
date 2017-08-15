@@ -13,7 +13,7 @@ import time
 import random
 
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class CvsCommandException(SchedulesToolsException):
@@ -29,7 +29,7 @@ class StorageHandler_cvs(StorageBase):
     provide_changelog = True
 
     checkout_dir = None  # path to shared local working copy of repository
-    repo_root = None  # :gserver:$USER@cvs.myserver.com:/cvs/reporoot
+    repo_root = None  # :pserver:$USER@cvs.myserver.com:/cvs/reporoot
     repo_name = None  # repo
     exclusive_access = False
     redis = None
@@ -39,6 +39,9 @@ class StorageHandler_cvs(StorageBase):
     redis_key = 'cvs_schedule_exclusive'
     lock_try_count = 30
     lock_try_interval = 2  # seconds
+    
+    refresh_validity = 3 # seconds
+    _last_refresh = None
 
     local_handle = None
 
@@ -58,7 +61,7 @@ class StorageHandler_cvs(StorageBase):
             redis_uri = options.get('cvs_lock_redis_uri', '')
             match = re.findall('^([^:]+):([0-9]+)/([0-9]+)$', redis_uri)
             if not match and redis_uri != '':
-                logger.debug('"{}" is not valid redis URI, using default '
+                log.debug('"{}" is not valid redis URI, using default '
                              'config.'.format(redis_uri))
             if match:
                 match = match[0]
@@ -82,14 +85,14 @@ class StorageHandler_cvs(StorageBase):
         # -z9, maximum compression
         # -d, set CVSROOT
         cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
-        logger.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
+        log.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
 
         if self.exclusive_access and exclusive:
             for i in range(self.lock_try_count):
-                logger.debug('{}. (of {}) try to exclusive run CVS '
+                log.debug('{}. (of {}) try to exclusive run CVS '
                              'command'.format(i + 1, self.lock_try_count))
                 acquired_flag = self.redis.setnx(self.redis_key, '1')
-                logger.debug('Exclusive lock acquired: {}'.format(
+                log.debug('Exclusive lock acquired: {}'.format(
                     acquired_flag))
                 if acquired_flag:
                     break
@@ -114,7 +117,7 @@ class StorageHandler_cvs(StorageBase):
                              cwd=cwd)
         stdout, stderr = p.communicate()
         if self.exclusive_access and exclusive and acquired_flag:
-            logger.debug('Exclusive lock released.')
+            log.debug('Exclusive lock released.')
             self.redis.delete(self.redis_key)
 
         if p.returncode != 0:
@@ -125,7 +128,7 @@ class StorageHandler_cvs(StorageBase):
     @staticmethod
     def _wipe_out_dir(target_dir):
         if os.path.exists(target_dir):
-            logger.debug('Wipping out {}'.format(target_dir))
+            log.debug('Wipping out {}'.format(target_dir))
             remove_tree(target_dir)
 
     def _is_valid_cvs_dir(self, path):
@@ -182,10 +185,10 @@ class StorageHandler_cvs(StorageBase):
         Returns:
             Real local path to given file within repo (/tmp/tmpXYZ/repo/schedule)
         """
-        ret = os.path.join(self.checkout_dir, path)
+        ret = os.path.join(self.checkout_dir, self.repo_name, path)
         return os.path.realpath(ret)
 
-    def _refresh_local(self):
+    def _refresh_local(self, force=False):
         """
         Check if local copy exists (not just path but also CVS content) and
         decide if checkout is needed or not
@@ -198,22 +201,26 @@ class StorageHandler_cvs(StorageBase):
         if not self._is_valid_cvs_dir(cvs_content_root_dir):
             self._cvs_checkout()
         else:
-            self._update_shared_repo()
+            last_refresh_valid_time = datetime_mod.datetime.now() - datetime_mod.timedelta(seconds=self.refresh_validity)
+            
+            if force or not self._last_refresh or self._last_refresh < last_refresh_valid_time:
+                self._update_shared_repo()
+                self._last_refresh = datetime_mod.datetime.now()
 
-    def _copy_subtree_to_tmp(self, process_path):
+    def _copy_subtree_to_tmp(self, processed_path):
         """
         Create an independent copy of schedule (from main-cvs-checkout),
         located in /tmp and
 
         Args:
-            process_path: relative subtree path of shared checkout dir
+            processed_path: relative subtree path of shared checkout dir
 
         Returns:
-            Path to process_path copied directory  in /tmp
+            Path to processed_path copied directory  in /tmp
         """
-        src = os.path.join(self.checkout_dir, process_path)
+        src = os.path.join(self.checkout_dir, self.repo_name, processed_path)
         dst_tmp_dir = tempfile.mkdtemp(prefix='sch_')
-        dst = os.path.join(dst_tmp_dir, process_path)
+        dst = os.path.join(dst_tmp_dir, processed_path)
         copy_tree(src, dst)
 
         return dst_tmp_dir
@@ -275,7 +282,7 @@ class StorageHandler_cvs(StorageBase):
             verify_existing_dif = False
             self.checkout_dir = tempfile.mkdtemp(prefix='sch_repo_')
 
-        logger.debug('Using {} as checkout dir'.format(self.checkout_dir))
+        log.debug('Using {} as checkout dir'.format(self.checkout_dir))
 
         if force:
             verify_existing_dif = False
@@ -361,7 +368,7 @@ class StorageHandler_cvs(StorageBase):
                 # Something went wrong by update, do complete fresh checkout
                 self._cvs_checkout(force=True)
         except CvsCommandException as e:
-            logger.exception(e)
+            log.exception(e)
             self._cvs_checkout(force=True)
 
     @staticmethod
@@ -397,14 +404,14 @@ class StorageHandler_cvs(StorageBase):
                 # local working copy doesn't have any external changes
                 pass
             else:
-                logger.debug('Unknown CVS status flag: ' + flag)
+                log.debug('Unknown CVS status flag: ' + flag)
                 # Don't know what it means, so clean it to be sure
                 if path != '':
                     to_cleanup.add(path)
         return to_cleanup
 
     def _clean_checkout_directory(self, directory):
-        logger.debug('re-checkout directory {}'.format(directory))
+        log.debug('re-checkout directory {}'.format(directory))
         rm_dir = os.path.join(self.checkout_dir, directory)
         remove_tree(rm_dir)
 
@@ -414,13 +421,13 @@ class StorageHandler_cvs(StorageBase):
         local_handle = self._get_local_shared_path(self.handle)
         mtime_timestamp = os.path.getmtime(local_handle)
 
-        return datetime_mod.datetime.fromtimestamp(mtime_timestamp)
+        return datetime_mod.datetime.fromtimestamp(mtime_timestamp).replace(microsecond=0)
 
     def get_handle_changelog(self):
         self._refresh_local()
 
-        changelog = []
-        cmd = 'log {}'.format(self.handle)
+        changelog = {}
+        cmd = 'log {}'.format(os.path.join(self.repo_name, self.handle))
         stdout, stderr = self._cvs_command(cmd)
 
         STATE_HEAD = 'head'
@@ -478,17 +485,14 @@ class StorageHandler_cvs(StorageBase):
                     # store whole log
                     comment = '\n'.join(comment)
                     record = {
-                        'revision': revision,
-                        'author': author,
-                        'datetime': date,
-                        'message': comment
-                    }
-                    changelog.append(record)
+                        'user': author,
+                        'date': date,
+                        'msg': comment
+                     }
+                    changelog[revision] = record
                     state = STATE_REVISION
                     continue
                 comment.append(line)
                 continue
 
-        # sort records according to date
-        return sorted(changelog, key=lambda x: x['datetime'])
-
+        return changelog
