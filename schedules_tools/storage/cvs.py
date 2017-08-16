@@ -265,6 +265,8 @@ class StorageHandler_cvs(StorageBase):
 
     def clean_local_handle(self):
         if self.local_handle:
+            log.debug('Cleaning local handle {}'.format(self.local_handle))
+            
             remove_tree(self.tmp_root)
             self.local_handle = None
 
