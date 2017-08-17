@@ -1,5 +1,6 @@
-import logging
 import discovery
+import logging
+
 from schedules_tools import SchedulesToolsException
 from schedules_tools.models import Schedule
 
@@ -168,8 +169,8 @@ class ScheduleConverter(object):
                     if self.storage_handler.provide_mtime:
                         schedule.mtime = self.storage_handler.get_handle_mtime()
         except SchedulesToolsException as e:
-            logger.exception(e)
-            schedule.errors_import.append(e)
+            error_item = e.__class__.__name__, str(e).split('\n')
+            schedule.errors_import.append(error_item)
 
         self.schedule = schedule
         return self.schedule
