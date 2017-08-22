@@ -414,9 +414,10 @@ class StorageHandler_cvs(StorageBase):
         return to_cleanup
 
     def _clean_checkout_directory(self, directory):
-        log.debug('re-checkout directory {}'.format(directory))
+        log.debug('Wipe out checkout directory {}'.format(directory))
         rm_dir = os.path.join(self.checkout_dir, directory)
-        remove_tree(rm_dir)
+        if os.path.exists(rm_dir):
+            remove_tree(rm_dir)
 
     def get_handle_mtime(self):
         self._refresh_local()
