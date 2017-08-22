@@ -453,11 +453,21 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
                           'rhel-unknown-flag', 'rhel-added', 'rhel-added2']
         assert to_cleanup == set(to_cleanup_ref)
 
+    @mock.patch('schedules_tools.storage.cvs.os.path.exists')
     @mock.patch('schedules_tools.storage.cvs.remove_tree')
-    def test_clean_checkout_directory(self, mock_remove_tree):
+    def test_clean_checkout_directory(self, mock_remove_tree, mock_path_exists):
         directory = 'program/fedora/f-25'
+        mock_path_exists.return_value = True
         self.reference_obj._clean_checkout_directory(directory)
         mock_remove_tree.assert_called_with('/tmp/mycheckoutdir/program/fedora/f-25')
+
+    @mock.patch('schedules_tools.storage.cvs.os.path.exists')
+    @mock.patch('schedules_tools.storage.cvs.remove_tree')
+    def test_clean_not_existing_checkout_directory(self, mock_remove_tree, mock_path_exists):
+        directory = 'program/fedora/f-25'
+        mock_path_exists.return_value = False
+        self.reference_obj._clean_checkout_directory(directory)
+        mock_remove_tree.assert_not_called()
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
