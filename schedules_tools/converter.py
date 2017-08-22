@@ -107,35 +107,44 @@ class ScheduleConverter(object):
                               mtime,
                               schedule_src_format=None, 
                               storage_src_format=None,
-                              options=dict()
+                              options=dict(),
+                              cleanup=True
                               ):
         """ Return boolean (call schedule_handler specific method) to be able to bypass processing """
 
-        local_handle = self._get_local_handle_from_storage(handle, 
-                                                           storage_src_format,
-                                                           options
-                                                           )        
+        handle_modified = True
+
+        self._init_storage_handler(handle, storage_src_format, options)
+
         # use storage if possible, otherwise schedule
         if self.storage_handler and self.storage_handler.provide_mtime:
-            mtime_providing_handler = self.storage_handler
+            handle_modified = self.storage_handler.handle_modified_since(mtime)
         else:
+            local_handle = self._get_local_handle_from_storage(handle, 
+                                                               storage_src_format,
+                                                               options
+                                                               )        
+
             schedule_handler_cls = self._get_schedule_handler_cls(
                                             handle=local_handle, 
                                             format=schedule_src_format
                                             )
     
-            mtime_providing_handler = schedule_handler_cls(
+            handle_modified = schedule_handler_cls(
                                             handle=local_handle, 
                                             options=options
-                                            )
+                                            ).handle_modified_since(mtime)
+            if cleanup:
+                self.cleanup_local_handle()
             
-        return mtime_providing_handler.handle_modified_since(mtime)
+        return handle_modified
 
     def import_schedule(self,
                         handle, 
                         schedule_src_format=None,
                         storage_src_format=None,
-                        options=dict()
+                        options=dict(),
+                        cleanup=True
                         ):
         
         # convert to local handle if needed
@@ -170,6 +179,10 @@ class ScheduleConverter(object):
             schedule.errors_import.append(error_item)
 
         self.schedule = schedule
+        
+        if cleanup:
+            self.cleanup_local_handle()
+        
         return self.schedule
 
     def export_schedule(self, output, target_format, options=dict()):
