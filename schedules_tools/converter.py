@@ -165,9 +165,6 @@ class ScheduleConverter(object):
 
                 if self.storage_handler.provide_mtime:
                     schedule.mtime = self.storage_handler.get_handle_mtime()
-
-                    if self.storage_handler.provide_mtime:
-                        schedule.mtime = self.storage_handler.get_handle_mtime()
         except SchedulesToolsException as e:
             error_item = e.__class__.__name__, str(e).split('\n')
             schedule.errors_import.append(error_item)
