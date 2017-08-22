@@ -260,6 +260,7 @@ class StorageHandler_cvs(StorageBase):
             self.tmp_root = self._copy_subtree_to_tmp(subtree_rel_path)
 
             self.local_handle = os.path.join(self.tmp_root, self.handle)
+            log.debug('Creating local handle {}'.format(self.local_handle))
 
         return self.local_handle
 
