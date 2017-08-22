@@ -42,7 +42,7 @@ class TestCvsCustomRepo(BaseCvsTest):
 
         ret = reference._get_local_shared_path(path)
 
-        assert ret == '/tmp/aaa/program/release'
+        assert ret == '/tmp/aaa/repo/program/release'
 
     @mock.patch('schedules_tools.storage.cvs.os')
     def test_is_valid_cvs_dir_root_negative(self, mock_os):
@@ -68,27 +68,25 @@ class TestCvsCustomRepo(BaseCvsTest):
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_get_local_shared_path')
-    @mock.patch('schedules_tools.storage.cvs.datetime_mod.datetime')
+    @mock.patch('schedules_tools.storage.cvs.os.path.getmtime')
     @mock.patch('schedules_tools.storage.cvs.os')
     def test_get_handle_mtime(self,
                               mock_os,
-                              mock_datetime,
+                              mock_getmtime,
                               mock_get_local_shared_path,
                               mock_refresh_local):
-        # use Patch as context manager, if possible
-        # read more about pytest fixture
-        # self._make_reference_obj rewrite as setUp method
         handle = 'program/product/release/release.tjp'
 
-        referece_ret = 'abc'
-        mock_datetime.fromtimestamp.return_value = referece_ret
+        # 1477535432.123 == datetime.datetime(2016, 10, 27, 4, 30, 32, 123000)
+        referece_ret = 1477535432.123
+        mock_getmtime.return_value = referece_ret
 
         reference = self._make_reference_obj(handle=handle)
 
         ret = reference.get_handle_mtime()
 
         mock_refresh_local.assert_called()
-        assert ret == referece_ret
+        assert ret == datetime.datetime(2016, 10, 27, 4, 30, 32)
         mock_get_local_shared_path.assert_called_with(handle)
 
     def test_process_path(self):
@@ -238,14 +236,14 @@ class TestCvs(BaseCvsWithDefaultHandler):
     @mock.patch('tempfile.mkdtemp')
     @mock.patch('schedules_tools.storage.cvs.copy_tree')
     def test_copy_subtree_to_tmp(self, mock_copy_tree, mock_mkdtemp):
-        process_path = 'program/rhel'
+        process_path = 'rhel'
         mock_mkdtemp.return_value = '/tmp/asdf'
 
         return_value = self.reference_obj._copy_subtree_to_tmp(process_path)
 
         assert return_value == '/tmp/asdf'
-        mock_copy_tree.assert_called_with('/tmp/mycheckoutdir/program/rhel',
-                                          '/tmp/asdf/program/rhel')
+        mock_copy_tree.assert_called_with('/tmp/mycheckoutdir/repo/rhel',
+                                          '/tmp/asdf/rhel')
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_copy_subtree_to_tmp')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
