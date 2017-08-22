@@ -121,7 +121,7 @@ class StorageHandler_cvs(StorageBase):
             self.redis.delete(self.redis_key)
 
         if p.returncode != 0:
-            msg = str({'stdout': stdout, 'stderr': stderr})
+            msg = str({'stdout': stdout, 'stderr': stderr, 'cmd': cmd_str})
             raise CvsCommandException(msg, source=self)
         return stdout, stderr
 
@@ -422,7 +422,6 @@ class StorageHandler_cvs(StorageBase):
 
         local_handle = self._get_local_shared_path(self.handle)
         mtime_timestamp = os.path.getmtime(local_handle)
-
         return datetime_mod.datetime.fromtimestamp(mtime_timestamp).replace(microsecond=0)
 
     def get_handle_changelog(self):
