@@ -85,7 +85,6 @@ class StorageHandler_cvs(StorageBase):
         # -z9, maximum compression
         # -d, set CVSROOT
         cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
-        log.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
 
         if self.exclusive_access and exclusive:
             for i in range(self.lock_try_count):
@@ -111,6 +110,7 @@ class StorageHandler_cvs(StorageBase):
                     source=self
                 )
 
+        log.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
         p = subprocess.Popen(cmd_str.split(),
                              stdout=stdout,
                              stderr=stderr,
