@@ -36,9 +36,8 @@ class StorageHandler_cvs(StorageBase):
 
     tmp_root = None  # local tmp handle dir
 
-    redis_key = 'cvs_schedule_exclusive'
-    lock_try_count = 30
-    lock_try_interval = 2  # seconds
+    lock_timeout = 120
+    lock_sleep = 0.5  # seconds
     
     refresh_validity = 3 # seconds
     _last_refresh = None
@@ -54,25 +53,19 @@ class StorageHandler_cvs(StorageBase):
         self.exclusive_access = options.get('cvs_exclusive_access', self.exclusive_access)
 
         if self.exclusive_access:
-            # Default Redis settings
-            redis_host = 'localhost'
-            redis_port = 6379
-            redis_db = 0
-            redis_uri = options.get('cvs_lock_redis_uri', '')
-            match = re.findall('^([^:]+):([0-9]+)/([0-9]+)$', redis_uri)
-            if not match and redis_uri != '':
-                log.debug('"{}" is not valid redis URI, using default '
-                             'config.'.format(redis_uri))
-            if match:
-                match = match[0]
-                redis_host = match[0]
-                redis_port = int(match[1])
-                redis_db = int(match[2])
-            self.redis = redis.StrictRedis(
-                host=redis_host,
-                port=redis_port,
-                db=redis_db
-            )
+            redis_url = options.get('cvs_lock_redis_url', '')
+            
+            if redis_url:
+                self.redis = redis.StrictRedis.from_url(redis_url)
+            else:
+                self.redis = redis.StrictRedis()
+
+    @property
+    def redis_key(self):
+        return '_'.join(['schedules_tools_cvs', 
+                         self.repo_root,
+                         self.repo_name,
+                         self.checkout_dir])
 
     def _cvs_command(self, cmd,
                      stdout=subprocess.PIPE,
@@ -87,28 +80,23 @@ class StorageHandler_cvs(StorageBase):
         cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
 
         if self.exclusive_access and exclusive:
-            for i in range(self.lock_try_count):
-                log.debug('{}. (of {}) try to exclusive run CVS '
-                             'command'.format(i + 1, self.lock_try_count))
-                acquired_flag = self.redis.setnx(self.redis_key, '1')
-                log.debug('Exclusive lock acquired: {}'.format(
-                    acquired_flag))
-                if acquired_flag:
-                    break
+            cvs_lock = self.redis.lock(
+                                name=self.redis_key, 
+                                timeout=self.lock_timeout - 10,  # max life time for lock 
+                                sleep=self.lock_sleep, 
+                                blocking_timeout=self.lock_timeout 
+                       ) 
+            log.debug('Waiting for CVS lock..')             
+            lock_acquired = cvs_lock.acquire()          
 
-                # random shift timeout +/- 1s
-                interval = self.lock_try_interval + random.uniform(-1, 1)
-                interval += i * self.lock_try_interval
-
-                # don't wait, if it's already last try
-                if i < self.lock_try_count - 1:
-                    time.sleep(interval)
-
-            if not acquired_flag:
+            if not lock_acquired:
                 raise AcquireLockException(
                     'Unable to acquire lock for command "{}"'.format(cmd_str),
                     source=self
                 )
+            else:
+                log.debug('CVS lock ACQUIRED')
+
 
         log.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
         p = subprocess.Popen(cmd_str.split(),
@@ -116,13 +104,15 @@ class StorageHandler_cvs(StorageBase):
                              stderr=stderr,
                              cwd=cwd)
         stdout, stderr = p.communicate()
-        if self.exclusive_access and exclusive and acquired_flag:
-            log.debug('Exclusive lock released.')
-            self.redis.delete(self.redis_key)
+        
+        if self.exclusive_access and exclusive and lock_acquired:
+            cvs_lock.release()
+            log.debug('CVS lock RELEASED')
 
         if p.returncode != 0:
             msg = str({'stdout': stdout, 'stderr': stderr, 'cmd': cmd_str})
             raise CvsCommandException(msg, source=self)
+        
         return stdout, stderr
 
     @staticmethod
