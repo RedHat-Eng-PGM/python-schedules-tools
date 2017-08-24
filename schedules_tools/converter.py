@@ -26,6 +26,7 @@ class ScheduleConverter(object):
     """
     schedule = None
     storage_handler = None
+    local_handle = None
 
     def __init__(self, schedule=None):
         self.schedule = schedule
@@ -76,29 +77,31 @@ class ScheduleConverter(object):
 
     def _init_storage_handler(self, handle, storage_src_format, options=dict()):
         """ Prepare storage handler if it's necessary and isn't already prepared """
-        if self.storage_handler:
-            return
-        
-        if storage_src_format:
+        if storage_src_format and not self.storage_handler:
             storage_handler_cls = self._get_storage_handler_cls(storage_src_format)
             storage_handler = storage_handler_cls(handle=handle,
                                                   options=options)
             self.storage_handler = storage_handler
+        
+        return self.storage_handler
 
     def _get_local_handle_from_storage(self, handle, storage_src_format, options):
         """Init storage and get local handle from storage if specified otherwise return original handle"""
-        local_handle = handle
+        if not self.local_handle:
+            self.local_handle = handle
+    
+            self._init_storage_handler(handle, storage_src_format, options)
+            
+            if self.storage_handler:
+                self.local_handle = self.storage_handler.get_local_handle()
 
-        self._init_storage_handler(handle, storage_src_format, options)
-        
-        if self.storage_handler:
-            local_handle = self.storage_handler.get_local_handle()
-
-        return local_handle
+        return self.local_handle
 
     def cleanup_local_handle(self):
         if self.storage_handler:
             self.storage_handler.clean_local_handle()
+        
+        self.local_handle = None
 
 
     # Following methods call their counterparts on handlers
@@ -107,8 +110,8 @@ class ScheduleConverter(object):
                               mtime,
                               schedule_src_format=None, 
                               storage_src_format=None,
-                              options=dict(),
-                              cleanup=True
+                              cleanup=True,
+                              options=dict()
                               ):
         """ Return boolean (call schedule_handler specific method) to be able to bypass processing """
 
@@ -143,8 +146,8 @@ class ScheduleConverter(object):
                         handle, 
                         schedule_src_format=None,
                         storage_src_format=None,
-                        options=dict(),
-                        cleanup=True
+                        cleanup=True,
+                        options=dict()
                         ):
         
         # convert to local handle if needed
@@ -173,7 +176,8 @@ class ScheduleConverter(object):
                     schedule.changelog = self.storage_handler.get_handle_changelog()
 
                 if self.storage_handler.provide_mtime:
-                    schedule.mtime = self.storage_handler.get_handle_mtime()
+                    schedule.mtime = self.storage_handler.get_handle_mtime()                
+            
         except SchedulesToolsException as e:
             error_item = e.__class__.__name__, str(e).split('\n')
             schedule.errors_import.append(error_item)

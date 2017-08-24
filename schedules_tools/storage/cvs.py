@@ -13,7 +13,7 @@ import time
 import random
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('schedules_tools.' + __name__)
 
 
 class CvsCommandException(SchedulesToolsException):
@@ -36,6 +36,8 @@ class StorageHandler_cvs(StorageBase):
 
     tmp_root = None  # local tmp handle dir
 
+    _cvs_lock = None
+    lock_acquired = None
     lock_timeout = 120
     lock_sleep = 0.5  # seconds
     
@@ -60,12 +62,37 @@ class StorageHandler_cvs(StorageBase):
             else:
                 self.redis = redis.StrictRedis()
 
+            self._cvs_lock = self.redis.lock(
+                                name=self.redis_key, 
+                                timeout=self.lock_timeout - 10,  # max life time for lock 
+                                sleep=self.lock_sleep, 
+                                blocking_timeout=self.lock_timeout 
+                            ) 
+
     @property
     def redis_key(self):
         return '_'.join(['schedules_tools_cvs', 
                          self.repo_root,
                          self.repo_name,
                          self.checkout_dir])
+
+    def acquire_cvs_lock(self, msg=''):
+        if self.exclusive_access:
+            log.debug('Waiting for CVS lock..')             
+            self.lock_acquired = self._cvs_lock.acquire()          
+
+            if not self.lock_acquired:
+                raise AcquireLockException(
+                    'Unable to acquire lock {}'.format(msg),
+                    source=self
+                )
+            else:
+                log.debug('CVS lock ACQUIRED')
+        
+    def release_cvs_lock(self):
+        if self.lock_acquired:
+            self._cvs_lock.release()
+            log.debug('CVS lock RELEASED')        
 
     def _cvs_command(self, cmd,
                      stdout=subprocess.PIPE,
@@ -79,24 +106,8 @@ class StorageHandler_cvs(StorageBase):
         # -d, set CVSROOT
         cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
 
-        if self.exclusive_access and exclusive:
-            cvs_lock = self.redis.lock(
-                                name=self.redis_key, 
-                                timeout=self.lock_timeout - 10,  # max life time for lock 
-                                sleep=self.lock_sleep, 
-                                blocking_timeout=self.lock_timeout 
-                       ) 
-            log.debug('Waiting for CVS lock..')             
-            lock_acquired = cvs_lock.acquire()          
-
-            if not lock_acquired:
-                raise AcquireLockException(
-                    'Unable to acquire lock for command "{}"'.format(cmd_str),
-                    source=self
-                )
-            else:
-                log.debug('CVS lock ACQUIRED')
-
+        if exclusive:
+            self.acquire_cvs_lock(msg='command "{}"'.format(cmd_str))
 
         log.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
         p = subprocess.Popen(cmd_str.split(),
@@ -105,9 +116,8 @@ class StorageHandler_cvs(StorageBase):
                              cwd=cwd)
         stdout, stderr = p.communicate()
         
-        if self.exclusive_access and exclusive and lock_acquired:
-            cvs_lock.release()
-            log.debug('CVS lock RELEASED')
+        if exclusive:
+            self.release_cvs_lock()
 
         if p.returncode != 0:
             msg = str({'stdout': stdout, 'stderr': stderr, 'cmd': cmd_str})
@@ -165,7 +175,7 @@ class StorageHandler_cvs(StorageBase):
 
         return True
 
-    def _get_local_shared_path(self, path):
+    def get_local_shared_path(self, path):
         """
         Returns path to file that belongs local working copy of repository
 
@@ -178,7 +188,7 @@ class StorageHandler_cvs(StorageBase):
         ret = os.path.join(self.checkout_dir, self.repo_name, path)
         return os.path.realpath(ret)
 
-    def _refresh_local(self, force=False):
+    def refresh_local(self, force=False):
         """
         Check if local copy exists (not just path but also CVS content) and
         decide if checkout is needed or not
@@ -209,12 +219,17 @@ class StorageHandler_cvs(StorageBase):
             Path to processed_path copied directory  in /tmp
         """
         src = os.path.join(self.checkout_dir, self.repo_name, processed_path)
+        
         dst_tmp_dir = tempfile.mkdtemp(prefix='sch_')
         dst = os.path.join(dst_tmp_dir, processed_path)
+        
+        # lock cvs so nothing changes during copy
+        self.acquire_cvs_lock(msg='copying subtree from shared cvs copy')
         copy_tree(src, dst)
+        self.release_cvs_lock()
 
         return dst_tmp_dir
-
+    
     def _process_path(self):
         """
         Get handle and figure out, which directory subtree needs to be check
@@ -245,7 +260,7 @@ class StorageHandler_cvs(StorageBase):
                     'Checking out specific revision is not currently '
                     'implemented.')
 
-            self._refresh_local()  # refresh shared local tree
+            self.refresh_local()  # refresh shared local tree
             subtree_rel_path = self._process_path()
             self.tmp_root = self._copy_subtree_to_tmp(subtree_rel_path)
 
@@ -280,7 +295,7 @@ class StorageHandler_cvs(StorageBase):
         if force:
             verify_existing_dif = False
 
-        local_repo_path = self._get_local_shared_path(self.repo_name)
+        local_repo_path = self.get_local_shared_path(self.repo_name)
         if verify_existing_dif and self._is_valid_cvs_dir(local_repo_path):
             return self.checkout_dir
 
@@ -315,7 +330,9 @@ class StorageHandler_cvs(StorageBase):
         """
         cmd_revision = ''
         cvs_params = ''
-        cmd_params = '-d'  # -d = retrieve also new directories
+        # -d = retrieve also new directories
+        # -P = prune empty directories        
+        cmd_params = '-dP'
 
         if revision and datetime_rev:
             raise CvsCommandException('Revision specification by number and '
@@ -407,17 +424,20 @@ class StorageHandler_cvs(StorageBase):
         log.debug('Wipe out checkout directory {}'.format(directory))
         rm_dir = os.path.join(self.checkout_dir, directory)
         if os.path.exists(rm_dir):
+            # lock cvs so nothing changes during cleanup
+            self.acquire_cvs_lock(msg='cleaning shared cvs copy')            
             remove_tree(rm_dir)
+            self.release_cvs_lock()
 
     def get_handle_mtime(self):
-        self._refresh_local()
+        self.refresh_local()
 
-        local_handle = self._get_local_shared_path(self.handle)
+        local_handle = self.get_local_shared_path(self.handle)
         mtime_timestamp = os.path.getmtime(local_handle)
         return datetime_mod.datetime.fromtimestamp(mtime_timestamp).replace(microsecond=0)
 
     def get_handle_changelog(self):
-        self._refresh_local()
+        self.refresh_local()
 
         changelog = {}
         cmd = 'log {}'.format(os.path.join(self.repo_name, self.handle))
