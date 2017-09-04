@@ -40,7 +40,7 @@ class TestCvsCustomRepo(BaseCvsTest):
         reference = self._make_reference_obj(checkout_dir=checkout_dir)
         path = 'program/release'
 
-        ret = reference._get_local_shared_path(path)
+        ret = reference.get_local_shared_path(path)
 
         assert ret == '/tmp/aaa/repo/program/release'
 
@@ -66,8 +66,8 @@ class TestCvsCustomRepo(BaseCvsTest):
         with mock.patch('__builtin__.open', mock_fileopen):
             assert not reference._is_valid_cvs_dir(path)
 
-    @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
-    @mock.patch.object(cvs_mod.StorageHandler_cvs, '_get_local_shared_path')
+    @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
+    @mock.patch.object(cvs_mod.StorageHandler_cvs, 'get_local_shared_path')
     @mock.patch('schedules_tools.storage.cvs.os.path.getmtime')
     @mock.patch('schedules_tools.storage.cvs.os')
     def test_get_handle_mtime(self,
@@ -201,7 +201,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_os.path.exists.return_value = True
         mock__is_valid_cvs_dir.return_value = True
 
-        self.reference_obj._refresh_local()
+        self.reference_obj.refresh_local()
 
         mock__update_shared_repo.assert_called()
         mock__cvs_checkout.assert_not_called()
@@ -214,7 +214,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
             mock__cvs_checkout):
         mock_os.path.exists.return_value = False
 
-        self.reference_obj._refresh_local()
+        self.reference_obj.refresh_local()
 
         mock__cvs_checkout.assert_called()
 
@@ -229,7 +229,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_os.path.exists.return_value = True
         mock__is_valid_cvs_dir.return_value = False
 
-        self.reference_obj._refresh_local()
+        self.reference_obj.refresh_local()
 
         mock__cvs_checkout.assert_called()
 
@@ -246,7 +246,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
                                           '/tmp/asdf/rhel')
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_copy_subtree_to_tmp')
-    @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
+    @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
     def test_get_local_handle(self,
                               mock_refresh_local,
                               mock_copy_subtree_to_tmp):
@@ -259,7 +259,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_refresh_local.assert_called()
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_copy_subtree_to_tmp')
-    @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
+    @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
     def test_get_local_handle_multiple_times(self,
                                              mock_refresh_local,
                                              mock_copy_subtree_to_tmp):
@@ -278,7 +278,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         assert mock_refresh_local.call_count == 1
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_copy_subtree_to_tmp')
-    @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
+    @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
     @mock.patch('schedules_tools.storage.cvs.remove_tree')
     def test_clean_local_handle(self,
                                 mock_remove_tree,
@@ -319,7 +319,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_cvs_command.return_value = ('std-out', 'std-err')
 
         assert self.reference_obj._cvs_update() == ('std-out', 'std-err')
-        mock_cvs_command.assert_called_with('update -d', exclusive=True)
+        mock_cvs_command.assert_called_with('update -dP', exclusive=True)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
     def test_cvs_update_revdate(self, mock_cvs_command):
@@ -330,7 +330,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         output = self.reference_obj._cvs_update(filename, datetime_rev=revision)
         assert output == ('std-out', 'std-err')
         mock_cvs_command.assert_called_with(
-            'update -d -D "2011-09-25 00:00" myfile', exclusive=True)
+            'update -dP -D "2011-09-25 00:00" myfile', exclusive=True)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
     def test_cvs_update_revnumber(self, mock_cvs_command):
@@ -341,7 +341,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         output = self.reference_obj._cvs_update(filename, revision=revision)
         assert output == ('std-out', 'std-err')
         mock_cvs_command.assert_called_with(
-            'update -d -r "1.27" myfile', exclusive=True)
+            'update -dP -r "1.27" myfile', exclusive=True)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
     def test_cvs_update_revnumber_revdate(self, mock_cvs_command):
@@ -366,7 +366,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_cvs_command.side_effect = cvs_mod.CvsCommandException('abc')
 
         self.assertRaises(cvs_mod.CvsCommandException, self.reference_obj._cvs_update)
-        mock_cvs_command.assert_called_with('update -d', exclusive=True)
+        mock_cvs_command.assert_called_with('update -dP', exclusive=True)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_parse_cvs_update_output')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_checkout')
@@ -470,7 +470,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         mock_remove_tree.assert_not_called()
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
-    @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
+    @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
     def test_get_handle_changelog_cvs_fail(self,
                                            mock_refresh_local,
                                            mock_cvs_command):
@@ -481,7 +481,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         mock_refresh_local.assert_called()
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
-    @mock.patch.object(cvs_mod.StorageHandler_cvs, '_refresh_local')
+    @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
     def test_get_handle_changelog(self,
                                   mock_refresh_local,
                                   mock_cvs_command):
@@ -511,28 +511,24 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         reference = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
-        mock_redis.assert_called_with(host='localhost',
-                                      port=6379,
-                                      db=0)
+        mock_redis.assert_called_with()
 
-    @mock.patch('redis.StrictRedis')
+    @mock.patch('redis.StrictRedis.from_url')
     def test_cvs_command_exclusive_access_custom_redis_config(
             self,
-            mock_redis):
+            mock_redis_from_url):
         options = {
             'cvs_repo_name': 'repo',
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
             'cvs_checkout_path': '/tmp/a/b/cc',
             'cvs_exclusive_access': True,
-            'cvs_lock_redis_uri': 'redishost:1234/5'
+            'cvs_lock_redis_url': 'redis://redishost:1234/5'
         }
         handle = 'program/product/release/release.tjp'
         reference = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
-        mock_redis.assert_called_with(host='redishost',
-                                      port=1234,
-                                      db=5)
+        mock_redis_from_url.assert_called_with('redis://redishost:1234/5')
 
     @mock.patch('redis.StrictRedis')
     def test_cvs_command_exclusive_access_incorrect_custom_redis_config(
@@ -549,9 +545,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         reference = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
-        mock_redis.assert_called_with(host='localhost',
-                                      port=6379,
-                                      db=0)
+        mock_redis.assert_called_with()
 
     @mock.patch('redis.StrictRedis')
     @mock.patch('schedules_tools.storage.cvs.subprocess.Popen')
@@ -573,22 +567,21 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         type(mock_communicate).returncode = mock.PropertyMock(return_value=0)
 
         mock_redis_inst = mock.Mock()
-        mock_redis_inst.setnx.return_value = True
         mock_redis.return_value = mock_redis_inst
+
+        mock_lock = mock.Mock()
+        mock_redis_inst.lock.return_value = mock_lock
 
         reference = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
         assert reference._cvs_command(cmd, exclusive=True) == ('stdo', 'stde')
         mock_popen.assert_called()
-        mock_redis_inst.setnx.assert_called()
-        mock_redis_inst.delete.assert_called()
+        mock_lock.acquire.assert_called()
+        mock_lock.release.assert_called()
 
     @mock.patch('redis.StrictRedis')
-    @mock.patch('time.sleep')
-    def test_cvs_command_exclusive_access_unable_acquire(self,
-                                                         mock_sleep,
-                                                         mock_redis):
+    def test_cvs_command_exclusive_access_unable_acquire(self, mock_redis):
         options = {
             'cvs_repo_name': 'repo',
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
@@ -600,17 +593,20 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         cmd = 'update program/rhel'
 
         mock_redis_inst = mock.Mock()
-        mock_redis_inst.setnx.return_value = False
         mock_redis.return_value = mock_redis_inst
+
+        mock_acquire = mock.Mock(return_value=False)
+        mock_lock = mock.Mock()
+        mock_lock.acquire = mock_acquire
+        mock_redis_inst.lock.return_value = mock_lock
 
         reference = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
+
         self.assertRaises(storage.AcquireLockException,
                           reference._cvs_command,
                           cmd, exclusive=True)
-        mock_sleep.assert_called()
-        mock_redis_inst.delete.assert_not_called()
 
     @mock.patch('shutil.move')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_wipe_out_dir')
