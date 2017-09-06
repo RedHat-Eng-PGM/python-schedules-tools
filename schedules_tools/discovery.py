@@ -98,9 +98,9 @@ class AutodiscoverHandlers(object):
             if k in self._discovered_handlers.keys():
                 cls_existing = self._discovered_handlers[k]
                 cls_new = classes[k]
-                msg = ('Found handler with same name (would be '
-                       'overridden): {} (existing: {}, new: {})').format(
-                    k, cls_existing, cls_new)
+                msg = ('Found handler with name \'{}\', that already exists '
+                       'and would be overridden (existing: {}, '
+                       'new: {})').format(k, cls_existing, cls_new)
                 logger.info(msg)
 
         self._discovered_handlers.update(classes)
