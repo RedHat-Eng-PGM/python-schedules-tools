@@ -32,17 +32,6 @@ class AutodiscoverHandlers(object):
     def get_handlers(self):
         return self._discovered_handlers
 
-    def _load_parent_module(self, path):
-        realpath = os.path.realpath(path)
-        parent = os.path.dirname(realpath)
-        module_name = os.path.basename(realpath)
-        if parent not in sys.path:
-            logger.info('Add path {} to sys.path (as parent of {})'.format(parent, path))
-            sys.path.append(parent)
-        importlib.import_module(module_name)
-
-        return module_name
-
     @staticmethod
     def _load_module(name):
         importlib.import_module(name)
@@ -91,8 +80,8 @@ class AutodiscoverHandlers(object):
 
         name = VALID_MODULE_NAME.sub('\\1', filename)
         name = '.'.join([parent_module, name])
-        module = self._load_module(name)
-        classes = self._find_classes(module)
+        loaded_module = self._load_module(name)
+        classes = self._find_classes(loaded_module)
 
         for k in classes.keys():
             if k in self._discovered_handlers.keys():
@@ -105,19 +94,19 @@ class AutodiscoverHandlers(object):
 
         self._discovered_handlers.update(classes)
 
-    def discover(self, start_dir):
-        start_dir = os.path.expanduser(start_dir)
+    def discover(self, pypath):
         try:
-            module_name = self._load_parent_module(start_dir)
+            loaded_module = self._load_module(pypath)
         except ImportError as e:
-            logger.warn('Skipping path "{}", couldn\'t load it: {} (search '
-                        'paths: {})'.format(start_dir, e, sys.path))
+            logger.warn('Skipping path "{}", couldn\'t load'
+                        'it: {} )'.format(pypath, e))
             return self._discovered_handlers
 
-        files = os.listdir(start_dir)
+        module_path = os.path.dirname(loaded_module.__file__)
+        files = os.listdir(module_path)
 
         for filename in files:
-            self._discover_path(filename, module_name)
+            self._discover_path(filename, pypath)
 
         return self._discovered_handlers
 
@@ -161,9 +150,9 @@ class LazyDictDiscovery(dict):
     def run_discovery(self):
         ret = dict()
 
-        for path in search_paths:
-            logger.debug('Searching for handlers in path: {}'.format(path))
-            ret = self.autodiscovery.discover(path)
+        for pypath in search_paths:
+            logger.debug('Searching for handlers in: {}'.format(pypath))
+            ret = self.autodiscovery.discover(pypath)
 
         # override all existing keys/values
         self.clear()
@@ -198,5 +187,5 @@ class StorageHandlerDiscovery(LazyDictDiscovery):
 schedule_handlers = ScheduleHandlerDiscovery(cls_template=re_schedule_handler)
 storage_handlers = StorageHandlerDiscovery(cls_template=re_storage_handler)
 
-search_paths = [get_local_path('handlers'),
-                get_local_path('storage')]
+search_paths = ['schedules_tools.handlers',
+                'schedules_tools.storage']

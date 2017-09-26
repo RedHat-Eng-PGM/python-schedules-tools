@@ -39,9 +39,10 @@ if __name__ == '__main__':
         description='Tool to show differences between two schedules.')
     parser.add_argument(
         '--handlers-path',
-        help='Add path to discover handlers (needs to be python module), can '
-             'be called several times (conflicting names will be overriden - '
-             'the last implementation will be used)',
+        help='Add python-dot-notation path to discover handlers (needs to '
+             'be python module), can be called several times '
+             '(conflicting names will be overriden - the last '
+             'implementation will be used)',
         action='append',
         default=[])
     parser.add_argument('--whole-days',

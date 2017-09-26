@@ -36,8 +36,8 @@ def setup_logging(level):
 def main(args):
     handlers_args_def = '--handlers-path',
     handlers_kwargs_def = {
-        'help': 'Add path to discover handlers (needs to be python'
-                ' module), can be called several times '
+        'help': 'Add python-dot-notation path to discover handlers (needs to '
+                'be python module), can be called several times '
                 '(conflicting names will be overriden - the last '
                 'implementation will be used)',
         'action': 'append',
