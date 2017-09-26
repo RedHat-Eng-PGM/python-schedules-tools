@@ -275,6 +275,25 @@ class TestConverter(BaseTestConvert):
 
         mock_storage_handle.clean_local_handle.assert_not_called()
 
+    def test_msp_parse_flags_note_url(self):
+        conv = converter.ScheduleConverter()
+        schedule = conv.import_schedule(self.file_smartsheet)
+
+        # Test1 - Release task
+        self.assertEqual(['flag2'], schedule.tasks[0].tasks[0].tasks[2].flags)
+
+        # Test2 - Another task
+        self.assertEqual(['flag1', 'flag2', 'flag3'],
+                         schedule.tasks[0].tasks[1].tasks[1].flags)
+
+        # Test2 - Another task
+        self.assertEqual('test2 note',
+                         schedule.tasks[0].tasks[1].tasks[1].note)
+
+        # Test1 - Development
+        self.assertEqual('https://github.com/1',
+                         schedule.tasks[0].tasks[0].tasks[0].link)
+
 
 #class TestConverterCLI(BaseTestConvert):
 #    def test_discover_handlers(self):
