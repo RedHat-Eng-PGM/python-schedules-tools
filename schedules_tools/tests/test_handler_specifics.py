@@ -7,14 +7,14 @@ import logging
 logging.basicConfig()
 
 
-class Test_msp_parseExtAttrs(TestCase):
+class TestUnit_msp_parseExtAttrs(TestCase):
     schedule = None
     task = None
     handle = None
     element = None
 
     def setUp(self):
-        super(Test_msp_parseExtAttrs, self).setUp()
+        super(TestUnit_msp_parseExtAttrs, self).setUp()
 
     def _prepare_inject_value(self):
         self.schedule = models.Schedule()
