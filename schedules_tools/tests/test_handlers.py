@@ -1,13 +1,9 @@
 from schedules_tools import testrunner
-from schedules_tools import discovery
 import logging
 import os
 import re
 
 logger = logging.getLogger(__name__)
-discovery.schedule_handlers.run_discovery()
-discovery.storage_handlers.run_discovery()
-
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -22,6 +18,7 @@ def pytest_generate_tests(metafunc):
             argnames = ['basedir', 'test_id'] + [x[0] for x in items]
             argvalues.append([scenario['basedir'], test_id] + [x[1] for x in items])
     metafunc.parametrize(argnames, argvalues, ids=idlist, scope="class")
+
 
 IMPORT = 'import'
 EXPORT = 'export'
