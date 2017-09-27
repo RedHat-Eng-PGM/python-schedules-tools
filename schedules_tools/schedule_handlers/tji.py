@@ -1,4 +1,4 @@
-from schedules_tools.handlers import ScheduleHandlerBase
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
 import logging
 
 logger = logging.getLogger(__name__)

@@ -4,7 +4,7 @@ import fileinput
 import os
 
 from schedules_tools.discovery import schedule_handlers
-from schedules_tools.handlers import ScheduleHandlerBase
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
 
 
 logger = logging.getLogger(__name__)

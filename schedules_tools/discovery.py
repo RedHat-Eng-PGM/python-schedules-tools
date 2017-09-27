@@ -1,7 +1,7 @@
 import os
 import sys
 import re
-import handlers
+from schedule_handlers import ScheduleHandlerBase
 import logging
 import importlib
 
@@ -47,7 +47,7 @@ class AutodiscoverHandlers(object):
             if not is_inst:
                 continue
 
-            if obj == handlers.ScheduleHandlerBase:
+            if obj == ScheduleHandlerBase:
                 continue
 
             # TODO(mpavlase): figure out more reliable way to test subclasses
@@ -186,5 +186,5 @@ class StorageHandlerDiscovery(LazyDictDiscovery):
 schedule_handlers = ScheduleHandlerDiscovery(cls_template=re_schedule_handler)
 storage_handlers = StorageHandlerDiscovery(cls_template=re_storage_handler)
 
-search_paths = ['schedules_tools.handlers',
-                'schedules_tools.storage']
+search_paths = ['schedules_tools.schedule_handlers',
+                'schedules_tools.storage_handlers']

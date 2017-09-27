@@ -1,7 +1,7 @@
 import testtools
 import mock
-from schedules_tools.storage import cvs as cvs_mod
-from schedules_tools import storage
+from schedules_tools.storage_handlers import cvs as cvs_mod
+from schedules_tools import storage_handlers
 import os
 from schedules_tools.tests import jsondate
 import datetime
@@ -44,7 +44,7 @@ class TestCvsCustomRepo(BaseCvsTest):
 
         assert ret == '/tmp/aaa/repo/program/release'
 
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_is_valid_cvs_dir_root_negative(self, mock_os):
         options = {
             'cvs_repo_name': 'program',
@@ -68,8 +68,8 @@ class TestCvsCustomRepo(BaseCvsTest):
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, 'get_local_shared_path')
-    @mock.patch('schedules_tools.storage.cvs.os.path.getmtime')
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os.path.getmtime')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_get_handle_mtime(self,
                               mock_os,
                               mock_getmtime,
@@ -96,7 +96,7 @@ class TestCvsCustomRepo(BaseCvsTest):
 
 
 class TestCvs(BaseCvsWithDefaultHandler):
-    @mock.patch('schedules_tools.storage.cvs.subprocess.Popen')
+    @mock.patch('schedules_tools.storage_handlers.cvs.subprocess.Popen')
     def test_cvs_command(self, mock_popen):
         cmd = 'update program/rhel'
 
@@ -109,7 +109,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         assert return_value == ('std-out', 'std-err')
         mock_popen.assert_called()
 
-    @mock.patch('schedules_tools.storage.cvs.subprocess.Popen')
+    @mock.patch('schedules_tools.storage_handlers.cvs.subprocess.Popen')
     def test_cvs_command_nonzero_exit_code(self, mock_popen):
         cmd = 'update program/rhel'
 
@@ -123,8 +123,8 @@ class TestCvs(BaseCvsWithDefaultHandler):
                           cmd)
         mock_popen.assert_called()
 
-    @mock.patch('schedules_tools.storage.cvs.remove_tree')
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.remove_tree')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_wipeout_dir(self, mock_os, mock_remove_tree):
         path = 'somefile'
         mock_os.path.exists.return_value = True
@@ -134,8 +134,8 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_os.path.exists.assert_called_with(path)
         mock_remove_tree.assert_called_with(path)
 
-    @mock.patch('schedules_tools.storage.cvs.remove_tree')
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.remove_tree')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_wipeout_dir_not_exists(self, mock_os, mock_remove_tree):
         path = 'somefile'
         mock_os.path.exists.return_value = False
@@ -145,7 +145,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_os.path.exists.assert_called_with(path)
         mock_remove_tree.assert_not_called()
 
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_is_valid_cvs_dir(self, mock_os):
         path = 'repo/product/release-1-2-3'
 
@@ -162,8 +162,8 @@ class TestCvs(BaseCvsWithDefaultHandler):
         with mock.patch('__builtin__.open', mock_fileopen):
             assert self.reference_obj._is_valid_cvs_dir(path)
 
-    @mock.patch('schedules_tools.storage.cvs.os.path.exists')
-    @mock.patch('schedules_tools.storage.cvs.os.path.isdir')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os.path.exists')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os.path.isdir')
     def test_is_valid_cvs_dir_CVSdir_negative(self, mock_isdir, mock_exists):
         path = 'program/aa/bbb'
         mock_isdir.return_value = False
@@ -172,7 +172,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         assert not self.reference_obj._is_valid_cvs_dir(path)
         mock_isdir.assert_called_with('program/aa/bbb/CVS')
 
-    @mock.patch('schedules_tools.storage.cvs.os.path.exists')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os.path.exists')
     def test_is_valid_cvs_dir_not_exists_negative(self, mock_exists):
         path = 'program/aa/bbb'
         mock_exists.return_value = False
@@ -180,7 +180,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         assert not self.reference_obj._is_valid_cvs_dir(path)
         mock_exists.assert_called_with('program/aa/bbb')
 
-    @mock.patch('schedules_tools.storage.cvs.os.path.isdir')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os.path.isdir')
     def test_is_valid_cvs_dir_repository_negative(self, mock_isdir):
         path = 'program/aa/bbb'
         mock_isdir.return_value = True
@@ -192,7 +192,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_checkout')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_update_shared_repo')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_is_valid_cvs_dir')
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_refresh_local(self,
                            mock_os,
                            mock__is_valid_cvs_dir,
@@ -207,7 +207,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock__cvs_checkout.assert_not_called()
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_checkout')
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_refresh_local_missing_shared_dir(
             self,
             mock_os,
@@ -220,7 +220,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_checkout')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_is_valid_cvs_dir')
-    @mock.patch('schedules_tools.storage.cvs.os')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os')
     def test_refresh_local_invalid_shared_dir(
             self,
             mock_os,
@@ -234,7 +234,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock__cvs_checkout.assert_called()
 
     @mock.patch('tempfile.mkdtemp')
-    @mock.patch('schedules_tools.storage.cvs.copy_tree')
+    @mock.patch('schedules_tools.storage_handlers.cvs.copy_tree')
     def test_copy_subtree_to_tmp(self, mock_copy_tree, mock_mkdtemp):
         process_path = 'rhel'
         mock_mkdtemp.return_value = '/tmp/asdf'
@@ -279,7 +279,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_copy_subtree_to_tmp')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
-    @mock.patch('schedules_tools.storage.cvs.remove_tree')
+    @mock.patch('schedules_tools.storage_handlers.cvs.remove_tree')
     def test_clean_local_handle(self,
                                 mock_remove_tree,
                                 mock_refresh_local,
@@ -453,16 +453,16 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
                           'rhel-unknown-flag', 'rhel-added', 'rhel-added2']
         assert to_cleanup == set(to_cleanup_ref)
 
-    @mock.patch('schedules_tools.storage.cvs.os.path.exists')
-    @mock.patch('schedules_tools.storage.cvs.remove_tree')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os.path.exists')
+    @mock.patch('schedules_tools.storage_handlers.cvs.remove_tree')
     def test_clean_checkout_directory(self, mock_remove_tree, mock_path_exists):
         directory = 'program/fedora/f-25'
         mock_path_exists.return_value = True
         self.reference_obj._clean_checkout_directory(directory)
         mock_remove_tree.assert_called_with('/tmp/mycheckoutdir/program/fedora/f-25')
 
-    @mock.patch('schedules_tools.storage.cvs.os.path.exists')
-    @mock.patch('schedules_tools.storage.cvs.remove_tree')
+    @mock.patch('schedules_tools.storage_handlers.cvs.os.path.exists')
+    @mock.patch('schedules_tools.storage_handlers.cvs.remove_tree')
     def test_clean_not_existing_checkout_directory(self, mock_remove_tree, mock_path_exists):
         directory = 'program/fedora/f-25'
         mock_path_exists.return_value = False
@@ -548,7 +548,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         mock_redis.assert_called_with()
 
     @mock.patch('redis.StrictRedis')
-    @mock.patch('schedules_tools.storage.cvs.subprocess.Popen')
+    @mock.patch('schedules_tools.storage_handlers.cvs.subprocess.Popen')
     def test_cvs_command_exclusive_access(self,
                                           mock_popen,
                                           mock_redis):
@@ -604,7 +604,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             handle,
             options=options)
 
-        self.assertRaises(storage.AcquireLockException,
+        self.assertRaises(storage_handlers.AcquireLockException,
                           reference._cvs_command,
                           cmd, exclusive=True)
 

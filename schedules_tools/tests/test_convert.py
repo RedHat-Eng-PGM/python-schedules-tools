@@ -1,7 +1,7 @@
 import testtools
 from schedules_tools import converter
 from schedules_tools.models import Schedule
-from schedules_tools.storage import StorageBase
+from schedules_tools.storage_handlers import StorageBase
 #from scripts import schedule_converter as converter_cli
 import tempfile
 import os

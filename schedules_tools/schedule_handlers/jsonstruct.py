@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from schedules_tools.handlers import ScheduleHandlerBase
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
 
 
 class ScheduleHandler_json(ScheduleHandlerBase):

@@ -1,5 +1,5 @@
 from testtools import TestCase
-from schedules_tools.handlers import msp
+from schedules_tools.schedule_handlers import msp
 from schedules_tools import models
 from lxml import etree
 import logging

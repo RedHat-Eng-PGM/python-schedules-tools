@@ -1,9 +1,9 @@
-from schedules_tools import storage
+from schedules_tools import storage_handlers
 import os
 from datetime import datetime
 
 
-class StorageHandler_local(storage.StorageBase):
+class StorageHandler_local(storage_handlers.StorageBase):
     provide_mtime = True
 
     def get_local_handle(self, revision=None, datetime=None):

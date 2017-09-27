@@ -1,4 +1,4 @@
-from schedules_tools.handlers import ScheduleHandlerBase
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools import models
 import datetime
 import logging

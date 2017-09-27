@@ -1,5 +1,5 @@
 from schedules_tools import SchedulesToolsException
-from schedules_tools.storage import StorageBase, AcquireLockException
+from schedules_tools.storage_handlers import StorageBase, AcquireLockException
 import os
 import re
 import subprocess
