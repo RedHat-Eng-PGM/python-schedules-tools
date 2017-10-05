@@ -505,7 +505,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'cvs_repo_name': 'program',
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
             'cvs_checkout_path': '/tmp/a/b/cc',
-            'cvs_exclusive_access': True,
+            'exclusive_access': True,
         }
         handle = 'program/product/release/release.tjp'
         reference = cvs_mod.StorageHandler_cvs(
@@ -521,8 +521,8 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'cvs_repo_name': 'repo',
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
             'cvs_checkout_path': '/tmp/a/b/cc',
-            'cvs_exclusive_access': True,
-            'cvs_lock_redis_url': 'redis://redishost:1234/5'
+            'exclusive_access': True,
+            'lock_redis_url': 'redis://redishost:1234/5'
         }
         handle = 'program/product/release/release.tjp'
         reference = cvs_mod.StorageHandler_cvs(
@@ -538,7 +538,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'cvs_repo_name': 'repo',
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
             'cvs_checkout_path': '/tmp/a/b/cc',
-            'cvs_exclusive_access': True,
+            'exclusive_access': True,
             'cvs_lock_redis_uri': 'http://redishost:1234/5'
         }
         handle = 'program/product/release/release.tjp'
@@ -556,7 +556,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'cvs_repo_name': 'root',
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
             'cvs_checkout_path': '/tmp/a/b/cc',
-            'cvs_exclusive_access': True,
+            'exclusive_access': True,
         }
         handle = 'program/product/release/release.tjp'
 
@@ -586,7 +586,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'cvs_repo_name': 'repo',
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
             'cvs_checkout_path': '/tmp/a/b/cc',
-            'cvs_exclusive_access': True,
+            'exclusive_access': True,
         }
         handle = 'program/product/release/release.tjp'
 

@@ -1,19 +1,21 @@
+import logging
+import os
+import random
+import re
+import shutil
+import subprocess
+import tempfile
+import time
+
+import datetime as datetime_mod
+
+from distutils.dir_util import remove_tree, copy_tree
+
 from schedules_tools import SchedulesToolsException
 from schedules_tools.storage_handlers import StorageBase, AcquireLockException
-import os
-import re
-import subprocess
-import datetime as datetime_mod
-import tempfile
-import logging
-from distutils.dir_util import remove_tree, copy_tree
-import shutil
-import redis
-import time
-import random
 
 
-log = logging.getLogger('schedules_tools.' + __name__)
+log = logging.getLogger('schedules_tools.storage_handlers')
 
 
 class CvsCommandException(SchedulesToolsException):
@@ -31,68 +33,31 @@ class StorageHandler_cvs(StorageBase):
     checkout_dir = None  # path to shared local working copy of repository
     repo_root = None  # :pserver:$USER@cvs.myserver.com:/cvs/reporoot
     repo_name = None  # repo
-    exclusive_access = False
-    redis = None
 
     tmp_root = None  # local tmp handle dir
-
-    _cvs_lock = None
-    lock_acquired = None
-    lock_timeout = 120
-    lock_sleep = 0.5  # seconds
-    
+  
     refresh_validity = 3 # seconds
     _last_refresh = None
 
     local_handle = None
+    
+    exclusive_access_option = 'exclusive_access'
+    
 
     def __init__(self, handle=None, options=dict(), **kwargs):
-        super(StorageHandler_cvs, self).__init__(handle, options, **kwargs)
-
         self.checkout_dir = options.get('cvs_checkout_path')
         self.repo_name = options.get('cvs_repo_name')
-        self.repo_root = options.get('cvs_root')
-        self.exclusive_access = options.get('cvs_exclusive_access', self.exclusive_access)
+        self.repo_root = options.get('cvs_root')      
 
-        if self.exclusive_access:
-            redis_url = options.get('cvs_lock_redis_url', '')
-            
-            if redis_url:
-                self.redis = redis.StrictRedis.from_url(redis_url)
-            else:
-                self.redis = redis.StrictRedis()
-
-            self._cvs_lock = self.redis.lock(
-                                name=self.redis_key, 
-                                timeout=self.lock_timeout - 10,  # max life time for lock 
-                                sleep=self.lock_sleep, 
-                                blocking_timeout=self.lock_timeout 
-                            ) 
+        super(StorageHandler_cvs, self).__init__(handle, options, **kwargs)
 
     @property
     def redis_key(self):
-        return '_'.join(['schedules_tools_cvs', 
+        return '_'.join([super(StorageHandler_cvs, self).redis_key,
                          self.repo_root,
                          self.repo_name,
                          self.checkout_dir])
 
-    def acquire_cvs_lock(self, msg=''):
-        if self.exclusive_access:
-            log.debug('Waiting for CVS lock..')             
-            self.lock_acquired = self._cvs_lock.acquire()          
-
-            if not self.lock_acquired:
-                raise AcquireLockException(
-                    'Unable to acquire lock {}'.format(msg),
-                    source=self
-                )
-            else:
-                log.debug('CVS lock ACQUIRED')
-        
-    def release_cvs_lock(self):
-        if self.lock_acquired:
-            self._cvs_lock.release()
-            log.debug('CVS lock RELEASED')        
 
     def _cvs_command(self, cmd,
                      stdout=subprocess.PIPE,
@@ -107,7 +72,7 @@ class StorageHandler_cvs(StorageBase):
         cmd_str = 'cvs -q -z9 -d {} {}'.format(self.repo_root, cmd)
 
         if exclusive:
-            self.acquire_cvs_lock(msg='command "{}"'.format(cmd_str))
+            self.acquire_shared_lock(msg='command "{}"'.format(cmd_str))
 
         log.debug('CVS command: {} (cwd={})'.format(cmd_str, cwd))
         p = subprocess.Popen(cmd_str.split(),
@@ -117,7 +82,7 @@ class StorageHandler_cvs(StorageBase):
         stdout, stderr = p.communicate()
         
         if exclusive:
-            self.release_cvs_lock()
+            self.release_shared_lock()
 
         if p.returncode != 0:
             msg = str({'stdout': stdout, 'stderr': stderr, 'cmd': cmd_str})
@@ -224,9 +189,9 @@ class StorageHandler_cvs(StorageBase):
         dst = os.path.join(dst_tmp_dir, processed_path)
         
         # lock cvs so nothing changes during copy
-        self.acquire_cvs_lock(msg='copying subtree from shared cvs copy')
+        self.acquire_shared_lock(msg='copying subtree from shared cvs copy')
         copy_tree(src, dst)
-        self.release_cvs_lock()
+        self.release_shared_lock()
 
         return dst_tmp_dir
     
@@ -425,9 +390,9 @@ class StorageHandler_cvs(StorageBase):
         rm_dir = os.path.join(self.checkout_dir, directory)
         if os.path.exists(rm_dir):
             # lock cvs so nothing changes during cleanup
-            self.acquire_cvs_lock(msg='cleaning shared cvs copy')            
+            self.acquire_shared_lock(msg='cleaning shared cvs copy')            
             remove_tree(rm_dir)
-            self.release_cvs_lock()
+            self.release_shared_lock()
 
     def get_handle_mtime(self):
         self.refresh_local()
