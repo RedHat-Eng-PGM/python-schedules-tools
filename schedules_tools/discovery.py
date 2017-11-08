@@ -168,7 +168,7 @@ class ScheduleHandlerDiscovery(LazyDictDiscovery):
 
     @property
     def provided_exports(self):
-        if not self._provided_exports or self.discovery_run_flag:
+        if not self._provided_exports:
             self.run_discovery()
         return self._provided_exports
 
