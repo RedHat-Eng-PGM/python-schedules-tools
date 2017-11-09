@@ -7,7 +7,94 @@ from schedules_tools.schedule_handlers import ScheduleHandlerBase
 class ScheduleHandler_json(ScheduleHandlerBase):
     provide_export = True
 
+    @classmethod
+    def is_valid_source(cls, handle=None):
+        if not handle:
+            handle = cls.handle
+        file_ext = os.path.splitext(handle)[1]
+
+        if file_ext != '.json':
+            return False
+        try:
+            with open(handle) as fd:
+                json.load(fd)
+        except ValueError:
+            return False
+
+        return True
+
+    @staticmethod
+    def _parse_timestamp(timestamp):
+        number = int(timestamp)
+        return datetime.datetime.fromtimestamp(number)
+
+    def import_schedule(self):
+        with open(self.handle) as fd:
+            jsonobj = json.load(fd)
+
+        schedule = Schedule()
+        schedule.project_name = jsonobj['name']
+        #schedule.override_version()
+        schedule.dStart = self._parse_timestamp(jsonobj['start'])
+        schedule.dFinish = self._parse_timestamp(jsonobj['end'])
+
+        # TODO!
+        # verity if the changelog is in correct format
+        schedule.changelog = jsonobj['changelog']
+
+        # We don't parse phases here, because we are collecting them
+        # during parsing tasks itself
+
+        for subtaskobj in jsonobj['tasks']:
+            task = self.import_task_from_json(schedule, subtaskobj, None)
+            schedule.tasks.append(task)
+        return schedule
+
+    def import_task_from_json(self, schedule, jsonobj, parenttask):
+        task = Task(schedule)
+
+        task.index = jsonobj['index']
+        task.level = jsonobj['_level']
+        task.name = jsonobj['name']
+        task.tjx_id = jsonobj['id']
+
+        if not schedule.proj_id and jsonobj['projectId']:
+            schedule.proj_id = jsonobj['projectId']
+
+        if schedule.proj_id != jsonobj['projectId']:
+            print 'proj_id is different!'
+            print (schedule.proj_id, jsonobj['projectId'])
+        schedule.proj_id = jsonobj['projectId']
+        task.priority = jsonobj['priority']
+        task.p_complete = jsonobj['complete']
+        if jsonobj['type'] == 'Milestone':
+            task.milestone = True
+        task.flags = jsonobj['flags']
+        # jsonobj['parentTask']
+        task.dStart = self._parse_timestamp(jsonobj['planStart'])
+        task.dFinish = self._parse_timestamp(jsonobj['planEnd'])
+
+        task.dAcStart = self._parse_timestamp(jsonobj['actualStart'])
+        task.dAcFinish = self._parse_timestamp(jsonobj['actualEnd'])
+
+        if 'tasks' in jsonobj:
+            for subtaskobj in jsonobj['tasks']:
+                subtask = self.import_task_from_json(schedule, subtaskobj, task)
+                task.tasks.append(subtask)
+
+        task.check_for_phase()
+
+        return task
+
     def export_schedule(self, out_file, flat=False):
+        json_schedule = self.export_schedule_as_dict(flat)
+        out = json.dumps(json_schedule, indent=4, separators=(',', ': '))
+
+        self._write_to_file(out, out_file)
+
+        return out
+
+    def export_schedule_as_dict(self, flat=False):
         json_schedule = dict()
         json_schedule['slug'] = self.schedule.slug
         json_schedule['name'] = self.schedule.name
@@ -30,13 +117,13 @@ class ScheduleHandler_json(ScheduleHandlerBase):
             add_task_func = json_schedule['tasks'].append
 
         for task in self.schedule.tasks:
-            add_task_func(self.task_export_json_obj(
+            add_task_func(self.export_task_as_dict(
                 task, self.schedule.slug, flat))
 
         # phases
         json_schedule['phases'] = []
         for phase in self.schedule.phases:
-            json_schedule['phases'].append(self.task_export_json_phase(phase))
+            json_schedule['phases'].append(self.export_phase_as_dict(phase))
 
         output_content = json.dumps(json_schedule,
                                     sort_keys=True,
@@ -47,7 +134,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         
         return output_content
 
-    def task_export_json_obj(self, task, id_prefix, flat=False):
+    def export_task_as_dict(self, task, id_prefix, proj_id, flat=False):
         task_export = {}
         slug = task.slug
         if not slug:
@@ -57,6 +144,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task_export['index'] = task.index
         task_export['_level'] = task.level
         task_export['name'] = task.name
+        task_export['projectId'] = proj_id
         task_export['priority'] = task.priority
         task_export['complete'] = task.p_complete
         task_export['type'] = task.get_type()
@@ -81,7 +169,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
                 add_func = task_export['tasks'].append
 
             for subtask in task.tasks:
-                add_func(self.task_export_json_obj(
+                add_func(self.export_task_as_dict(
                     subtask, slug, flat))
 
         if flat:
@@ -89,7 +177,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         else:
             return task_export
 
-    def task_export_json_phase(self, phase):
+    def export_phase_as_dict(self, phase):
         phase_export = dict()
         phase_export['name'] = phase.name
         phase_export['complete'] = phase.p_complete
