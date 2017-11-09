@@ -1,14 +1,15 @@
-import testtools
 import datetime
+import pytest
+
 from schedules_tools.tests import create_test_schedule
 
 
-class TestDiff(testtools.TestCase):
+class TestDiff(object):
     sch1 = None
     sch2 = None
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
-        super(TestDiff, self).setUp()
         self.sch1 = create_test_schedule()
         self.sch2 = create_test_schedule()
 
@@ -68,5 +69,5 @@ class TestDiff(testtools.TestCase):
         assert diff == ''
 
 
-class TestDiffCLI(testtools.TestCase):
+class TestDiffCLI(object):
     pass

@@ -1,7 +1,7 @@
 import datetime
 import mock
 import os
-from pytest import raises, fixture
+import pytest
 
 from schedules_tools.storage_handlers import cvs as cvs_mod
 from schedules_tools import storage_handlers
@@ -29,7 +29,7 @@ class BaseCvsWithDefaultHandler(BaseCvsTest):
     handle = 'program/rhel/rhel-7-0-0/rhel-7-0-0.tjp'
     checkout_dir = '/tmp/mycheckoutdir'
 
-    @fixture(autouse=True)
+    @pytest.fixture(autouse=True)
     def setUp(self):
         self.reference_obj = self._make_reference_obj(self.handle,
                                                       self.checkout_dir)
@@ -119,7 +119,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_popen.return_value = mock_communicate
         type(mock_communicate).returncode = mock.PropertyMock(return_value=1)
 
-        with raises(cvs_mod.CvsCommandException):
+        with pytest.raises(cvs_mod.CvsCommandException):
             self.reference_obj._cvs_command(cmd)
         mock_popen.assert_called()
 
@@ -296,18 +296,18 @@ class TestCvs(BaseCvsWithDefaultHandler):
 
     def test_get_local_handle_get_specific_revision_by_rev(self):
         rev_number = '1.0'
-        with raises(cvs_mod.NotImplementedFeature):
+        with pytest.raises(cvs_mod.NotImplementedFeature):
             self.reference_obj.get_local_handle(revision=rev_number)
 
     def test_get_local_handle_get_specific_revision_by_date(self):
         rev_date = datetime.datetime(2020, 3, 25)
-        with raises(cvs_mod.NotImplementedFeature):
+        with pytest.raises(cvs_mod.NotImplementedFeature):
             self.reference_obj.get_local_handle(datetime=rev_date)
 
     def test_get_local_handle_get_specific_revision_by_rev_and_date(self):
         rev_number = '1.0'
         rev_date = datetime.datetime(2020, 3, 25)
-        with raises(cvs_mod.NotImplementedFeature):
+        with pytest.raises(cvs_mod.NotImplementedFeature):
             self.reference_obj.get_local_handle(revision=rev_number,
                                                 datetime=rev_date)
 
@@ -350,7 +350,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         revision = '1.2.3'
         revision_date = datetime.date(2011, 9, 25)
         filename = 'myfile'
-        with raises(cvs_mod.CvsCommandException):
+        with pytest.raises(cvs_mod.CvsCommandException):
             self.reference_obj._cvs_update(filename,
                                            revision=revision,
                                            datetime_rev=revision_date)
@@ -360,7 +360,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
     def test_cvs_update_negative(self, mock_cvs_command):
         mock_cvs_command.side_effect = cvs_mod.CvsCommandException('abc')
 
-        with raises(cvs_mod.CvsCommandException):
+        with pytest.raises(cvs_mod.CvsCommandException):
             self.reference_obj._cvs_update()
         mock_cvs_command.assert_called_with('update -dP', exclusive=True)
 
@@ -472,7 +472,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
                                            mock_cvs_command):
         mock_cvs_command.side_effect = cvs_mod.CvsCommandException('abc')
 
-        with raises(cvs_mod.CvsCommandException):
+        with pytest.raises(cvs_mod.CvsCommandException):
             self.reference_obj.get_handle_changelog()
         mock_refresh_local.assert_called()
 
@@ -600,7 +600,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             handle,
             options=options)
 
-        with raises(storage_handlers.AcquireLockException):
+        with pytest.raises(storage_handlers.AcquireLockException):
             reference._cvs_command(cmd, exclusive=True)
 
     @mock.patch('shutil.move')

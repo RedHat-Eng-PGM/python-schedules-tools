@@ -1,6 +1,7 @@
-import testtools
-from schedules_tools import converter
+import pytest
 import os
+
+from schedules_tools import converter
 
 
 DATA_DIR = 'data'
@@ -15,9 +16,10 @@ BASE_DIR = os.path.dirname(os.path.realpath(
 CURR_DIR = os.path.join(BASE_DIR, PARENT_DIRNAME)
 
 
-class CheckTaskExistence(testtools.TestCase):
+class CheckTaskExistence(object):
     schedule = None
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
         super(CheckTaskExistence, self).setUp()
         input_schedule = os.path.join(CURR_DIR, DATA_DIR, 'input.tjx')

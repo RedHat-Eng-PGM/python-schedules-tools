@@ -1,20 +1,20 @@
-from testtools import TestCase
+import logging
+import pytest
+
+from lxml import etree
+
 from schedules_tools.schedule_handlers import msp
 from schedules_tools import models
-from lxml import etree
-import logging
 
 logging.basicConfig()
 
 
-class TestUnit_msp_parseExtAttrs(TestCase):
+class TestUnit_msp_parseExtAttrs(object):
     schedule = None
     task = None
     handle = None
     element = None
 
-    def setUp(self):
-        super(TestUnit_msp_parseExtAttrs, self).setUp()
 
     def _prepare_inject_value(self):
         self.schedule = models.Schedule()

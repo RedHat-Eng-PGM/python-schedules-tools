@@ -1,8 +1,7 @@
-from testtools import TestCase
 from schedules_tools import models
 
 
-class TestModel(TestCase):
+class TestModel(object):
     def test_schedule_override_version(self):
         sch = models.Schedule()
         assert sch.version == ''

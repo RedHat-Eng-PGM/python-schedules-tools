@@ -1,4 +1,3 @@
-import testtools
 from schedules_tools import converter
 from schedules_tools.models import Schedule
 from schedules_tools.storage_handlers import StorageBase
@@ -17,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(
 CURR_DIR = os.path.join(BASE_DIR, PARENT_DIRNAME)
 
 
-class BaseTestConvert(testtools.TestCase):
+class BaseTestConvert(object):
     _filenames = {
         'tjx': 'proj-10-1-2.tjx',
         'tjx2': 'proj-10-1-2-v2.tjx',
@@ -31,8 +30,8 @@ class BaseTestConvert(testtools.TestCase):
     file_out_fd = None
     file_out_name = None
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
-        super(BaseTestConvert, self).setUp()
         self.file_out_fd, self.file_out_name = tempfile.mkstemp()
 
         # prepend data dir to real path of files
@@ -41,9 +40,7 @@ class BaseTestConvert(testtools.TestCase):
             val = os.path.join(CURR_DIR, DATA_DIR, v)
             val = os.path.realpath(val)
             setattr(self, key, val)
-
-    def tearDown(self):
-        super(BaseTestConvert, self).tearDown()
+        yield
         os.remove(self.file_out_name)
 
 
@@ -280,19 +277,16 @@ class TestConverter(BaseTestConvert):
         schedule = conv.import_schedule(self.file_smartsheet)
 
         # Test1 - Release task
-        self.assertEqual(['flag2'], schedule.tasks[0].tasks[0].tasks[2].flags)
+        assert ['flag2'] == schedule.tasks[0].tasks[0].tasks[2].flags
 
         # Test2 - Another task
-        self.assertEqual(['flag1', 'flag2', 'flag3'],
-                         schedule.tasks[0].tasks[1].tasks[1].flags)
+        assert ['flag1', 'flag2', 'flag3'] == schedule.tasks[0].tasks[1].tasks[1].flags
 
         # Test2 - Another task
-        self.assertEqual('test2 note',
-                         schedule.tasks[0].tasks[1].tasks[1].note)
+        assert 'test2 note' == schedule.tasks[0].tasks[1].tasks[1].note
 
         # Test1 - Development
-        self.assertEqual('https://github.com/1',
-                         schedule.tasks[0].tasks[0].tasks[0].link)
+        assert 'https://github.com/1' == schedule.tasks[0].tasks[0].tasks[0].link
 
 
 #class TestConverterCLI(BaseTestConvert):
