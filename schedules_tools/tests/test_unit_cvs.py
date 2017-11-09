@@ -1,15 +1,16 @@
-import testtools
+import datetime
 import mock
+import os
+from pytest import raises, fixture
+
 from schedules_tools.storage_handlers import cvs as cvs_mod
 from schedules_tools import storage_handlers
-import os
 from schedules_tools.tests import jsondate
-import datetime
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-class BaseCvsTest(testtools.TestCase):
+class BaseCvsTest(object):
     handler_class = cvs_mod
 
     @classmethod
@@ -28,8 +29,8 @@ class BaseCvsWithDefaultHandler(BaseCvsTest):
     handle = 'program/rhel/rhel-7-0-0/rhel-7-0-0.tjp'
     checkout_dir = '/tmp/mycheckoutdir'
 
+    @fixture(autouse=True)
     def setUp(self):
-        super(BaseCvsWithDefaultHandler, self).setUp()
         self.reference_obj = self._make_reference_obj(self.handle,
                                                       self.checkout_dir)
 
@@ -118,9 +119,8 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_popen.return_value = mock_communicate
         type(mock_communicate).returncode = mock.PropertyMock(return_value=1)
 
-        self.assertRaises(cvs_mod.CvsCommandException,
-                          self.reference_obj._cvs_command,
-                          cmd)
+        with raises(cvs_mod.CvsCommandException):
+            self.reference_obj._cvs_command(cmd)
         mock_popen.assert_called()
 
     @mock.patch('schedules_tools.storage_handlers.cvs.remove_tree')
@@ -296,23 +296,20 @@ class TestCvs(BaseCvsWithDefaultHandler):
 
     def test_get_local_handle_get_specific_revision_by_rev(self):
         rev_number = '1.0'
-        self.assertRaises(cvs_mod.NotImplementedFeature,
-                          self.reference_obj.get_local_handle,
-                          revision=rev_number)
+        with raises(cvs_mod.NotImplementedFeature):
+            self.reference_obj.get_local_handle(revision=rev_number)
 
     def test_get_local_handle_get_specific_revision_by_date(self):
         rev_date = datetime.datetime(2020, 3, 25)
-        self.assertRaises(cvs_mod.NotImplementedFeature,
-                          self.reference_obj.get_local_handle,
-                          datetime=rev_date)
+        with raises(cvs_mod.NotImplementedFeature):
+            self.reference_obj.get_local_handle(datetime=rev_date)
 
     def test_get_local_handle_get_specific_revision_by_rev_and_date(self):
         rev_number = '1.0'
         rev_date = datetime.datetime(2020, 3, 25)
-        self.assertRaises(cvs_mod.NotImplementedFeature,
-                          self.reference_obj.get_local_handle,
-                          revision=rev_number,
-                          datetime=rev_date)
+        with raises(cvs_mod.NotImplementedFeature):
+            self.reference_obj.get_local_handle(revision=rev_number,
+                                                datetime=rev_date)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
     def test_cvs_update(self, mock_cvs_command):
@@ -353,19 +350,18 @@ class TestCvs(BaseCvsWithDefaultHandler):
         revision = '1.2.3'
         revision_date = datetime.date(2011, 9, 25)
         filename = 'myfile'
-        self.assertRaises(cvs_mod.CvsCommandException,
-                          self.reference_obj._cvs_update,
-                          filename,
-                          revision=revision,
-                          datetime_rev=revision_date
-                          )
+        with raises(cvs_mod.CvsCommandException):
+            self.reference_obj._cvs_update(filename,
+                                           revision=revision,
+                                           datetime_rev=revision_date)
         mock_cvs_command.assert_not_called()
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
     def test_cvs_update_negative(self, mock_cvs_command):
         mock_cvs_command.side_effect = cvs_mod.CvsCommandException('abc')
 
-        self.assertRaises(cvs_mod.CvsCommandException, self.reference_obj._cvs_update)
+        with raises(cvs_mod.CvsCommandException):
+            self.reference_obj._cvs_update()
         mock_cvs_command.assert_called_with('update -dP', exclusive=True)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_parse_cvs_update_output')
@@ -476,8 +472,8 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
                                            mock_cvs_command):
         mock_cvs_command.side_effect = cvs_mod.CvsCommandException('abc')
 
-        self.assertRaises(cvs_mod.CvsCommandException,
-                          self.reference_obj.get_handle_changelog)
+        with raises(cvs_mod.CvsCommandException):
+            self.reference_obj.get_handle_changelog()
         mock_refresh_local.assert_called()
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_command')
@@ -494,7 +490,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
         mock_cvs_command.return_value = (cvs_stdout, 'stderr')
 
         changelog = self.reference_obj.get_handle_changelog()
-        self.assertEqual(changelog_ref, changelog)
+        assert changelog_ref == changelog
         mock_refresh_local.assert_called()
 
     @mock.patch('redis.StrictRedis')
@@ -604,9 +600,8 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             handle,
             options=options)
 
-        self.assertRaises(storage_handlers.AcquireLockException,
-                          reference._cvs_command,
-                          cmd, exclusive=True)
+        with raises(storage_handlers.AcquireLockException):
+            reference._cvs_command(cmd, exclusive=True)
 
     @mock.patch('shutil.move')
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_wipe_out_dir')
