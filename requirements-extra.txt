@@ -1,0 +1,2 @@
+# packages required by some specific handlers, such as rally
+pyral
