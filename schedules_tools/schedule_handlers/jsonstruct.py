@@ -10,6 +10,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
     def export_schedule(self, out_file, flat=False):
         json_schedule = dict()
         json_schedule['name'] = self.schedule.name
+        json_schedule['slug'] = self.schedule.slug
         json_schedule['start'] = self.schedule.dStart.strftime('%s')
         json_schedule['end'] = self.schedule.dFinish.strftime('%s')
 
@@ -52,7 +53,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         if not slug:
             slug = self.schedule.get_unique_task_id(task, id_prefix)
 
-        task_export['id'] = slug
+        task_export['slug'] = slug
         task_export['index'] = task.index
         task_export['_level'] = task.level
         task_export['name'] = task.name
