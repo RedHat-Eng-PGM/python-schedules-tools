@@ -1,6 +1,5 @@
 import tempfile
 import os
-import pytest
 
 from schedules_tools import jsondate
 from schedules_tools import converter
@@ -106,7 +105,5 @@ class TestRunner(object):
 
         if reference != test_out:
             self._dump_output_as_file(reference, test_out)
-            
-        pytest.set_trace()
 
         assert reference == test_out, 'Output file {} differs from reference'.format(output_file)
