@@ -2,10 +2,10 @@
     "changelog": {},
     "dFinish": "2000-03-29T07:00:00Z",
     "dStart": "2000-01-01T06:00:00Z",
+    "errors_import": [],
     "ext_attr": {},
     "mtime": "2017-02-15T16:50:06Z",
-    "name": "Test project 10",
-    "errors_import": [],
+    "name": "Test project",
     "phases": [
         {
             "dAcFinish": "2000-03-27T07:00:00Z",
@@ -38,6 +38,7 @@
             "name": "Test project 10",
             "p_complete": "100.0",
             "priority": "500",
+            "slug": "proj10",
             "tasks": [
                 {
                     "dAcFinish": "2000-03-27T07:00:00Z",
@@ -51,6 +52,7 @@
                     "name": "Test 1",
                     "p_complete": "100.0",
                     "priority": "500",
+                    "slug": "proj10.test1",
                     "tasks": [
                         {
                             "dAcFinish": "2000-03-18T06:00:00Z",
@@ -65,8 +67,8 @@
                             "name": "Development",
                             "p_complete": "100.0",
                             "priority": "500",
-                            "tasks": [],
-                            "slug": "proj10.test1.devel"
+                            "slug": "proj10.test1.devel",
+                            "tasks": []
                         },
                         {
                             "dAcFinish": "2000-03-18T06:00:00Z",
@@ -80,8 +82,8 @@
                             "name": "Dev",
                             "p_complete": "100.0",
                             "priority": "500",
-                            "tasks": [],
-                            "slug": "proj10.test1.devel2"
+                            "slug": "proj10.test1.devel2",
+                            "tasks": []
                         },
                         {
                             "dAcFinish": "2000-03-27T07:00:00Z",
@@ -98,8 +100,8 @@
                             "name": "Release",
                             "p_complete": "100.0",
                             "priority": "500",
-                            "tasks": [],
-                            "slug": "proj10.test1.release"
+                            "slug": "proj10.test1.release",
+                            "tasks": []
                         },
                         {
                             "dAcFinish": "2000-03-27T07:00:00Z",
@@ -115,11 +117,10 @@
                             "name": "Testing Phase",
                             "p_complete": "100.0",
                             "priority": "500",
-                            "tasks": [],
-                            "slug": "proj10.test1.test"
+                            "slug": "proj10.test1.test",
+                            "tasks": []
                         }
-                    ],
-                    "slug": "proj10.test1"
+                    ]
                 },
                 {
                     "dAcFinish": "2000-03-29T07:00:00Z",
@@ -133,6 +134,7 @@
                     "name": "Test 2",
                     "p_complete": "100.0",
                     "priority": "500",
+                    "slug": "proj10.test2",
                     "tasks": [
                         {
                             "dAcFinish": "2000-03-29T07:00:00Z",
@@ -146,8 +148,8 @@
                             "name": "Development",
                             "p_complete": "100.0",
                             "priority": "500",
-                            "tasks": [],
-                            "slug": "proj10.test2.devel"
+                            "slug": "proj10.test2.devel",
+                            "tasks": []
                         },
                         {
                             "dAcFinish": "2000-03-29T07:00:00Z",
@@ -166,14 +168,12 @@
                             "note": "test2 note",
                             "p_complete": "100.0",
                             "priority": "500",
-                            "tasks": [],
-                            "slug": "proj10.test2.another"
+                            "slug": "proj10.test2.another",
+                            "tasks": []
                         }
-                    ],
-                    "slug": "proj10.test2"
+                    ]
                 }
-            ],
-            "slug": "proj10"
+            ]
         }
     ],
     "used_flags": [
