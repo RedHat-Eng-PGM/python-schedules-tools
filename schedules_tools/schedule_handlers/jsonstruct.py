@@ -1,7 +1,9 @@
 import datetime
+import os
 import json
 
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
+from schedules_tools.models import Schedule, Task
 
 
 class ScheduleHandler_json(ScheduleHandlerBase):
@@ -120,7 +122,6 @@ class ScheduleHandler_json(ScheduleHandlerBase):
             add_task_func(self.export_task_as_dict(
                 task, self.schedule.slug, flat))
 
-        # phases
         json_schedule['phases'] = []
         for phase in self.schedule.phases:
             json_schedule['phases'].append(self.export_phase_as_dict(phase))
