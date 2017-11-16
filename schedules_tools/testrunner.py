@@ -65,7 +65,10 @@ class TestRunner(object):
 
     @staticmethod
     def _dict_to_string(input_dict):
-        return jsondate.dumps(input_dict, sort_keys=True)
+        return jsondate.dumps(input_dict,
+                              sort_keys=True,
+                              indent=4,
+                              separators=(',', ': '))
 
     def test_input(self, input_file):
         reference_str = self._load_reference_as_json_str()
