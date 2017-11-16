@@ -7,41 +7,8 @@ from lxml import etree
 
 logger = logging.getLogger(__name__)
 
-KNOWN_FLAGS = set([
-    'team',
-
-    'partner',
-    'partner_hp',
-
-    'interface',
-
-    'roadmap',
-
-    'hidden',
-
-    'qe',
-    'marketing',
-    'pm',
-    'security',
-    'devel',
-    'docs',
-    'releng',
-    'support',
-    'training',
-    'qertt',
-    'it',
-    'i18n',
-    'certification',
-    'prod',
-    'sysops'
-])
-
-date_format = '%Y-%m-%d'
-datetime_format_tz = '%Y-%m-%d %H:%M:%S EDT'
-
 
 class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
-    provide_export = True
     provide_changelog = True
 
     @classmethod
@@ -65,13 +32,13 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
         self.schedule = models.Schedule()
 
         tree = self._get_parsed_tree()
-        project_name = tree.xpath('Name')[0].text.strip()
-        self.schedule.name = '%s %s' % (project_name,
+
+        self.schedule.name = '%s %s' % (tree.xpath('Name')[0].text.strip(),
                                         tree.xpath('Version')[0].text)
-        self.schedule.project_name = project_name
-        proj_id = str(tree.xpath('@Id')[0])
-        if proj_id:
-            self.schedule.proj_id = proj_id
+
+        slug = str(tree.xpath('@Id')[0])
+        if slug:
+            self.schedule.slug = slug
 
         # look for same id as project, 'cos there might be more included root tasks
         eRoot_task = None
@@ -125,83 +92,6 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
         return self.schedule
 
     # Task
-    def task_export_tjx_node(self, task, id_prefix, proj_id):
-        tj_id = task.tjx_id
-        if not tj_id:
-            tj_id = self.schedule.get_unique_task_id(task, id_prefix)
-
-        eTask = etree.Element('Task', Id=tj_id)
-
-        eIndex = etree.SubElement(eTask, 'Index')
-        eIndex.text = str(task.index)
-
-        eName = etree.SubElement(eTask, 'Name')
-        eName.text = task.name
-
-        eProjID = etree.SubElement(eTask, 'ProjectID')
-        eProjID.text = proj_id
-
-        ePriority = etree.SubElement(eTask, 'Priority')
-        ePriority.text = str(task.priority)
-
-        eComplete = etree.SubElement(eTask, 'complete')
-        eComplete.text = str(task.p_complete)
-
-        eType = etree.SubElement(eTask, 'Type')
-        eType.text = task.get_type(check_same_start_finish=True)
-
-        for flag in task.flags:
-            eType = etree.SubElement(eTask, 'Flag')
-            eType.text = flag
-
-        if tj_id != id_prefix:  # not first task
-            eParentTask = etree.SubElement(eTask, 'ParentTask')
-            eParentTask.text = id_prefix
-
-        if task.link:
-            ptask = etree.SubElement(eTask, 'custom')
-            ptask.attrib['id'] = 'PTask'
-            ptask.attrib['url'] = task.link
-
-        eActualStart = etree.SubElement(
-            eTask,
-            'actualStart',
-            humanReadable=task.dAcStart.strftime(datetime_format_tz))
-        eActualStart.text = task.dAcStart.strftime('%s')
-
-        eActualEnd = etree.SubElement(
-            eTask,
-            'actualEnd',
-            humanReadable=task.dAcFinish.strftime(datetime_format_tz))
-        eActualEnd.text = task.dAcFinish.strftime('%s')
-
-        ePlanStart = etree.SubElement(
-            eTask,
-            'planStart',
-            humanReadable=task.dStart.strftime(datetime_format_tz))
-        ePlanStart.text = task.dStart.strftime('%s')
-
-        ePlanEnd = etree.SubElement(
-            eTask,
-            'planEnd',
-            humanReadable=task.dFinish.strftime(datetime_format_tz))
-        ePlanEnd.text = task.dFinish.strftime('%s')
-
-        if task.note:
-            eNote = etree.SubElement(eTask, 'Note')
-            eNote.text = task.note
-
-        if task.tasks:
-            eSubTasks = etree.SubElement(eTask, 'SubTasks')
-            for task in task.tasks:
-                eSubTasks.append(self.task_export_tjx_node(
-                    task,
-                    tj_id,
-                    proj_id))
-
-        return eTask
-
-    # Task
     @staticmethod
     def _load_tjx_date(eTask, datetype, what=''):
         """Returns datetime with datetype = plan|actual what = start|end"""
@@ -213,7 +103,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
     # Task
     def task_load_tjx_node(self, task, eTask):
         task.index = eTask.xpath('Index')[0].text
-        task.tjx_id = eTask.get('Id')
+        task.slug = eTask.get('Id')
         task.name = eTask.xpath('Name')[0].text.strip()
 
         notes = eTask.xpath('Note')
@@ -261,43 +151,3 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
             task.tasks.append(task_item)
 
         return min_date, max_date
-
-    # Schedule
-    def export_schedule(self, out_file=None):
-        eProject = etree.Element('Project', Id=self.schedule.proj_id,
-                                 WeekStart='Mon')
-
-        eName = etree.SubElement(eProject, 'Name')
-        eName.text = self.schedule.project_name
-
-        eVersion = etree.SubElement(eProject, 'Version')
-        eVersion.text = self.schedule.version
-
-        ePriority = etree.SubElement(eProject, 'Priority')
-        ePriority.text = '500'
-
-        eStart = etree.SubElement(
-            eProject,
-            'start',
-            humanReadable=self.schedule.dStart.strftime(date_format))
-        eStart.text = self.schedule.dStart.strftime('%s')
-
-        eEnd = etree.SubElement(eProject, 'end',
-                                humanReadable=self.schedule.dFinish.strftime(
-                                    date_format))
-        eEnd.text = self.schedule.dFinish.strftime('%s')
-
-        self.schedule.id_reg = set()
-
-        for item in self.schedule.tasks:
-            eProject.append(self.task_export_tjx_node(item,
-                                                      self.schedule.proj_id,
-                                                      self.schedule.proj_id))
-
-        et = etree.ElementTree(eProject)
-
-        if out_file:
-            et.write(out_file, pretty_print=True, encoding="utf-8",
-                     xml_declaration=True)
-        
-        return str(et)

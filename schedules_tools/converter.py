@@ -190,10 +190,7 @@ class ScheduleConverter(object):
         return self.schedule
 
     def export_schedule(self, output, target_format, options=dict()):
-        tj_id = options.get('tj_id', '')
-        v_major = options.get('major', '')
-        v_minor = options.get('minor', '')
-        v_maint = options.get('maint', '')
+        schedule_slug = options.get('slug', '')
 
         schedule_handler_cls = self._get_schedule_handler_cls(format=target_format)
 
@@ -203,7 +200,5 @@ class ScheduleConverter(object):
                 .format(target_format))
 
         schedule_handler = schedule_handler_cls(schedule=self.schedule, options=options)
-
-        schedule_handler.schedule.override_version(tj_id, v_major, v_minor, v_maint)
 
         schedule_handler.export_schedule(output)

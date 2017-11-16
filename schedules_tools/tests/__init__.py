@@ -8,11 +8,11 @@ def create_test_schedule():
     sch.dFinish = datetime.datetime(2016, 12, 22, 8, 0)
     sch.name = 'Schedules tools'
     sch.used_flags = set(['qe', 'pm', 'dev'])
-    sch.proj_id = 'scht'
+    sch.slug = 'scht'
 
     task1 = models.Task(sch)
     task1.name = 'Schedules tools 1.0.0'
-    task1.tjx_id = 'scht'
+    task1.slug = 'scht'
     task1.dStart = datetime.datetime(2016, 12, 1, 8, 0)
     task1.dFinish = datetime.datetime(2016, 12, 20, 8, 0)
     task1.note = 'top task'
@@ -22,7 +22,7 @@ def create_test_schedule():
 
     task2 = models.Task(sch, level=task1.level + 1)
     task2.name = 'Planning'
-    task2.tjx_id = 'scht.plan'
+    task2.slug = 'scht.plan'
     task2.dStart = datetime.datetime(2016, 12, 1, 8, 0)
     task2.dFinish = datetime.datetime(2016, 12, 5, 8, 0)
     task2.dAcStart = datetime.datetime(2016, 12, 2, 8, 0)
@@ -36,7 +36,7 @@ def create_test_schedule():
 
     task3 = models.Task(sch, level=task1.level + 1)
     task3.name = 'Development'
-    task3.tjx_id = 'scht.dev'
+    task3.slug = 'scht.dev'
     task3.dStart = datetime.datetime(2016, 12, 5, 8, 0)
     task3.dFinish = datetime.datetime(2016, 12, 15, 8, 0)
     task3.note = 'devel task'
@@ -48,7 +48,7 @@ def create_test_schedule():
 
     task4 = models.Task(sch, level=task3.level + 1)
     task4.name = 'Handlers'
-    task4.tjx_id = 'scht.dev.handlers'
+    task4.slug = 'scht.dev.handlers'
     task4.dStart = datetime.datetime(2016, 12, 10, 8, 0)
     task4.dFinish = datetime.datetime(2016, 12, 12, 8, 0)
     task4.priority = 100

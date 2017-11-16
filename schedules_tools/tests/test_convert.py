@@ -74,20 +74,15 @@ class TestConverter(BaseTestConvert):
         diff = conv_from.schedule.diff(conv_to.schedule)
         assert diff == ''
 
-    def test_tjx_txj(self):
-        self._test_format_combination(self.file_tjx, 'tjx', '.tjx')
-
-    def test_tjx2_txj(self):
-        self._test_format_combination(self.file_tjx2, 'tjx', '.tjx')
-
-    def test_tjx_smartsheet(self):
+    def test_tjx2msp(self):
         self._test_format_combination(self.file_tjx, 'msp', '.xml')
 
-    def test_smartsheet_smartsheet(self):
+    def test_tjx22msp(self):
+        self._test_format_combination(self.file_tjx2, 'msp', '.xml')
+
+    def test_msp2msp(self):
         self._test_format_combination(self.file_smartsheet, 'msp', '.xml')
 
-    def test_smartsheet_tjx(self):
-        self._test_format_combination(self.file_smartsheet, 'tjx', '.tjx')
 
     def test_init_storage_handler(self):
         handle = 'source.tjx'

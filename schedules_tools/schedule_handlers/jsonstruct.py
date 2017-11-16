@@ -9,8 +9,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
     def export_schedule(self, out_file, flat=False):
         json_schedule = dict()
-        json_schedule['name'] = self.schedule.project_name
-        json_schedule['version'] = self.schedule.version
+        json_schedule['name'] = self.schedule.name
         json_schedule['start'] = self.schedule.dStart.strftime('%s')
         json_schedule['end'] = self.schedule.dFinish.strftime('%s')
 
@@ -25,13 +24,13 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         self.schedule.task_id_reg = set()
 
         if flat:
-            add_func = json_schedule['tasks'].extend
+            add_task_func = json_schedule['tasks'].extend
         else:
-            add_func = json_schedule['tasks'].append
+            add_task_func = json_schedule['tasks'].append
 
         for task in self.schedule.tasks:
-            add_func(self.task_export_json_obj(
-                task, self.schedule.proj_id, self.schedule.proj_id, flat))
+            add_task_func(self.task_export_json_obj(
+                task, self.schedule.slug, flat))
 
         # phases
         json_schedule['phases'] = []
@@ -44,23 +43,22 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         
         return out        
 
-    def task_export_json_obj(self, task, id_prefix, proj_id, flat=False):
+    def task_export_json_obj(self, task, id_prefix, flat=False):
         task_export = {}
-        tj_id = task.tjx_id
-        if not tj_id:
-            tj_id = self.schedule.get_unique_task_id(task, id_prefix)
+        slug = task.slug
+        if not slug:
+            slug = self.schedule.get_unique_task_id(task, id_prefix)
 
-        task_export['id'] = tj_id
+        task_export['id'] = slug
         task_export['index'] = task.index
         task_export['_level'] = task.level
         task_export['name'] = task.name
-        task_export['projectId'] = proj_id
         task_export['priority'] = task.priority
         task_export['complete'] = task.p_complete
         task_export['type'] = task.get_type()
         task_export['flags'] = task.flags
 
-        if tj_id != id_prefix:  # not first task
+        if slug != id_prefix:  # not first task
             task_export['parentTask'] = id_prefix
 
         task_export['planStart'] = task.dStart.strftime('%s')
@@ -80,7 +78,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
             for subtask in task.tasks:
                 add_func(self.task_export_json_obj(
-                    subtask, tj_id, proj_id, flat))
+                    subtask, slug, flat))
 
         if flat:
             return task_list

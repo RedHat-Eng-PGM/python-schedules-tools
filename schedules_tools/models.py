@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Task(object):
     index = ''
-    tjx_id = ''
+    slug = ''
     name = ''
     note = ''
     priority = 500
@@ -40,7 +40,7 @@ class Task(object):
 
     def __unicode__(self):
         return '%s %s MS:%s  (%s - %s) ac(%s - %s)  F%s  [%s]' % (
-            self.tjx_id, self.name, self.milestone, self.dStart, self.dFinish,
+            self.slug, self.name, self.milestone, self.dStart, self.dFinish,
             self.dAcStart, self.dAcFinish, self.flags, len(self.tasks))
 
     def __str__(self):
@@ -127,10 +127,8 @@ class Task(object):
 
 
 class Schedule(object):
-    tj_id = ''
-    proj_id = ''
+    slug = ''
     name = ''  # Product 1.2
-    project_name = ''  # Product
     tasks = []
     dStart = None
     dFinish = None
@@ -144,10 +142,6 @@ class Schedule(object):
     ext_attr = {}
     flags_attr_id = None
     id_reg = set()
-
-    _version = {'major': '',
-                'minor': '',
-                'maint': ''}
 
     _eTask_list = []
     _task_index = 1
@@ -164,26 +158,6 @@ class Schedule(object):
         self.unique_task_id_re = re.compile('[\W_]+')
         self.errors_import = []
 
-    def override_version(self, tj_id='', v_major='', v_minor='', v_maint=''):
-        if tj_id:
-            self.proj_id = self.tj_id = tj_id
-        if v_major and v_minor and v_maint:
-            self._version = {'major': v_major.strip(),
-                             'minor': v_minor.strip(),
-                             'maint': v_maint.strip()}
-        if self.version:
-            self.proj_id += self.version.replace('.', '')
-
-    @property
-    def version(self):
-        out = []
-        # order is important
-        for ver in [self._version['major'],
-                    self._version['minor'],
-                    self._version['maint']]:
-            if ver != '':
-                out.append(ver.replace('-', ''))
-        return '.'.join(out).strip(' .')
 
     def check_top_task(self):
         def _raise_index(task):
@@ -289,8 +263,7 @@ class Schedule(object):
         return ret
 
     def _diff_schedule_attrs(self, schedule, whole_days=False):
-        attrs = ['name', 'changelog', 'dStart', 'dFinish', 'assignments',
-                 'version', 'used_flags']
+        attrs = ['name', 'changelog', 'dStart', 'dFinish', 'assignments', 'used_flags']
         ret = ''
         diff = dict()
 

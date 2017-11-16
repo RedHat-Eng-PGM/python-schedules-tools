@@ -41,7 +41,7 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
     def _parse_task_element(self, task, eTask):
         task.index = self.task_index
         self.task_index += 1
-        task.tjx_id = eTask.get('id')
+        task.slug = eTask.get('id')
         task.name = eTask.get('name').strip()
 
         notes = eTask.xpath('note')
@@ -99,11 +99,10 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
 
         tree = self._get_parsed_tree()
         el_proj = tree.xpath('/taskjuggler/project')[0]
-        project_name = el_proj.get('name')
-        self.schedule.name = '%s %s' % (project_name,
+
+        self.schedule.name = '%s %s' % (el_proj.get('name'),
                                         el_proj.get('version'))
-        self.schedule.project_name = project_name
-        self.schedule.proj_id = el_proj.get('id')
+        self.schedule.slug = el_proj.get('id')
 
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min

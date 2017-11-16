@@ -66,8 +66,8 @@ def main(args):
                         default=False,
                         action='store_true')
 
-    parser.add_argument('--tj-id', metavar='TJ_PROJECT_ID',
-                        help='TJ Project Id (e.g. rhel)')
+    parser.add_argument('--slug', metavar='SCHEDULE_SLUG',
+                        help='Override schedule slug (e.g. rhel)')
     parser.add_argument('--major', help='Project major version number',
                         default='')
     parser.add_argument('--minor', help='Project minor version number',

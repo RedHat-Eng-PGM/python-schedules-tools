@@ -19,11 +19,10 @@ class TestDiff(object):
         assert diff == ''
 
     def test_sch_attrs(self):
-        self.sch1.name = '_test_value'
+        self.sch1.name = '_test_value 1.0.42'
         self.sch1.used_flags = set(['flag1', 'qe'])
         self.sch1.dStart = datetime.datetime(1970, 1, 1)
         self.sch1.dFinish = datetime.datetime(4970, 1, 1)
-        self.sch2.override_version('tjid-test', '1', '0', '42')
         self.sch2.changelog['today'] = 'change'
 
         diff = self.sch1.diff(self.sch2)
@@ -33,7 +32,6 @@ class TestDiff(object):
         assert 'used_flags' in diff
         assert 'dStart' in diff
         assert 'dFinish' in diff
-        assert 'version' in diff
         assert 'changelog' in diff
 
     def test_task_attrs(self):

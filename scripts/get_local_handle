@@ -84,7 +84,6 @@ def main(args):
     sch = conv.import_schedule(arguments.source, handler_opt_args=opt_args)
 
     print sch.name
-    print sch.project_name
 
 
 if __name__ == '__main__':

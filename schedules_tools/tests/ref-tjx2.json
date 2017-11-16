@@ -19,11 +19,10 @@
             "milestone": true,
             "name": "Testing Phase",
             "priority": "500",
-            "tjx_id": "proj10.test1.test"
+            "slug": "proj10.test1.test"
         }
     ],
-    "proj_id": "proj10",
-    "project_name": "Test project",
+    "slug": "proj10",
     "tasks": [
         {
             "dAcFinish": "2000-03-29T07:00:00Z",
@@ -62,7 +61,7 @@
                             "name": "Develop_ment",
                             "priority": "500",
                             "tasks": [],
-                            "tjx_id": "proj10.test1.devel"
+                            "slug": "proj10.test1.devel"
                         },
                         {
                             "dAcFinish": "2000-03-18T06:00:00Z",
@@ -76,7 +75,7 @@
                             "name": "Dev",
                             "priority": "500",
                             "tasks": [],
-                            "tjx_id": "proj10.test1.devel2"
+                            "slug": "proj10.test1.devel2"
                         },
                         {
                             "dAcFinish": "2000-03-27T07:00:00Z",
@@ -93,7 +92,7 @@
                             "name": "Release",
                             "priority": "500",
                             "tasks": [],
-                            "tjx_id": "proj10.test1.release"
+                            "slug": "proj10.test1.release"
                         },
                         {
                             "dAcFinish": "2000-03-27T07:00:00Z",
@@ -109,10 +108,10 @@
                             "name": "Testing Phase",
                             "priority": "500",
                             "tasks": [],
-                            "tjx_id": "proj10.test1.test"
+                            "slug": "proj10.test1.test"
                         }
                     ],
-                    "tjx_id": "proj10.test1"
+                    "slug": "proj10.test1"
                 },
                 {
                     "dAcFinish": "2000-03-29T07:00:00Z",
@@ -138,7 +137,7 @@
                             "name": "Development",
                             "priority": "500",
                             "tasks": [],
-                            "tjx_id": "proj10.test2.devel"
+                            "slug": "proj10.test2.devel"
                         },
                         {
                             "dAcFinish": "2000-03-29T07:00:00Z",
@@ -157,13 +156,13 @@
                             "note": "test2 note",
                             "priority": "500",
                             "tasks": [],
-                            "tjx_id": "proj10.test2.another"
+                            "slug": "proj10.test2.another"
                         }
                     ],
-                    "tjx_id": "proj10.test2"
+                    "slug": "proj10.test2"
                 }
             ],
-            "tjx_id": "proj10"
+            "slug": "proj10"
         }
     ],
     "used_flags": [
