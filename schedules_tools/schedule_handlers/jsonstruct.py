@@ -37,11 +37,14 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         for phase in self.schedule.phases:
             json_schedule['phases'].append(self.task_export_json_phase(phase))
 
-        out = json.dumps(json_schedule)
+        output_content = json.dumps(json_schedule,
+                                    sort_keys=True,
+                                    indent=4,
+                                    separators=(',', ': '))
+
+        self._write_to_file(output_content, out_file)
         
-        self._write_to_file(out, out_file)
-        
-        return out        
+        return output_content
 
     def task_export_json_obj(self, task, id_prefix, flat=False):
         task_export = {}
