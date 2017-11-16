@@ -2,7 +2,7 @@
     "changelog": {},
     "end": "954306000",
     "name": "Test project 10",
-    "now": "1490365341",
+    "now": "123456789",
     "phases": [
         {
             "actualEnd": "954133200",
@@ -13,6 +13,7 @@
             "planStart": "954133200"
         }
     ],
+    "slug": "proj10",
     "start": "946702800",
     "tasks": [
         {
@@ -21,12 +22,12 @@
             "actualStart": "946702800",
             "complete": "100.0",
             "flags": [],
-            "id": "proj10",
             "index": "1",
             "name": "Test project 10",
             "planEnd": "954306000",
             "planStart": "946702800",
             "priority": "500",
+            "slug": "proj10",
             "type": "Container"
         },
         {
@@ -35,13 +36,13 @@
             "actualStart": "946702800",
             "complete": "100.0",
             "flags": [],
-            "id": "proj10.test1",
             "index": "2",
             "name": "Test 1",
             "parentTask": "proj10",
             "planEnd": "954133200",
             "planStart": "946702800",
             "priority": "500",
+            "slug": "proj10.test1",
             "type": "Container"
         },
         {
@@ -50,13 +51,13 @@
             "actualStart": "946702800",
             "complete": "100.0",
             "flags": [],
-            "id": "proj10.test1.devel",
             "index": "3",
             "name": "Development",
             "parentTask": "proj10.test1",
             "planEnd": "953355600",
             "planStart": "946702800",
             "priority": "500",
+            "slug": "proj10.test1.devel",
             "type": "Task"
         },
         {
@@ -65,13 +66,13 @@
             "actualStart": "953355600",
             "complete": "100.0",
             "flags": [],
-            "id": "proj10.test1.devel2",
             "index": "4",
             "name": "Dev",
             "parentTask": "proj10.test1",
             "planEnd": "953355600",
             "planStart": "953355600",
             "priority": "500",
+            "slug": "proj10.test1.devel2",
             "type": "Milestone"
         },
         {
@@ -82,13 +83,13 @@
             "flags": [
                 "flag2"
             ],
-            "id": "proj10.test1.release",
             "index": "5",
             "name": "Release",
             "parentTask": "proj10.test1",
             "planEnd": "954133200",
             "planStart": "953355600",
             "priority": "500",
+            "slug": "proj10.test1.release",
             "type": "Task"
         },
         {
@@ -99,13 +100,13 @@
             "flags": [
                 "flag1"
             ],
-            "id": "proj10.test1.test",
             "index": "6",
             "name": "Testing Phase",
             "parentTask": "proj10.test1",
             "planEnd": "954133200",
             "planStart": "954133200",
             "priority": "500",
+            "slug": "proj10.test1.test",
             "type": "Milestone"
         },
         {
@@ -114,13 +115,13 @@
             "actualStart": "954133200",
             "complete": "100.0",
             "flags": [],
-            "id": "proj10.test2",
             "index": "7",
             "name": "Test 2",
             "parentTask": "proj10",
             "planEnd": "954306000",
             "planStart": "954133200",
             "priority": "500",
+            "slug": "proj10.test2",
             "type": "Container"
         },
         {
@@ -129,13 +130,13 @@
             "actualStart": "954133200",
             "complete": "100.0",
             "flags": [],
-            "id": "proj10.test2.devel",
             "index": "8",
             "name": "Development",
             "parentTask": "proj10.test2",
             "planEnd": "954306000",
             "planStart": "954133200",
             "priority": "500",
+            "slug": "proj10.test2.devel",
             "type": "Task"
         },
         {
@@ -148,13 +149,13 @@
                 "flag2",
                 "flag3"
             ],
-            "id": "proj10.test2.another",
             "index": "9",
             "name": "Another task",
             "parentTask": "proj10.test2",
             "planEnd": "954306000",
             "planStart": "954306000",
             "priority": "500",
+            "slug": "proj10.test2.another",
             "type": "Milestone"
         }
     ]
