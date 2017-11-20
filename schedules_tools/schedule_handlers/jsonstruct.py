@@ -38,10 +38,10 @@ class ScheduleHandler_json(ScheduleHandlerBase):
             jsonobj = json.load(fd)
 
         schedule = Schedule()
-        schedule.project_name = jsonobj['name']
-        #schedule.override_version()
         schedule.dStart = self._parse_timestamp(jsonobj['start'])
         schedule.dFinish = self._parse_timestamp(jsonobj['end'])
+        schedule.slug = jsonobj['slug']
+        schedule.name = jsonobj['name']
 
         # TODO!
         # verity if the changelog is in correct format
@@ -61,18 +61,28 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task.index = jsonobj['index']
         task.level = jsonobj['_level']
         task.name = jsonobj['name']
-        task.tjx_id = jsonobj['id']
+        task.slug = jsonobj['slug']
 
         task.priority = jsonobj['priority']
         task.p_complete = jsonobj['complete']
+        task.milestone = False
         if jsonobj['type'] == 'Milestone':
             task.milestone = True
         task.flags = jsonobj['flags']
+
+        if 'link' in jsonobj:
+            task.link = jsonobj['link']
+
+        if 'note' in jsonobj:
+            task.note = jsonobj['note']
+
         task.dStart = self._parse_timestamp(jsonobj['planStart'])
         task.dFinish = self._parse_timestamp(jsonobj['planEnd'])
 
         task.dAcStart = self._parse_timestamp(jsonobj['actualStart'])
         task.dAcFinish = self._parse_timestamp(jsonobj['actualEnd'])
+
+        schedule.used_flags |= set(task.flags)
 
         if 'tasks' in jsonobj:
             for subtaskobj in jsonobj['tasks']:
@@ -140,6 +150,11 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task_export['complete'] = task.p_complete
         task_export['type'] = task.get_type()
         task_export['flags'] = task.flags
+
+        if task.note:
+            task_export['note'] = task.note
+        if task.link:
+            task_export['link'] = task.link
 
         if slug != id_prefix:  # not first task
             task_export['parentTask'] = id_prefix
