@@ -1,9 +1,12 @@
 import datetime
 import os
 import json
+import logging
 
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools.models import Schedule, Task
+
+logger = logging.getLogger(__name__)
 
 
 class ScheduleHandler_json(ScheduleHandlerBase):
@@ -60,19 +63,11 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task.name = jsonobj['name']
         task.tjx_id = jsonobj['id']
 
-        if not schedule.proj_id and jsonobj['projectId']:
-            schedule.proj_id = jsonobj['projectId']
-
-        if schedule.proj_id != jsonobj['projectId']:
-            print 'proj_id is different!'
-            print (schedule.proj_id, jsonobj['projectId'])
-        schedule.proj_id = jsonobj['projectId']
         task.priority = jsonobj['priority']
         task.p_complete = jsonobj['complete']
         if jsonobj['type'] == 'Milestone':
             task.milestone = True
         task.flags = jsonobj['flags']
-        # jsonobj['parentTask']
         task.dStart = self._parse_timestamp(jsonobj['planStart'])
         task.dFinish = self._parse_timestamp(jsonobj['planEnd'])
 
@@ -90,7 +85,10 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
     def export_schedule(self, out_file, flat=False):
         json_schedule = self.export_schedule_as_dict(flat)
-        content = json.dumps(json_schedule, indent=4, separators=(',', ': '))
+        content = json.dumps(json_schedule,
+                             sort_keys=True,
+                             indent=4,
+                             separators=(',', ': '))
 
         self._write_to_file(content, out_file)
 
@@ -128,7 +126,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         return schedule_dict
 
-    def export_task_as_dict(self, task, id_prefix, proj_id, flat=False):
+    def export_task_as_dict(self, task, id_prefix, flat=False):
         task_export = {}
         slug = task.slug
         if not slug:
@@ -138,7 +136,6 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task_export['index'] = task.index
         task_export['_level'] = task.level
         task_export['name'] = task.name
-        task_export['projectId'] = proj_id
         task_export['priority'] = task.priority
         task_export['complete'] = task.p_complete
         task_export['type'] = task.get_type()
