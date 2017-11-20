@@ -71,15 +71,15 @@ class TestRunner(object):
         # load and dump again to not be sensitive by whitespaces etc.
         return self._dict_to_string(json_loaded)
 
-    def _dump_output_as_file(self, reference, test_output):
+    def _dump_output_as_file(self, expected_content, test_content):
         """
         Store test data into files to help debugging tests (differences
         between conversions).
-        Path of these files is in 'test_failures_output_dir' variable.
+        Path to these files is stored in 'test_failures_output_dir' variable.
 
         Args:
-            reference: reference (=correct) result of schedule conversion
-            test_output: actual result of schedule conversion
+            expected_content: expected content
+            test_content: actual result of schedule conversion
         """
         if not (self.test_failures_output_dir and
                 self.test_id):
@@ -87,11 +87,11 @@ class TestRunner(object):
 
         output_file_prefix = os.path.join(self.test_failures_output_dir,
                                           self.test_id)
-        with open(output_file_prefix + '_reference.json', 'w+') as fd:
-            fd.write(reference)
+        with open(output_file_prefix + '_expected_content.json', 'w+') as fd:
+            fd.write(expected_content)
 
-        with open(output_file_prefix + '_test.json', 'w+') as fd:
-            fd.write(test_output)
+        with open(output_file_prefix + '_actual_content.json', 'w+') as fd:
+            fd.write(test_content)
 
     @staticmethod
     def _dict_to_string(input_dict):
@@ -102,16 +102,9 @@ class TestRunner(object):
 
     def test_import(self, input_file):
         """
-        Testing import:
         Takes handle (input_file) to import source data of schedule (result is
         Schedule object), produces JSON dump and compare that with reference dump
         (json_reference_file).
-
-        Args:
-            input_file:
-
-        Returns:
-
         """
         reference_str = self._load_reference_as_json_str()
         conv = converter.ScheduleConverter()
@@ -128,42 +121,37 @@ class TestRunner(object):
 
         assert input_str == reference_str
 
-    def test_export(self, output_file, patch_output=None):
+    def test_export(self, reference_file, patch_output_callback=None):
         """
-        Testing export:
-        Takes reference JSON dump to fill Schedule object and pass it into Converter
-        to produce exported output (a file). This exported file is finally compared
-        with already stored output (output_file)
-
-        Optionally
+        Takes reference JSON dump (json_reference_file) to fill Schedule object
+        and pass it into Converter to produce exported output (a file).
+        This exported file is finally compared with already stored output (reference_file)
 
         Args:
-            output_file:
-            patch_output: function (callable object) to alter test content before comparing.
-
-        Returns:
-
+            reference_file: expected result of export
+            patch_output_callback: function (callable object) to alter test content before comparing.
         """
-        reference_dict = self._load_reference_as_dict()
-        reference_schedule = models.Schedule.load_from_dict(reference_dict)
-        _, temp_reference_file = tempfile.mkstemp()
-        conv = converter.ScheduleConverter(reference_schedule)
-        conv.export_schedule(temp_reference_file,
+        source_dict = self._load_reference_as_dict()
+        source_schedule = models.Schedule.load_from_dict(source_dict)
+        _, temp_export_file = tempfile.mkstemp()
+        conv = converter.ScheduleConverter(source_schedule)
+        conv.export_schedule(temp_export_file,
                              target_format=self.handler_name)
 
-        with open(temp_reference_file) as fd:
-            reference = fd.read()
-        os.unlink(temp_reference_file)
+        with open(temp_export_file) as fd:
+            exported_content = fd.read()
+        os.unlink(temp_export_file)
 
-        with open(output_file) as fd:
-            test_out = fd.read()
+        with open(reference_file) as fd:
+            reference_output = fd.read()
 
         # Patch outputs, if needed
-        if patch_output and callable(patch_output):
-            reference = patch_output(reference)
-            test_out = patch_output(test_out)
+        if patch_output_callback and callable(patch_output_callback):
+            exported_content = patch_output_callback(exported_content)
+            reference_output = patch_output_callback(reference_output)
 
-        if reference != test_out:
-            self._dump_output_as_file(reference, test_out)
+        if reference_output != exported_content:
+            self._dump_output_as_file(reference_output, exported_content)
 
-        assert reference == test_out, 'Output file {} differs from reference'.format(output_file)
+        assert exported_content == reference_output, (
+            'Output differs, checkdumped content at %s' % self.test_failures_output_dir)
