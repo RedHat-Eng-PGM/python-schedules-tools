@@ -1,5 +1,6 @@
 import tempfile
 import os
+import pytest
 
 from schedules_tools import jsondate
 from schedules_tools import converter
@@ -53,6 +54,8 @@ class TestRunner(object):
             input_file: source of data to produce reference json representation
                         for further comparison in import/export tests.
         """
+        # not used during tests
+
         conv = converter.ScheduleConverter()
         conv.import_schedule(input_file,
                              schedule_src_format=self.handler_name)
@@ -111,13 +114,18 @@ class TestRunner(object):
         Schedule object), produces JSON dump and compare that with reference dump
         (json_reference_file).
         """
+        # Compare reference json file WITH input_file schedule.dump_as_dict
+        # get reference json
         reference_str = self._load_reference_as_json_str()
+        
+        # get json str from input file -> schedule -> dump_as_dict
         conv = converter.ScheduleConverter()
-        conv.import_schedule(input_file,
-                             schedule_src_format=self.handler_name,
-                             options=self.options)
-        assert len(conv.schedule.errors_import) == 0
-        input_dict = conv.schedule.dump_as_dict()
+        schedule = conv.import_schedule(input_file,
+                                        schedule_src_format=self.handler_name,
+                                        options=self.options)
+        assert len(schedule.errors_import) == 0
+              
+        input_dict = schedule.dump_as_dict()
         input_dict['mtime'] = None
         input_str = self._dict_to_string(input_dict)
 
@@ -137,8 +145,11 @@ class TestRunner(object):
             reference_file: expected result of export
             patch_output_callback: function (callable object) to alter test content before comparing.
         """
+        #Compare reference schedule.load_from_dict -> target format WITH output_file
+        # get schedule from reference (load_from_dict)
         source_dict = self._load_reference_as_dict()
         source_schedule = models.Schedule.load_from_dict(source_dict)
+
         _, temp_export_file = tempfile.mkstemp()
         conv = converter.ScheduleConverter(source_schedule)
         conv.export_schedule(temp_export_file,

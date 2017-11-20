@@ -30,7 +30,7 @@ class TestHandlers(object):
         {'basedir': BASE_DIR,
          'combinations': [
              ('tjx-import', {'handler': 'tjx',
-                             'reference': 'ref.json',
+                             'reference': 'ref-tjx.json',
                              'testfile': 'data/input.tjx',
                              'action': IMPORT,
                              'patch_output': '',

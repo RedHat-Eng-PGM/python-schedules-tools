@@ -127,8 +127,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
             add_task_func = schedule_dict['tasks'].append
 
         for task in self.schedule.tasks:
-            add_task_func(self.export_task_as_dict(
-                task, self.schedule.slug, flat))
+            add_task_func(self.task_export_json_obj(task, flat=flat))
 
         schedule_dict['phases'] = []
         for phase in self.schedule.phases:
@@ -136,13 +135,10 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         return schedule_dict
 
-    def export_task_as_dict(self, task, id_prefix, flat=False):
+    def export_task_as_dict(self, task, parent_slug='', flat=False):
         task_export = {}
-        slug = task.slug
-        if not slug:
-            slug = self.schedule.get_unique_task_id(task, id_prefix)
 
-        task_export['slug'] = slug
+        task_export['slug'] = task.slug
         task_export['index'] = task.index
         task_export['_level'] = task.level
         task_export['name'] = task.name
@@ -156,8 +152,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         if task.link:
             task_export['link'] = task.link
 
-        if slug != id_prefix:  # not first task
-            task_export['parentTask'] = id_prefix
+        task_export['parentTask'] = parent_slug
 
         task_export['planStart'] = task.dStart.strftime('%s')
         task_export['planEnd'] = task.dFinish.strftime('%s')
@@ -175,8 +170,8 @@ class ScheduleHandler_json(ScheduleHandlerBase):
                 add_func = task_export['tasks'].append
 
             for subtask in task.tasks:
-                add_func(self.export_task_as_dict(
-                    subtask, slug, flat))
+                add_func(self.export_task_as_dictj(
+                    subtask, task.slug, flat))
 
         if flat:
             return task_list

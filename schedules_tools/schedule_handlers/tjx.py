@@ -42,7 +42,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
         # look for same id as project, 'cos there might be more included root tasks
         eRoot_task = None
-        eRoot_tasks = tree.xpath('Task[@Id = /Projectget_unique_task_id/@Id]')
+        eRoot_tasks = tree.xpath('Task[@Id = /Project/@Id]')
         if not len(eRoot_tasks):  # try whatever single root task
             eRoot_tasks = tree.xpath('Task')
             root_tasks_count = len(eRoot_tasks)

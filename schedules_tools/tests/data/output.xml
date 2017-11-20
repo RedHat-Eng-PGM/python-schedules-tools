@@ -201,7 +201,7 @@
       <Start>2000-03-18T06:00:00</Start>
       <Finish>2000-03-18T06:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>True</Milestone>
+      <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <UID>4</UID>
@@ -235,7 +235,7 @@
       <Start>2000-03-27T07:00:00</Start>
       <Finish>2000-03-27T07:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>True</Milestone>
+      <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <ExtendedAttribute>
@@ -278,7 +278,7 @@
       <Start>2000-03-29T07:00:00</Start>
       <Finish>2000-03-29T07:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>True</Milestone>
+      <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <Notes>test2 note</Notes>

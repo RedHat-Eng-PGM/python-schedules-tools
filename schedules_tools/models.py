@@ -155,7 +155,7 @@ class Schedule(object):
         self.used_flags = set()
         self.changelog = {}
         self.ext_attr = {}
-        self.unique_task_id_re = re.compile('[\W_]+')
+        self.unique_id_re = re.compile('[\W_]+')
         self.errors_import = []
 
 
@@ -174,6 +174,7 @@ class Schedule(object):
         #top_task.name = '%s %s' % (self.name, self.version)
         # removed version as per BZ#1396303 - see how that works
         top_task.name = self.name
+        top_task.slug = self.slug
 
         for task in self.tasks:
             if top_task.dStart:
@@ -198,6 +199,17 @@ class Schedule(object):
             top_task.tasks.append(task)
 
         self.tasks = [top_task]
+        
+    
+    def generate_slugs(self):
+        def gen_slugs_recurse(tasks, id_prefix):
+            for task in tasks:
+                task.slug = self.get_unique_id(task.name, id_prefix)
+                gen_slugs_recurse(task.tasks, task.slug)
+        
+        self.id_reg = set()
+        gen_slugs_recurse(self.tasks, self.slug)
+    
 
     def print_tasks(self, tasks=None, level=0):
         if tasks is None:
@@ -327,8 +339,14 @@ class Schedule(object):
 
         return ret.strip()
 
-    def get_unique_task_id(self, task, id_prefix):
-        # shortcut - first task gets proj id
+    def slugify_str(self, orig_str):
+        return self.unique_id_re.sub('_', orig_str.lower())
+
+
+    def get_unique_id(self, orig_str, id_prefix=''):
+        '''Return unique id within schedule'''
+        
+        # shortcut - first orig_str gets prefix        
         if not self.id_reg and id_prefix:
             self.id_reg.add(id_prefix)
             return id_prefix
@@ -336,7 +354,7 @@ class Schedule(object):
         pref = copy.copy(id_prefix)
         pref += '.'
 
-        source = self.unique_task_id_re.sub('_', task.name.lower())
+        source = self.slugify_str(orig_str)
 
         found = False
         test_id = ''
@@ -350,7 +368,7 @@ class Schedule(object):
                 break
 
         if not found:
-            # duplicate task names - add numbering
+            # duplicate orig_str names - add numbering
             n = 2
             while '%s_%s' % (test_id, n) in self.id_reg:
                 n += 1
@@ -358,14 +376,14 @@ class Schedule(object):
             test_id = '%s_%s' % (test_id, n)
             self.id_reg.add(test_id)
 
-            logger.info('Duplicate Task Names: %s, adding: %s' % (source, test_id))
+            logger.info('Duplicate Names: %s, adding: %s' % (source, test_id))
 
         return test_id
 
     def dump_as_dict(self):
         schedule = copy.copy(vars(self))
-        exclude = ['unique_task_id_re']
-        [schedule.pop(item) for item in exclude]
+        exclude = ['unique_id_re', 'id_reg']
+        [schedule.pop(item) for item in exclude if item in schedule]
 
         schedule['tasks'] = []
         for task in self.tasks:

@@ -49,6 +49,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
         eTask_list = tree.xpath('Tasks/Task[OutlineLevel >= %s]' % start_level)
         self.schedule.name = tree.xpath('Name|Title')[0].text.strip()
+        self.schedule.slug = self.schedule.unique_id_re.sub('_', self.schedule.name)
 
         # extended attributes
         for eExtAttr in tree.xpath('ExtendedAttributes/ExtendedAttribute'):
@@ -66,6 +67,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
         os.unlink(tmp_file)
         self.schedule.check_top_task()
+        self.schedule.generate_slugs()
         return self.schedule
 
     # Schedule
@@ -216,7 +218,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
             # process task
             task = models.Task(self.schedule, level=level)
-            if self.task_load_msp_node(task, eTask):
+            if self.task_load_msp_node(task, eTask):                
                 # update schedule start/end
                 if self.schedule.dStart:
                     self.schedule.dStart = min(self.schedule.dStart, task.dStart)
@@ -227,7 +229,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                     self.schedule.dFinish = max(self.schedule.dFinish, task.dAcFinish)
                 else:
                     self.schedule.dFinish = task.dAcFinish
-
+                    
                 return_tasks.append(task)
             # remove task from list
             eTask_list.pop(0)
