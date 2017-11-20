@@ -90,50 +90,43 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
     def export_schedule(self, out_file, flat=False):
         json_schedule = self.export_schedule_as_dict(flat)
-        out = json.dumps(json_schedule, indent=4, separators=(',', ': '))
+        content = json.dumps(json_schedule, indent=4, separators=(',', ': '))
 
-        self._write_to_file(out, out_file)
+        self._write_to_file(content, out_file)
 
-        return out
+        return content
 
     def export_schedule_as_dict(self, flat=False):
-        json_schedule = dict()
-        json_schedule['slug'] = self.schedule.slug
-        json_schedule['name'] = self.schedule.name
-        json_schedule['start'] = self.schedule.dStart.strftime('%s')
-        json_schedule['end'] = self.schedule.dFinish.strftime('%s')
+        schedule_dict = dict()
+        schedule_dict['slug'] = self.schedule.slug
+        schedule_dict['name'] = self.schedule.name
+        schedule_dict['start'] = self.schedule.dStart.strftime('%s')
+        schedule_dict['end'] = self.schedule.dFinish.strftime('%s')
 
         now = datetime.datetime.now()
-        json_schedule['now'] = now.strftime('%s')
+        schedule_dict['now'] = now.strftime('%s')
 
-        json_schedule['changelog'] = self.schedule.changelog
+        schedule_dict['changelog'] = self.schedule.changelog
         for log in self.schedule.changelog.itervalues():
             log['date'] = datetime.datetime.strftime(log['date'], '%Y-%m-%d')
 
-        json_schedule['tasks'] = []
+        schedule_dict['tasks'] = []
         self.schedule.task_id_reg = set()
 
         if flat:
-            add_task_func = json_schedule['tasks'].extend
+            add_task_func = schedule_dict['tasks'].extend
         else:
-            add_task_func = json_schedule['tasks'].append
+            add_task_func = schedule_dict['tasks'].append
 
         for task in self.schedule.tasks:
             add_task_func(self.export_task_as_dict(
                 task, self.schedule.slug, flat))
 
-        json_schedule['phases'] = []
+        schedule_dict['phases'] = []
         for phase in self.schedule.phases:
-            json_schedule['phases'].append(self.export_phase_as_dict(phase))
+            schedule_dict['phases'].append(self.export_phase_as_dict(phase))
 
-        output_content = json.dumps(json_schedule,
-                                    sort_keys=True,
-                                    indent=4,
-                                    separators=(',', ': '))
-
-        self._write_to_file(output_content, out_file)
-        
-        return output_content
+        return schedule_dict
 
     def export_task_as_dict(self, task, id_prefix, proj_id, flat=False):
         task_export = {}
