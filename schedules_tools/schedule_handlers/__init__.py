@@ -28,8 +28,8 @@ class ScheduleHandlerBase(object):
         self.schedule = schedule
         self.options = options
 
-    def _write_to_file(self, content, file):
-        with open(file, 'wb') as fp:
+    def _write_to_file(self, content, filename):
+        with open(filename, 'wb') as fp:
             fp.write(content.strip().encode('UTF-8'))
 
     def get_handle_mtime(self):
