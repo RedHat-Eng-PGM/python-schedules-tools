@@ -127,7 +127,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
             add_task_func = schedule_dict['tasks'].append
 
         for task in self.schedule.tasks:
-            add_task_func(self.task_export_json_obj(task, flat=flat))
+            add_task_func(self.export_task_as_dict(task, flat=flat))
 
         schedule_dict['phases'] = []
         for phase in self.schedule.phases:
@@ -170,7 +170,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
                 add_func = task_export['tasks'].append
 
             for subtask in task.tasks:
-                add_func(self.export_task_as_dictj(
+                add_func(self.export_task_as_dict(
                     subtask, task.slug, flat))
 
         if flat:

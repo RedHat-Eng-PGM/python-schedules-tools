@@ -19,6 +19,7 @@
             "level": 3,
             "milestone": false,
             "name": "Testing Phase",
+            "p_complete": 0,
             "priority": 500,
             "slug": "Test_project_10.test.testing"
         }
@@ -35,6 +36,7 @@
             "level": 1,
             "milestone": false,
             "name": "Test project 10",
+            "p_complete": 0,
             "priority": 500,
             "slug": "Test_project_10",
             "tasks": [
@@ -48,6 +50,7 @@
                     "level": 2,
                     "milestone": false,
                     "name": "Test 1",
+                    "p_complete": 0,
                     "priority": 500,
                     "slug": "Test_project_10.test",
                     "tasks": [
@@ -62,6 +65,7 @@
                             "link": "https://github.com/1",
                             "milestone": false,
                             "name": "Development",
+                            "p_complete": 0,
                             "priority": 500,
                             "slug": "Test_project_10.test.development",
                             "tasks": []
@@ -76,6 +80,7 @@
                             "level": 3,
                             "milestone": false,
                             "name": "Dev",
+                            "p_complete": 0,
                             "priority": 500,
                             "slug": "Test_project_10.test.dev",
                             "tasks": []
@@ -93,6 +98,7 @@
                             "link": "https://github.com/2",
                             "milestone": false,
                             "name": "Release",
+                            "p_complete": 0,
                             "priority": 500,
                             "slug": "Test_project_10.test.release",
                             "tasks": []
@@ -109,6 +115,7 @@
                             "level": 3,
                             "milestone": false,
                             "name": "Testing Phase",
+                            "p_complete": 0,
                             "priority": 500,
                             "slug": "Test_project_10.test.testing",
                             "tasks": []
@@ -125,6 +132,7 @@
                     "level": 2,
                     "milestone": false,
                     "name": "Test 2",
+                    "p_complete": 0,
                     "priority": 500,
                     "slug": "Test_project_10.test_2",
                     "tasks": [
@@ -138,6 +146,7 @@
                             "level": 3,
                             "milestone": false,
                             "name": "Development",
+                            "p_complete": 0,
                             "priority": 500,
                             "slug": "Test_project_10.test_2.development",
                             "tasks": []
@@ -157,6 +166,7 @@
                             "milestone": false,
                             "name": "Another task",
                             "note": "test2 note",
+                            "p_complete": 0,
                             "priority": 500,
                             "slug": "Test_project_10.test_2.another",
                             "tasks": []
