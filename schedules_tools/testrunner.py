@@ -160,4 +160,4 @@ class TestRunner(object):
             self._dump_output_as_file(reference_output, exported_content)
 
         assert exported_content == reference_output, (
-            'Output differs, checkdumped content at %s' % self.test_failures_output_dir)
+            'Output differs, check dumped content at %s' % self.test_failures_output_dir)
