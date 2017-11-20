@@ -20,8 +20,13 @@ class TestRunner(object):
     test_failures_output_dir = None
     test_id = None
 
-    def __init__(self, handler_name, json_reference_file, options=None,
-                 test_id=None, test_failures_output_dir=None):
+    def __init__(self,
+                 handler_name,
+                 json_reference_file,
+                 options=None,
+                 test_id=None,
+                 test_failures_output_dir=None,
+                 wipeout_failures_output_dir=False):
         """
         Args:
             handler_name: 'tjx'|'tjx2'|'msp'|'jsonstruct'|...
@@ -119,7 +124,8 @@ class TestRunner(object):
         if input_str != reference_str:
             self._dump_output_as_file(reference_str, input_str)
 
-        assert input_str == reference_str
+        assert input_str == reference_str, (
+            'Imported schedule differs, check dumped content at %s' % self.test_failures_output_dir)
 
     def test_export(self, reference_file, patch_output_callback=None):
         """
