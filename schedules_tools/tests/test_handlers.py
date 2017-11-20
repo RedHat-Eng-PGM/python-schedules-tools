@@ -118,9 +118,9 @@ class TestHandlers(object):
                 if patch_output:
                     patch_method = self.__getattribute__(patch_output)
 
-                runner.test_output(testfile_abspath, patch_method)
+                runner.test_export(testfile_abspath, patch_method)
             elif action == IMPORT:
-                runner.test_input(testfile_abspath)
+                runner.test_import(testfile_abspath)
             else:
                 logger.warn('Unknown action to test: {}'.format(action))
         finally:

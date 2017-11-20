@@ -100,7 +100,7 @@ class TestRunner(object):
                               indent=4,
                               separators=(',', ': '))
 
-    def test_input(self, input_file):
+    def test_import(self, input_file):
         """
         Testing import:
         Takes handle (input_file) to import source data of schedule (result is
@@ -128,7 +128,7 @@ class TestRunner(object):
 
         assert input_str == reference_str
 
-    def test_output(self, output_file, patch_output=None):
+    def test_export(self, output_file, patch_output=None):
         """
         Testing export:
         Takes reference JSON dump to fill Schedule object and pass it into Converter
