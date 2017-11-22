@@ -1,6 +1,21 @@
 {
-    "changelog": {},
+    "changelog": {
+        "1.0": {
+            "date": "2010-10-15",
+            "msg": "Created schedule",
+            "user": "someuser"
+        },
+        "2.0": {
+            "date": "2999-12-31",
+            "msg": "Good news, everyone!",
+            "user": "farnsworth"
+        }
+    },
     "end": "954306000",
+    "ext_attr": {
+        "key": "value"
+    },
+    "flags_attr_id": 123456,
     "name": "Test project 10",
     "now": "123456789",
     "phases": [
@@ -13,6 +28,7 @@
             "planStart": "954133200"
         }
     ],
+    "resources": {},
     "slug": "Test_project_10",
     "start": "946702800",
     "tasks": [
@@ -162,5 +178,10 @@
             "slug": "Test_project_10.test_2.another",
             "type": "Task"
         }
+    ],
+    "used_flags": [
+        "flag1",
+        "flag2",
+        "flag3"
     ]
 }

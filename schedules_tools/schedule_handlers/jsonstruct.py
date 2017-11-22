@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 class ScheduleHandler_json(ScheduleHandlerBase):
     provide_export = True
+    changelog_date_format = '%Y-%m-%d'
 
     @classmethod
     def is_valid_source(cls, handle=None):
@@ -43,9 +44,26 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         schedule.slug = jsonobj['slug']
         schedule.name = jsonobj['name']
 
-        # TODO!
-        # verity if the changelog is in correct format
-        schedule.changelog = jsonobj['changelog']
+        if jsonobj.get('mtime', None):
+            schedule.mtime = self._parse_timestamp(jsonobj['mtime'])
+        schedule.ext_attr = jsonobj.get('ext_attr', {})
+        schedule.resources = jsonobj.get('resources', {})
+        schedule.flags_attr_id = jsonobj.get('flags_attr_id', None)
+        # schedule.id_reg is built during parsing tasks
+
+        if 'changelog' in jsonobj:
+            changelogs = {}
+
+            for rev, record in jsonobj['changelog'].items():
+                record_date = datetime.datetime.strptime(
+                    record['date'], self.changelog_date_format)
+                item = {
+                    'user': record['user'],
+                    'date':  record_date,
+                    'msg': record['msg']
+                }
+                changelogs[rev] = item
+            schedule.changelog = changelogs
 
         # We don't parse phases here, because we are collecting them
         # during parsing tasks itself
@@ -62,6 +80,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task.level = jsonobj['_level']
         task.name = jsonobj['name']
         task.slug = jsonobj['slug']
+        schedule.id_reg.add(task.slug)
 
         task.priority = jsonobj['priority']
         task.p_complete = jsonobj['complete']
@@ -110,6 +129,21 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         schedule_dict['name'] = self.schedule.name
         schedule_dict['start'] = self.schedule.dStart.strftime('%s')
         schedule_dict['end'] = self.schedule.dFinish.strftime('%s')
+
+        if self.schedule.mtime:
+            schedule_dict['mtime'] = self.schedule.mtime.strftime('%s')
+
+        schedule_dict['phases'] = []
+        for phase in self.schedule.phases:
+            schedule_dict['phases'].append(self.export_phase_as_dict(phase))
+
+        schedule_dict['resources'] = self.schedule.resources
+        schedule_dict['used_flags'] = sorted(list(self.schedule.used_flags))
+        schedule_dict['ext_attr'] = self.schedule.ext_attr
+        schedule_dict['flags_attr_id'] = self.schedule.flags_attr_id
+
+        # We intentionally don't export id_reg attribute here - it's collected
+        # during import
 
         now = datetime.datetime.now()
         schedule_dict['now'] = now.strftime('%s')
