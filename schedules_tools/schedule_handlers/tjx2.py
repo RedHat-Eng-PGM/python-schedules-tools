@@ -104,6 +104,10 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
                                         el_proj.get('version'))
         self.schedule.slug = el_proj.get('id')
 
+        # import changelog/mtime from content of TJX
+        self.schedule.changelog = self.get_handle_changelog()
+        self.schedule.mtime = self.get_handle_mtime()
+
         min_date = datetime.datetime.max
         max_date = datetime.datetime.min
 
