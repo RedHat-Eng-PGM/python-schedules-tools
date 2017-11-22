@@ -7,7 +7,7 @@ import redis
 from schedules_tools import SchedulesToolsException
 
 
-log = logging.getLogger('schedules_tools.storage_handlers')
+log = logging.getLogger(__name__)
 
 
 class AcquireLockException(SchedulesToolsException):

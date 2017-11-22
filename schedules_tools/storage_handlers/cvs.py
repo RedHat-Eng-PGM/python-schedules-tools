@@ -1,21 +1,18 @@
 import logging
 import os
-import random
 import re
 import shutil
 import subprocess
 import tempfile
-import time
 
 import datetime as datetime_mod
 
 from distutils.dir_util import remove_tree, copy_tree
 
 from schedules_tools import SchedulesToolsException
-from schedules_tools.storage_handlers import StorageBase, AcquireLockException
+from schedules_tools.storage_handlers import StorageBase
 
-
-log = logging.getLogger('schedules_tools.storage_handlers')
+log = logging.getLogger(__name__)
 
 
 class CvsCommandException(SchedulesToolsException):
