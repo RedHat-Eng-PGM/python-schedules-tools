@@ -39,7 +39,7 @@ class StorageBase(object):
         self.exclusive_access = options.get(self.exclusive_access_option, self.exclusive_access)
 
         if self.exclusive_access:
-            redis_url = options.get('lock_redis_url', '')
+            redis_url = options.get('redis_url', '')
             
             if redis_url:
                 self.redis = redis.StrictRedis.from_url(redis_url)

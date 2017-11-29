@@ -518,7 +518,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'cvs_root': ':gserver:someuser@cvs.myserver.com:/cvs/reporoot',
             'cvs_checkout_path': '/tmp/a/b/cc',
             'exclusive_access': True,
-            'lock_redis_url': 'redis://redishost:1234/5'
+            'redis_url': 'redis://redishost:1234/5'
         }
         handle = 'program/product/release/release.tjp'
         reference = cvs_mod.StorageHandler_cvs(

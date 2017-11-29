@@ -33,8 +33,8 @@ class StorageHandler_cvs(StorageBase):
 
     tmp_root = None  # local tmp handle dir
   
-    refresh_validity = 3 # seconds
-    _last_refresh = None
+    refresh_validity = 5 # seconds
+    _last_refresh_local = None
 
     local_handle = None
     
@@ -163,11 +163,31 @@ class StorageHandler_cvs(StorageBase):
         if not self._is_valid_cvs_dir(cvs_content_root_dir):
             self._cvs_checkout()
         else:
-            last_refresh_valid_time = datetime_mod.datetime.now() - datetime_mod.timedelta(seconds=self.refresh_validity)
+            # use redis key if possible to share value across workers
+            datetime_format = '%Y-%m-%d %H:%M:%S'
+            last_refresh_local_time_key = self.redis_key + '_last_refresh_local'
+            last_refresh_expired = True  # init
             
-            if force or not self._last_refresh or self._last_refresh < last_refresh_valid_time:
+            if self.redis:
+                last_refresh_time = self.redis.get(last_refresh_local_time_key)
+            else:
+                last_refresh_time = self._last_refresh_local           
+            
+            if last_refresh_time:
+                last_refresh_time = datetime_mod.datetime.strptime(last_refresh_time, 
+                                                                   datetime_format)            
+                last_refresh_expired = (last_refresh_time < 
+                                        datetime_mod.datetime.now() - datetime_mod.timedelta(seconds=self.refresh_validity))
+            
+            if force or last_refresh_expired:
                 self._update_shared_repo()
-                self._last_refresh = datetime_mod.datetime.now()
+                
+                last_refresh_time = datetime_mod.datetime.now().strftime(datetime_format)
+                self._last_refresh_local = last_refresh_time
+                
+                if self.redis:
+                    self.redis.set(last_refresh_local_time_key, last_refresh_time)
+
 
     def _copy_subtree_to_tmp(self, processed_path):
         """
