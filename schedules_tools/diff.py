@@ -32,15 +32,18 @@ class ScheduleDiff(object):
     def filter_attrs(self, in_dict, attrs):
         return {k: v for k, v in in_dict.iteritems() if k in attrs}
 
-    def get_value_from_path(self, in_dict, keys_list):
-        """
-        Returns the value of the given keys_list path in the dictionary.
-        """
+    def walk_dict(self, in_dict, keys_list):
+        """ Returns the value of the given keys_list path in the dictionary. """
+
         if len(keys_list) > 0:
             key = keys_list.pop(0)
+
             if isinstance(in_dict, list):
-                key = int(key)
-            in_dict = self.get_value_from_path(in_dict[key], keys_list)
+                item = in_dict[int(key)]
+            else:
+                item = in_dict[key]
+
+            in_dict = self.walk_dict(item, keys_list)
         return in_dict
 
     def path_to_keys(self, path):
@@ -88,7 +91,7 @@ class ScheduleDiff(object):
         changed_key = path.pop()
 
         try:
-            parent = self.get_value_from_path(to_dict, path)
+            parent = self.walk_dict(to_dict, path)
         except (ValueError, KeyError):
             logger.warning("Change skipped."
                            "Could not find any item with the path: %s" % change.path())
