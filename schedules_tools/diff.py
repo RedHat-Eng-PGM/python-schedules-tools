@@ -3,6 +3,7 @@ import re
 import logging
 
 from schedules_tools import jsondate
+from schedules_tools.models import Task
 from deepdiff import DeepDiff
 from deepdiff.helper import NotPresent
 
@@ -13,6 +14,23 @@ def _custom_json_encoder(obj):
     if isinstance(obj, set):
         return list(obj)
     return jsondate._datetime_encoder(obj)
+
+
+REPORT_NO_CHANGE = ''
+REPORT_ADDED = '_added_'
+REPORT_REMOVED = '_removed_'
+REPORT_CHANGED = '_changed_'
+REPORT_NEW_VALUE = 'new_value'
+REPORT_OLD_VALUE = 'old_value'
+
+REPORT_KEYS = {REPORT_ADDED, REPORT_REMOVED, REPORT_CHANGED, }
+
+REPORT_PREFIX_MAP = {
+    REPORT_ADDED: '[+]',
+    REPORT_REMOVED: '[-]',
+    REPORT_CHANGED: '[M]',
+    REPORT_NO_CHANGE: 3 * ' ',
+}
 
 
 class ScheduleDiff(object):
@@ -116,13 +134,10 @@ class ScheduleDiff(object):
         filter_attrs = schedule_attrs or self.schedule_a_dict.keys()
         diff_dict = self.filter_attrs(self.schedule_a_dict, filter_attrs)
 
-        for key, changes in self.diff.iteritems():
-            for change in changes:
-                path = change.path()
-                sched_attr = self.path_to_keys(path)[0]
+        def add_to_dict(change):
+            self._add_change_report(diff_dict, change)
 
-                if sched_attr in filter_attrs:
-                    self._add_change_report(diff_dict, change)
+        self._for_each_change(add_to_dict, schedule_attrs)
 
         return diff_dict
 
@@ -137,3 +152,62 @@ class ScheduleDiff(object):
         kwargs['default'] = _custom_json_encoder
         res_dict = self.dump_dict(schedule_attrs)
         return json.dumps(res_dict, **kwargs)
+
+    def _for_each_change(self, perform, filter_attrs=[]):
+        """
+        Iterates through the list of changes and performs the action passed in as argument.
+
+        @param perform: Function to execute on each iteration.
+        """
+        for key, changes in self.diff.iteritems():
+            for change in changes:
+                path = change.path()
+                sched_attr = self.path_to_keys(path)[0]
+
+                if not filter_attrs or sched_attr in filter_attrs:
+                    # execute the given function
+                    perform(change)
+
+    def _task_to_str(self, task, prefix='', level=0):
+        task = Task.load_from_dict(task, schedule=None)
+        return "{} {}{}".format(prefix, level * ' ', str(task))
+
+    def _print_task_diff(self, task, change_type='', level=0):
+        prefix = ''
+
+        if change_type in REPORT_KEYS:
+            prefix = REPORT_PREFIX_MAP[change_type]
+
+        task_str = self._task_to_str(task, prefix=prefix, level=level)
+
+        print(task_str)
+
+    def _merge_task(self, task):
+        merged_task = task
+        change_type = ''
+
+        for key, value in task.iteritems():
+            if key in REPORT_KEYS:
+                merged_task = value[REPORT_NEW_VALUE] if key == REPORT_CHANGED else value
+                change_type = key
+            elif self.contains_change_report(value):
+                merged_task[key], change_type = self._merge_task(value)
+
+        return merged_task, change_type
+
+    def contains_change_report(self, item):
+        return isinstance(item, dict) and any(key in item for key in REPORT_KEYS)
+
+    def print_tasks(self, tasks=None, level=0):
+        """ Textual representation of the tasks' diff. """
+
+        if tasks is None:
+            tasks_diff_dict = self.dump_dict(schedule_attrs=['tasks'])
+            tasks = tasks_diff_dict['tasks']
+
+        for task in tasks:
+            merged_task, change_type = self._merge_task(task)
+            self._print_task_diff(merged_task, change_type, level)
+
+            if merged_task['tasks']:
+                self.print_tasks(merged_task['tasks'], level + 1)
