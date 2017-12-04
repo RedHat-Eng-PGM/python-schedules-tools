@@ -17,6 +17,7 @@ import sys
 import argparse
 import logging
 from schedules_tools import discovery
+from schedules_tools.diff import ScheduleDiff
 
 
 def setup_logging(level):
@@ -37,6 +38,12 @@ if __name__ == '__main__':
     setup_logging(logging.DEBUG)
     parser = argparse.ArgumentParser(
         description='Tool to show differences between two schedules.')
+
+    parser.add_argument('--simple-diff',
+                        help='Simple comparison between two schedules.',
+                        action='store_true',
+                        default=False)
+
     parser.add_argument(
         '--handlers-path',
         help='Add python-dot-notation path to discover handlers (needs to '
@@ -64,9 +71,13 @@ if __name__ == '__main__':
     right = conv.ScheduleConverter()
     right.import_schedule(args.right)
 
-    whole_days = False
-    diff = left.schedule.diff(right.schedule, whole_days=args.whole_days)
-    if diff:
-        print diff
-        sys.exit(1)
+    if args.simple_diff:
+        whole_days = False
+        diff_res = left.schedule.diff(right.schedule, whole_days=args.whole_days)
+    else:
+        sched_diff = ScheduleDiff(left.schedule, right.schedule)
+        diff_res = sched_diff.tasks() if sched_diff.diff else ''
 
+    if diff_res:
+        print diff_res
+        sys.exit(1)
