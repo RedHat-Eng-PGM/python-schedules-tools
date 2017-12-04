@@ -172,15 +172,13 @@ class ScheduleDiff(object):
         task = Task.load_from_dict(task, schedule=None)
         return "{} {}{}".format(prefix, level * ' ', str(task))
 
-    def _print_task_diff(self, task, change_type='', level=0):
-        prefix = ''
+    def _get_task_diff_str(self, task, change_type='', level=0):
+        prefix = REPORT_PREFIX_MAP[REPORT_NO_CHANGE]
 
         if change_type in REPORT_KEYS:
             prefix = REPORT_PREFIX_MAP[change_type]
 
-        task_str = self._task_to_str(task, prefix=prefix, level=level)
-
-        print(task_str)
+        return self._task_to_str(task, prefix=prefix, level=level)
 
     def _merge_task(self, task):
         merged_task = task
@@ -198,8 +196,9 @@ class ScheduleDiff(object):
     def contains_change_report(self, item):
         return isinstance(item, dict) and any(key in item for key in REPORT_KEYS)
 
-    def print_tasks(self, tasks=None, level=0):
+    def tasks(self, tasks=None, level=0):
         """ Textual representation of the tasks' diff. """
+        res = ''
 
         if tasks is None:
             tasks_diff_dict = self.dump_dict(schedule_attrs=['tasks'])
@@ -207,7 +206,9 @@ class ScheduleDiff(object):
 
         for task in tasks:
             merged_task, change_type = self._merge_task(task)
-            self._print_task_diff(merged_task, change_type, level)
+            res += '%s\n' % self._get_task_diff_str(merged_task, change_type, level)
 
             if merged_task['tasks']:
-                self.print_tasks(merged_task['tasks'], level + 1)
+                res += self.tasks(merged_task['tasks'], level + 1)
+
+        return res
