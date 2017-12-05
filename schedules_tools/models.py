@@ -19,7 +19,7 @@ class Task(object):
     dAcStart = datetime.datetime.max
     dAcFinish = datetime.datetime.min
     milestone = False
-    p_complete = 0
+    p_complete = 0.0
     flags = []
     level = 1
     link = ''
@@ -36,6 +36,9 @@ class Task(object):
         self.tasks = []
         self.flags = []
         self._schedule = schedule
+        self.p_complete = 0.0
+        self.priority = 500
+        self.milestone = False
         self.level = level
 
     def __unicode__(self):
@@ -99,6 +102,7 @@ class Task(object):
 
     def dump_as_dict(self, recursive=True):
         attrs = copy.copy(vars(self))
+        # avoid infinite looping schedule > task > schedule ...
         exclude = ['_schedule']
 
         if recursive:
@@ -157,6 +161,7 @@ class Schedule(object):
         self.ext_attr = {}
         self.unique_id_re = re.compile('[\W_]+')
         self.errors_import = []
+        self.mtime = None
 
 
     def check_top_task(self):
@@ -382,8 +387,6 @@ class Schedule(object):
 
     def dump_as_dict(self):
         schedule = copy.copy(vars(self))
-        exclude = ['unique_id_re', 'id_reg']
-        [schedule.pop(item) for item in exclude if item in schedule]
 
         schedule['tasks'] = []
         for task in self.tasks:
