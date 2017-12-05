@@ -102,7 +102,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
     # Task
     def task_load_tjx_node(self, task, eTask):
-        task.index = eTask.xpath('Index')[0].text
+        task.index = int(eTask.xpath('Index')[0].text)
         task.slug = eTask.get('Id')
         task.name = eTask.xpath('Name')[0].text.strip()
 
@@ -110,8 +110,8 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
         if notes:
             task.note = notes[0].text.strip()
 
-        task.priority = eTask.xpath('Priority')[0].text
-        task.p_complete = eTask.xpath('complete')[0].text
+        task.priority = int(eTask.xpath('Priority')[0].text)
+        task.p_complete = float(eTask.xpath('complete')[0].text)
         task.dStart = task.dAcStart = self._load_tjx_date(eTask, 'plan',
                                                           'start')
         task.dFinish = task.dAcFinish = self._load_tjx_date(eTask, 'plan',
