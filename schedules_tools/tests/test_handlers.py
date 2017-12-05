@@ -1,141 +1,125 @@
-from schedules_tools import testrunner
+import json
 import logging
 import os
-import re
+
+from schedules_tools.converter import ScheduleConverter
+from schedules_tools.tests import jsondate
+from schedules_tools.models import Schedule
 
 logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def pytest_generate_tests(metafunc):
-    idlist = []
-    argvalues = []
-    for scenario in metafunc.cls.test_suite:
-        for combination in scenario['combinations']:
-            test_id = combination[0]
-            idlist.append(test_id)
-            items = combination[1].items()
-            argnames = ['basedir', 'test_id'] + [x[0] for x in items]
-            argvalues.append([scenario['basedir'], test_id] + [x[1] for x in items])
-    metafunc.parametrize(argnames, argvalues, ids=idlist, scope="class")
+    source_function = metafunc.function.__name__
 
-
-IMPORT = 'import'
-EXPORT = 'export'
+    if source_function == 'test_import':
+        argnames = ['handler_name', 'import_schedule_file']
+        argvalues = metafunc.cls.scenarios_import_combinations
+        metafunc.parametrize(argnames, argvalues)
+    elif source_function == 'test_export':
+        argnames = ['handler_name', 'export_schedule_file']
+        argvalues = metafunc.cls.scenarios_export_combinations
+        metafunc.parametrize(argnames, argvalues)
 
 
 class TestHandlers(object):
-    test_failures_output_dir = 'failed_tests_output'
-    test_suite = [
-        {'basedir': BASE_DIR,
-         'combinations': [
-             ('tjx-import', {'handler': 'tjx',
-                             'reference': 'ref-tjx.json',
-                             'testfile': 'data/input.tjx',
-                             'action': IMPORT,
-                             'patch_output': '',
-                             'teardown': ''}),
-             ('tjx2-import', {'handler': 'tjx2',
-                              'reference': 'ref-tjx2.json',
-                              'testfile': 'data/input-v2.tjx',
-                              'action': IMPORT,
-                              'patch_output': '',
-                              'teardown': ''}),
-             ('msp-import', {'handler': 'msp',
-                             'reference': 'ref-msp.json',
-                             'testfile': 'data/input.xml',
-                             'action': IMPORT,
-                             'patch_output': '',
-                             'teardown': ''}),
-             ('msp-export', {'handler': 'msp',
-                             'reference': 'ref.json',
-                             'testfile': 'data/output.xml',
-                             'action': EXPORT,
-                             'patch_output': '',
-                             'teardown': ''}),
-             ('html-export', {'handler': 'html',
-                              'reference': 'ref.json',
-                              'testfile': 'data/output.html',
-                              'action': EXPORT,
-                              'patch_output': '',
-                              'teardown': ''}),
-             ('json-export', {'handler': 'json',
-                             'reference': 'ref-json.json',
-                             'testfile': 'data/output-struct.json',
-                             'action': EXPORT,
-                             'patch_output': '_mask_json_now_field',
-                             'teardown': ''}),
-             ('json-import', {'handler': 'json',
-                              'reference': 'ref-json.json',
-                              'testfile': 'data/output-struct.json',
-                              'action': IMPORT,
-                              'patch_output': '_mask_json_now_field',
-                              'teardown': ''}),
-            ('jsonflat-export', {'handler': 'jsonflat',
-                                 'reference': 'ref-json.json',
-                                 'testfile': 'data/output-flat.json',
-                                 'action': EXPORT,
-                                 'patch_output': '_mask_json_now_field',
-                                 'teardown': ''}),
-            ]
-         }
+    intermediary_reference_file = 'intermediary-struct-reference.json'
+
+    scenarios_import_combinations = [
+        ('msp', 'import-schedule-msp.xml'),
+        #('jsonstruct', 'import-schedule-json-struct.json'),
+        ('tjx2', 'import-schedule-tjx2.tjx'),
+    ]
+    scenarios_export_combinations = [
+        #('msp', 'import-schedule-msp.xml'),
+        #('json', 'import-schedule-json.json')
     ]
 
-    def test_handler(self, handler, basedir, test_id, reference, testfile,
-                     action, patch_output, teardown):
-        """
+    @staticmethod
+    def _import_sanity_interm_struct(input_dict):
+        keys_to_remove = ['unique_id_re', 'id_reg']
+        for key in keys_to_remove:
+            if key in input_dict:
+                input_dict.pop(key)
 
-        Args:
-            handler: name of handler to test ('tjx'|'msp'|'html'|'json'|'jsonflat'...)
-            basedir: path used to locate reference and test files in
-            test_id: label/caption of actual parametrized combination test case
-            reference: JSON file to compare with test outputs
-            testfile: File path that will be converted
-            action: ('import'|'export')
-            patch_output: Used in export only. Function name (string) in the same
-                          class to patch reference and test output
-            teardown: Function name (string) that will run always after asserting,
-                      usually to cleanup side products of test
+    @classmethod
+    def _convert_struct_unicode_to_str(cls, data, ignore_dicts=False):
+        # Taken from:
+        # https://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-from-json
 
-        Returns:
+        # if this is a unicode string, return its string representation
+        if isinstance(data, unicode):
+            return data.encode('utf-8')
 
-        """
-        testfile_abspath = os.path.join(basedir, testfile)
-        reffile_abspath = os.path.join(basedir, reference)
-        test_failures_output_dir = os.path.join(basedir,
-                                                self.test_failures_output_dir)
-        if not os.path.exists(test_failures_output_dir):
-            os.mkdir(test_failures_output_dir)
+        # if this is a list of values, return list of byteified values
+        if isinstance(data, list):
+            return [
+                cls._convert_struct_unicode_to_str(item, ignore_dicts=True)
+                for item in data
+            ]
 
-        options = {
+        # if this is a dictionary, return dictionary of byteified keys
+        # and values but only if we haven't already byteified it
+        if isinstance(data, dict) and not ignore_dicts:
+            # decode datetime object separately
+            data = jsondate._datetime_decoder(data)
+            return {
+                cls._convert_struct_unicode_to_str(key, ignore_dicts=True):
+                    cls._convert_struct_unicode_to_str(value, ignore_dicts=True)
+                for key, value in data.iteritems()
+            }
+
+        # if it's anything else, return it in its original form
+        return data
+
+    def test_import(self, handler_name, import_schedule_file):
+        regenerate = os.environ.get('REGENERATE', False) == 'true'
+        converter_options = {
             'source_storage_format': 'local'
         }
-        patch_method = None
-        runner = testrunner.TestRunner(
-            handler,
-            reffile_abspath,
-            options=options,
-            test_id=test_id,
-            test_failures_output_dir=test_failures_output_dir)
+        full_import_schedule_file = os.path.join(BASE_DIR, 'schedule_files',
+                                                 import_schedule_file)
 
-        try:
-            if action == EXPORT:
-                if patch_output:
-                    patch_method = self.__getattribute__(patch_output)
+        conv = ScheduleConverter()
+        schedule = conv.import_schedule(full_import_schedule_file,
+                                        schedule_src_format=handler_name,
+                                        options=converter_options)
+        assert 0 == len(schedule.errors_import)
 
-                runner.test_export(testfile_abspath, patch_method)
-            elif action == IMPORT:
-                runner.test_import(testfile_abspath)
-            else:
-                logger.warn('Unknown action to test: {}'.format(action))
-        finally:
-            if teardown:
-                teardown_method = self.__getattribute__(teardown)
-                teardown_method(handler, basedir, reference, testfile, action)
+        imported_schedule_dict = schedule.dump_as_dict()
+        self._import_sanity_interm_struct(imported_schedule_dict)
 
-    def _mask_json_now_field(self, input_str):
-        """JSON format contains field "now" with current timestamp, so output
-        is always uniq. To be able to compare two outputs, we need to ignore
-        this field, by replacing to static string.
-        """
-        return re.sub('"now": "\d+"', '"now": "123456789"', input_str)
+        interm_reference_file = os.path.join(BASE_DIR, self.intermediary_reference_file)
+        if regenerate:
+            logger.info('test_import: Regenerating interm. reference file')
+
+            with open(interm_reference_file, 'w+') as fd:
+                jsondate.dump(imported_schedule_dict,
+                              fd,
+                              sort_keys=True,
+                              indent=4,
+                              separators=(',', ': '))
+
+        with open(interm_reference_file) as fd:
+            reference_dict = json.load(fd, object_hook=self._convert_struct_unicode_to_str)
+        self._import_sanity_interm_struct(reference_dict)
+
+        assert reference_dict == imported_schedule_dict
+
+    def test_export(self, handler_name, export_schedule_file, tmpdir):
+        with open(self.intermediary_reference_file) as fd:
+            intermediary_input_dict = json.load(fd)
+
+        intermediary_input = Schedule.load_from_dict(intermediary_input_dict)
+        export_output_file = tmpdir.join('exported_file')
+
+        conv = ScheduleConverter(intermediary_input)
+        conv.export_schedule(export_output_file, handler_name)
+        actual_output = export_output_file.read()
+
+        with open(export_schedule_file) as fd:
+            expected_output = fd.read()
+
+        assert expected_output == actual_output
+
