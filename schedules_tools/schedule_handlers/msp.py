@@ -276,7 +276,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
         ePercentComplete_list = eTask.xpath('PercentComplete')
         if ePercentComplete_list:
-            task.p_complete = eTask.xpath('PercentComplete')[0].text
+            task.p_complete = float(eTask.xpath('PercentComplete')[0].text)
 
         notes = eTask.xpath('Notes')
         if notes:
