@@ -48,9 +48,14 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
         if notes:
             task.note = notes[0].text.strip()
 
-        task.priority = eTask.get('priority')
+        task.priority = int(eTask.get('priority'))
         task.milestone = eTask.get('milestone') == '1'
-        # TBD - complete
+
+        p_complete_attr = eTask.xpath('./taskScenario[@scenarioId=\'actual\']')
+        p_complete = float(p_complete_attr[0].get('complete'))
+        if p_complete < 0:
+            p_complete = 0.0
+        task.p_complete = p_complete
 
         task.dStart = self._load_tjx_date(eTask, 'plan', 'start')
         task.dAcStart = self._load_tjx_date(eTask, 'actual', 'start')
