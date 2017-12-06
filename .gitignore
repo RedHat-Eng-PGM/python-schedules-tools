@@ -7,7 +7,6 @@ MANIFEST
 *.*~
 
 /schedules_tools/version.py
-/schedules_tools/tests/failed_tests_output
 
 devel-tools/tmp
 devel-tools/*.fc
