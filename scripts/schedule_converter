@@ -6,6 +6,7 @@ import re
 import logging
 from schedules_tools.converter import ScheduleConverter
 from schedules_tools import discovery
+from schedules_tools.discovery import search_paths
 from schedules_tools.storage_handlers import AcquireLockException
 
 logger = logging.getLogger(__name__)
@@ -54,8 +55,7 @@ def main(args):
 
     opt_args = vars(known_args[0])  # 0. index contains successfully parsed args
     for path in opt_args.pop('handlers_path'):
-        discovery.schedule_handlers.add_discover_path(path)
-        discovery.storage_handlers.add_discover_path(path)
+        search_paths.append(path)
 
     parser = argparse.ArgumentParser(description='Perform schedule conversions.')
 
@@ -68,12 +68,6 @@ def main(args):
 
     parser.add_argument('--slug', metavar='SCHEDULE_SLUG',
                         help='Override schedule slug (e.g. rhel)')
-    parser.add_argument('--major', help='Project major version number',
-                        default='')
-    parser.add_argument('--minor', help='Project minor version number',
-                        default='')
-    parser.add_argument('--maint', help='Project maint version number',
-                        default='')
     parser.add_argument('--use-tji-file',
                         help='Use TJI file when exporting into TJP',
                         default=False,
