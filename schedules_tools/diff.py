@@ -93,6 +93,22 @@ class ScheduleDiff(object):
 
         return {change_key: change_value}
 
+    def _apply_change_to_tasks(self, tasks, change_type):
+        res = []
+
+        for task in tasks:
+            report = self._create_change_report(change_type,
+                                                {} if change_type == 'removed' else task,
+                                                {} if change_type == 'added' else task)
+
+            report_value = report.itervalues().next()
+
+            if task['tasks']:
+                report_value['tasks'] = self._apply_change_to_tasks(task['tasks'], change_type)
+
+            res.append(report)
+        return res
+
     def _add_change_report(self, to_dict, change):
         """
         Place a change report in the given dictionary, using the path of the change object.
@@ -120,7 +136,17 @@ class ScheduleDiff(object):
                                                    old_value=change.t1)
 
         if isinstance(parent, list):
-            parent.insert(int(changed_key), change_report)
+            index = int(changed_key)
+            report_key, report_value = change_report.iteritems().next()
+
+            if report_key == REPORT_ADDED:
+                parent.insert(index, change_report)
+
+            else:
+                if 'tasks' in report_value:
+                    report_value['tasks'] = self._apply_change_to_tasks(parent[index]['tasks'], change_type)
+
+                parent[index] = change_report
         else:
             parent[changed_key] = change_report
 
