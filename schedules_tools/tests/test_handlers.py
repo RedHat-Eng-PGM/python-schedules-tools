@@ -8,7 +8,6 @@ from schedules_tools.tests import jsondate
 from schedules_tools.models import Schedule
 
 logger = logging.getLogger(__name__)
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def pytest_generate_tests(metafunc):
@@ -26,6 +25,8 @@ def pytest_generate_tests(metafunc):
 
 class TestHandlers(object):
     intermediary_reference_file = 'intermediary-struct-reference.json'
+    schedule_files_dir = 'schedule_files'
+    basedir = os.path.dirname(os.path.realpath(__file__))
 
     scenarios_import_combinations = [
         ('msp', 'import-schedule-msp.xml'),
@@ -80,7 +81,7 @@ class TestHandlers(object):
         converter_options = {
             'source_storage_format': 'local'
         }
-        full_import_schedule_file = os.path.join(BASE_DIR, 'schedule_files',
+        full_import_schedule_file = os.path.join(self.basedir, self.schedule_files_dir,
                                                  import_schedule_file)
 
         conv = ScheduleConverter()
@@ -92,7 +93,7 @@ class TestHandlers(object):
         imported_schedule_dict = schedule.dump_as_dict()
         self._clean_interm_struct(imported_schedule_dict)
 
-        interm_reference_file = os.path.join(BASE_DIR,
+        interm_reference_file = os.path.join(self.basedir,
                                              self.intermediary_reference_file)
         regenerate = os.environ.get('REGENERATE', False) == 'true'
         if regenerate:
@@ -112,10 +113,10 @@ class TestHandlers(object):
         assert reference_dict == imported_schedule_dict
 
     def test_export(self, handler_name, export_schedule_file, tmpdir):
-        interm_reference_file = os.path.join(BASE_DIR,
+        interm_reference_file = os.path.join(self.basedir,
                                              self.intermediary_reference_file)
 
-        full_export_schedule_file = os.path.join(BASE_DIR, 'schedule_files',
+        full_export_schedule_file = os.path.join(self.basedir, self.schedule_files_dir,
                                                  export_schedule_file)
         with open(interm_reference_file) as fd:
             intermediary_input_dict = jsondate.load(fd, object_hook=self._convert_struct_unicode_to_str)
