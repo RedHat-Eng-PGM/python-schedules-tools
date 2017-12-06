@@ -24,3 +24,4 @@ devel-tools/*.pp
 /.refactorings
 .cache
 .eggs
+.settings
