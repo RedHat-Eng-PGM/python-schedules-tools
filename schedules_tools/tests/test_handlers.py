@@ -39,7 +39,8 @@ class TestHandlers(object):
     @staticmethod
     def _clean_interm_struct(input_dict):
         """Removes keys that is not needed for comparison"""
-        keys_to_remove = ['unique_id_re', 'id_reg']
+        keys_to_remove = ['unique_id_re', 'id_reg', 'ext_attr', 'flags_attr_id',
+                          'resources']
         for key in keys_to_remove:
             if key in input_dict:
                 input_dict.pop(key)
