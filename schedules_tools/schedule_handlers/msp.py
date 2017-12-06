@@ -237,7 +237,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
     # Task
     def task_load_msp_node(self, task, eTask):
-        task.index = eTask.xpath('ID')[0].text
+        task.index = int(eTask.xpath('ID')[0].text)
 
         task.name = task._workaround_it_phase_names(eTask)
         if not task.name:
