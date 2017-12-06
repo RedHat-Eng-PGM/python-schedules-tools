@@ -37,7 +37,8 @@ class TestHandlers(object):
     ]
 
     @staticmethod
-    def _import_sanity_interm_struct(input_dict):
+    def _clean_interm_struct(input_dict):
+        """Removes keys that is not needed for comparison"""
         keys_to_remove = ['unique_id_re', 'id_reg']
         for key in keys_to_remove:
             if key in input_dict:
@@ -88,7 +89,7 @@ class TestHandlers(object):
         assert 0 == len(schedule.errors_import)
 
         imported_schedule_dict = schedule.dump_as_dict()
-        self._import_sanity_interm_struct(imported_schedule_dict)
+        self._clean_interm_struct(imported_schedule_dict)
 
         interm_reference_file = os.path.join(BASE_DIR, self.intermediary_reference_file)
         if regenerate:
@@ -103,7 +104,7 @@ class TestHandlers(object):
 
         with open(interm_reference_file) as fd:
             reference_dict = json.load(fd, object_hook=self._convert_struct_unicode_to_str)
-        self._import_sanity_interm_struct(reference_dict)
+        self._clean_interm_struct(reference_dict)
 
         assert reference_dict == imported_schedule_dict
 
