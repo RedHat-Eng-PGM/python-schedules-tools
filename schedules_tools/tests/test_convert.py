@@ -45,44 +45,6 @@ class BaseTestConvert(object):
 
 
 class TestConverter(BaseTestConvert):
-    def _test_format_combination(self, input_file, target_format, suffix):
-        """
-        Do import of input_file, export it into target_format and compare
-        these two files/handles, if there are some differences (shouldn't be).
-
-        Args:
-            input_file: Source handle/file with schedule
-            target_format: Desired export format
-            suffix: Target file suffix (i.e. '.tjx')
-        """
-        conv_from = converter.ScheduleConverter()
-        in_file = os.path.join(CURR_DIR, DATA_DIR, input_file)
-        in_file = os.path.realpath(in_file)
-        conv_from.import_schedule(in_file)
-
-        conv_from.export_schedule(target_format=target_format,
-                                  output=self.file_out_name)
-
-        if not self.file_out_name.endswith(suffix):
-            new_name = self.file_out_name + suffix
-            os.rename(self.file_out_name, new_name)
-            self.file_out_name = new_name
-
-        conv_to = converter.ScheduleConverter()
-        conv_to.import_schedule(self.file_out_name)
-
-        diff = conv_from.schedule.diff(conv_to.schedule)
-        assert diff == ''
-
-    def test_tjx2msp(self):
-        self._test_format_combination(self.file_tjx, 'msp', '.xml')
-
-    def test_tjx22msp(self):
-        self._test_format_combination(self.file_tjx2, 'msp', '.xml')
-
-    def test_msp2msp(self):
-        self._test_format_combination(self.file_smartsheet, 'msp', '.xml')
-
 
     def test_init_storage_handler(self):
         handle = 'source.tjx'
