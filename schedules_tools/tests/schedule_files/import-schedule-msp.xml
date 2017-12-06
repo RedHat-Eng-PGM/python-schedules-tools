@@ -3,8 +3,8 @@
     <SaveVersion>9</SaveVersion>
     <Title>Test project 10</Title>
     <ScheduleFromStart>1</ScheduleFromStart>
-    <StartDate>2000-01-01T08:00:00</StartDate>
-    <FinishDate>2000-02-05T16:59:00</FinishDate>
+    <StartDate>2000-01-01T06:00:00</StartDate>
+    <FinishDate>2000-02-05T06:00:00</FinishDate>
     <FYStartDate>1</FYStartDate>
     <CriticalSlackLimit>0</CriticalSlackLimit>
     <CurrencyDigits>2</CurrencyDigits>
@@ -40,7 +40,7 @@
     <MoveCompletedEndsForward>0</MoveCompletedEndsForward>
     <BaselineForEarnedValue>0</BaselineForEarnedValue>
     <AutoAddNewResourcesAndTasks>1</AutoAddNewResourcesAndTasks>
-    <CurrentDate>2017-12-04T17:33:00</CurrentDate>
+    <CurrentDate>2017-12-06T11:47:00</CurrentDate>
     <MicrosoftProjectServerURL>1</MicrosoftProjectServerURL>
     <Autolink>1</Autolink>
     <NewTaskStartDate>0</NewTaskStartDate>
@@ -51,12 +51,12 @@
     <AdminProject>0</AdminProject>
     <ExtendedAttributes>
         <ExtendedAttribute>
-            <FieldID>188743734</FieldID>
-            <FieldName>Text2</FieldName>
-        </ExtendedAttribute>
-        <ExtendedAttribute>
             <FieldID>188743731</FieldID>
             <FieldName>Text1</FieldName>
+        </ExtendedAttribute>
+        <ExtendedAttribute>
+            <FieldID>188743737</FieldID>
+            <FieldName>Text3</FieldName>
         </ExtendedAttribute>
     </ExtendedAttributes>
     <Calendars>
@@ -67,7 +67,8 @@
             <WeekDays>
                 <WeekDay>
                     <DayType>1</DayType>
-                    <DayWorking>0</DayWorking>
+                    <DayWorking>1</DayWorking>
+                    <WorkingTimes/>
                 </WeekDay>
                 <WeekDay>
                     <DayType>2</DayType>
@@ -141,7 +142,8 @@
                 </WeekDay>
                 <WeekDay>
                     <DayType>7</DayType>
-                    <DayWorking>0</DayWorking>
+                    <DayWorking>1</DayWorking>
+                    <WorkingTimes/>
                 </WeekDay>
             </WeekDays>
         </Calendar>
@@ -150,16 +152,16 @@
         <Task>
             <UID>1</UID>
             <ID>1</ID>
-            <Name>Test 1</Name>
+            <Name>Test project 10</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
             <WBS>1</WBS>
             <OutlineNumber>1</OutlineNumber>
             <OutlineLevel>1</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-01-01T08:00:00</Start>
-            <Finish>2000-02-03T16:59:00</Finish>
-            <Duration>PT200H0M0S</Duration>
+            <Start>2000-01-01T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
+            <Duration>PT288H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
@@ -173,9 +175,9 @@
             <IsSubprojectReadOnly>0</IsSubprojectReadOnly>
             <ExternalTask>0</ExternalTask>
             <FixedCostAccrual>3</FixedCostAccrual>
-            <PercentComplete>37</PercentComplete>
-            <ActualStart>2000-01-01T08:00:00</ActualStart>
-            <RemainingDuration>PT126H0M0S</RemainingDuration>
+            <PercentComplete>53</PercentComplete>
+            <ActualStart>2000-01-01T06:00:00</ActualStart>
+            <RemainingDuration>PT135H21M36S</RemainingDuration>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -190,16 +192,56 @@
         <Task>
             <UID>2</UID>
             <ID>2</ID>
-            <Name>Development</Name>
+            <Name>Test 1</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
             <WBS>1.1</WBS>
             <OutlineNumber>1.1</OutlineNumber>
             <OutlineLevel>2</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-01-01T08:00:00</Start>
-            <Finish>2000-01-21T16:59:00</Finish>
-            <Duration>PT128H0M0S</Duration>
+            <Start>2000-01-01T06:00:00</Start>
+            <Finish>2000-02-03T06:00:00</Finish>
+            <Duration>PT272H0M0S</Duration>
+            <DurationFormat>7</DurationFormat>
+            <ResumeValid>0</ResumeValid>
+            <EffortDriven>0</EffortDriven>
+            <Recurring>0</Recurring>
+            <OverAllocated>0</OverAllocated>
+            <Estimated>0</Estimated>
+            <Milestone>0</Milestone>
+            <Summary>1</Summary>
+            <Critical>0</Critical>
+            <IsSubproject>0</IsSubproject>
+            <IsSubprojectReadOnly>0</IsSubprojectReadOnly>
+            <ExternalTask>0</ExternalTask>
+            <FixedCostAccrual>3</FixedCostAccrual>
+            <PercentComplete>58</PercentComplete>
+            <ActualStart>2000-01-01T06:00:00</ActualStart>
+            <RemainingDuration>PT114H14M24S</RemainingDuration>
+            <ConstraintType>0</ConstraintType>
+            <CalendarUID>-1</CalendarUID>
+            <LevelAssignments>0</LevelAssignments>
+            <LevelingCanSplit>0</LevelingCanSplit>
+            <IgnoreResourceCalendar>0</IgnoreResourceCalendar>
+            <HideBar>0</HideBar>
+            <Rollup>0</Rollup>
+            <EarnedValueMethod>0</EarnedValueMethod>
+            <Active>1</Active>
+            <Manual>0</Manual>
+        </Task>
+        <Task>
+            <UID>3</UID>
+            <ID>3</ID>
+            <Name>Development</Name>
+            <Type>1</Type>
+            <IsNull>0</IsNull>
+            <WBS>1.1.1</WBS>
+            <OutlineNumber>1.1.1</OutlineNumber>
+            <OutlineLevel>3</OutlineLevel>
+            <Priority>500</Priority>
+            <Start>2000-01-01T06:00:00</Start>
+            <Finish>2000-01-21T06:00:00</Finish>
+            <Duration>PT168H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
@@ -213,9 +255,9 @@
             <IsSubprojectReadOnly>0</IsSubprojectReadOnly>
             <ExternalTask>0</ExternalTask>
             <FixedCostAccrual>3</FixedCostAccrual>
-            <PercentComplete>0</PercentComplete>
-            <PercentWorkComplete>0</PercentWorkComplete>
-            <RemainingDuration>PT128H0M0S</RemainingDuration>
+            <PercentComplete>36</PercentComplete>
+            <ActualStart>2000-01-01T06:00:00</ActualStart>
+            <RemainingDuration>PT107H31M12S</RemainingDuration>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -232,25 +274,25 @@
             <Manual>0</Manual>
         </Task>
         <Task>
-            <UID>3</UID>
-            <ID>3</ID>
+            <UID>4</UID>
+            <ID>4</ID>
             <Name>Dev</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
-            <WBS>1.2</WBS>
-            <OutlineNumber>1.2</OutlineNumber>
-            <OutlineLevel>2</OutlineLevel>
+            <WBS>1.1.2</WBS>
+            <OutlineNumber>1.1.2</OutlineNumber>
+            <OutlineLevel>3</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-01-21T08:00:00</Start>
-            <Finish>2000-01-21T16:59:00</Finish>
-            <Duration>PT8H0M0S</Duration>
+            <Start>2000-01-21T06:00:00</Start>
+            <Finish>2000-01-21T06:00:00</Finish>
+            <Duration>PT0H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
             <Recurring>0</Recurring>
             <OverAllocated>0</OverAllocated>
             <Estimated>0</Estimated>
-            <Milestone>0</Milestone>
+            <Milestone>1</Milestone>
             <Summary>0</Summary>
             <Critical>0</Critical>
             <IsSubproject>0</IsSubproject>
@@ -258,8 +300,7 @@
             <ExternalTask>0</ExternalTask>
             <FixedCostAccrual>3</FixedCostAccrual>
             <PercentComplete>40</PercentComplete>
-            <ActualStart>2000-01-21T08:00:00</ActualStart>
-            <RemainingDuration>PT4H48M0S</RemainingDuration>
+            <ActualStart>2000-01-21T06:00:00</ActualStart>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -276,18 +317,18 @@
             <Manual>0</Manual>
         </Task>
         <Task>
-            <UID>4</UID>
-            <ID>4</ID>
+            <UID>5</UID>
+            <ID>5</ID>
             <Name>Testing Phase</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
-            <WBS>1.3</WBS>
-            <OutlineNumber>1.3</OutlineNumber>
-            <OutlineLevel>2</OutlineLevel>
+            <WBS>1.1.3</WBS>
+            <OutlineNumber>1.1.3</OutlineNumber>
+            <OutlineLevel>3</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-01-21T08:00:00</Start>
-            <Finish>2000-02-03T16:59:00</Finish>
-            <Duration>PT80H0M0S</Duration>
+            <Start>2000-01-21T06:00:00</Start>
+            <Finish>2000-02-03T06:00:00</Finish>
+            <Duration>PT112H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
@@ -302,8 +343,8 @@
             <ExternalTask>0</ExternalTask>
             <FixedCostAccrual>3</FixedCostAccrual>
             <PercentComplete>90</PercentComplete>
-            <ActualStart>2000-01-21T08:00:00</ActualStart>
-            <RemainingDuration>PT8H0M0S</RemainingDuration>
+            <ActualStart>2000-01-21T06:00:00</ActualStart>
+            <RemainingDuration>PT11H12M0S</RemainingDuration>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -313,41 +354,40 @@
             <Rollup>0</Rollup>
             <EarnedValueMethod>0</EarnedValueMethod>
             <ExtendedAttribute>
-                <FieldID>188743734</FieldID>
+                <FieldID>188743737</FieldID>
                 <Value>Flags: flag1</Value>
             </ExtendedAttribute>
             <Active>1</Active>
             <Manual>0</Manual>
         </Task>
         <Task>
-            <UID>5</UID>
-            <ID>5</ID>
+            <UID>6</UID>
+            <ID>6</ID>
             <Name>Release</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
-            <WBS>1.4</WBS>
-            <OutlineNumber>1.4</OutlineNumber>
-            <OutlineLevel>2</OutlineLevel>
+            <WBS>1.1.4</WBS>
+            <OutlineNumber>1.1.4</OutlineNumber>
+            <OutlineLevel>3</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-01-21T08:00:00</Start>
-            <Finish>2000-01-21T16:59:00</Finish>
-            <Duration>PT8H0M0S</Duration>
+            <Start>2000-01-21T06:00:00</Start>
+            <Finish>2000-01-21T06:00:00</Finish>
+            <Duration>PT0H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
             <Recurring>0</Recurring>
             <OverAllocated>0</OverAllocated>
             <Estimated>0</Estimated>
-            <Milestone>0</Milestone>
+            <Milestone>1</Milestone>
             <Summary>0</Summary>
             <Critical>0</Critical>
             <IsSubproject>0</IsSubproject>
             <IsSubprojectReadOnly>0</IsSubprojectReadOnly>
             <ExternalTask>0</ExternalTask>
             <FixedCostAccrual>3</FixedCostAccrual>
-            <PercentComplete>90</PercentComplete>
-            <ActualStart>2000-01-21T08:00:00</ActualStart>
-            <RemainingDuration>PT0H47M60S</RemainingDuration>
+            <PercentComplete>0</PercentComplete>
+            <PercentWorkComplete>0</PercentWorkComplete>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -361,25 +401,25 @@
                 <Value>Link: https://github.com/2</Value>
             </ExtendedAttribute>
             <ExtendedAttribute>
-                <FieldID>188743734</FieldID>
+                <FieldID>188743737</FieldID>
                 <Value>Flags: flag2</Value>
             </ExtendedAttribute>
             <Active>1</Active>
             <Manual>0</Manual>
         </Task>
         <Task>
-            <UID>6</UID>
-            <ID>6</ID>
+            <UID>7</UID>
+            <ID>7</ID>
             <Name>Test 2</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
-            <WBS>2</WBS>
-            <OutlineNumber>2</OutlineNumber>
-            <OutlineLevel>1</OutlineLevel>
+            <WBS>1.2</WBS>
+            <OutlineNumber>1.2</OutlineNumber>
+            <OutlineLevel>2</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-02-03T08:00:00</Start>
-            <Finish>2000-02-05T16:59:00</Finish>
-            <Duration>PT16H0M0S</Duration>
+            <Start>2000-02-03T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
+            <Duration>PT24H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
@@ -393,9 +433,9 @@
             <IsSubprojectReadOnly>0</IsSubprojectReadOnly>
             <ExternalTask>0</ExternalTask>
             <FixedCostAccrual>3</FixedCostAccrual>
-            <PercentComplete>33</PercentComplete>
-            <ActualStart>2000-02-03T08:00:00</ActualStart>
-            <RemainingDuration>PT10H43M12S</RemainingDuration>
+            <PercentComplete>0</PercentComplete>
+            <PercentWorkComplete>0</PercentWorkComplete>
+            <RemainingDuration>PT24H0M0S</RemainingDuration>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -408,18 +448,18 @@
             <Manual>0</Manual>
         </Task>
         <Task>
-            <UID>7</UID>
-            <ID>7</ID>
+            <UID>8</UID>
+            <ID>8</ID>
             <Name>First task</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
-            <WBS>2.1</WBS>
-            <OutlineNumber>2.1</OutlineNumber>
-            <OutlineLevel>2</OutlineLevel>
+            <WBS>1.2.1</WBS>
+            <OutlineNumber>1.2.1</OutlineNumber>
+            <OutlineLevel>3</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-02-03T08:00:00</Start>
-            <Finish>2000-02-04T16:59:00</Finish>
-            <Duration>PT16H0M0S</Duration>
+            <Start>2000-02-03T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
+            <Duration>PT24H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
@@ -435,7 +475,7 @@
             <FixedCostAccrual>3</FixedCostAccrual>
             <PercentComplete>0</PercentComplete>
             <PercentWorkComplete>0</PercentWorkComplete>
-            <RemainingDuration>PT16H0M0S</RemainingDuration>
+            <RemainingDuration>PT24H0M0S</RemainingDuration>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -448,33 +488,33 @@
             <Manual>0</Manual>
         </Task>
         <Task>
-            <UID>8</UID>
-            <ID>8</ID>
+            <UID>9</UID>
+            <ID>9</ID>
             <Name>Another task</Name>
             <Type>1</Type>
             <IsNull>0</IsNull>
-            <WBS>2.2</WBS>
-            <OutlineNumber>2.2</OutlineNumber>
-            <OutlineLevel>2</OutlineLevel>
+            <WBS>1.2.2</WBS>
+            <OutlineNumber>1.2.2</OutlineNumber>
+            <OutlineLevel>3</OutlineLevel>
             <Priority>500</Priority>
-            <Start>2000-02-05T08:00:00</Start>
-            <Finish>2000-02-05T16:59:00</Finish>
-            <Duration>PT8H0M0S</Duration>
+            <Start>2000-02-05T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
+            <Duration>PT0H0M0S</Duration>
             <DurationFormat>7</DurationFormat>
             <ResumeValid>0</ResumeValid>
             <EffortDriven>0</EffortDriven>
             <Recurring>0</Recurring>
             <OverAllocated>0</OverAllocated>
             <Estimated>0</Estimated>
-            <Milestone>0</Milestone>
+            <Milestone>1</Milestone>
             <Summary>0</Summary>
             <Critical>0</Critical>
             <IsSubproject>0</IsSubproject>
             <IsSubprojectReadOnly>0</IsSubprojectReadOnly>
             <ExternalTask>0</ExternalTask>
             <FixedCostAccrual>3</FixedCostAccrual>
-            <PercentComplete>100</PercentComplete>
-            <ActualStart>2000-02-05T08:00:00</ActualStart>
+            <PercentComplete>0</PercentComplete>
+            <PercentWorkComplete>0</PercentWorkComplete>
             <ConstraintType>0</ConstraintType>
             <CalendarUID>-1</CalendarUID>
             <LevelAssignments>0</LevelAssignments>
@@ -485,7 +525,7 @@
             <Rollup>0</Rollup>
             <EarnedValueMethod>0</EarnedValueMethod>
             <ExtendedAttribute>
-                <FieldID>188743734</FieldID>
+                <FieldID>188743737</FieldID>
                 <Value>Flags: flag1,flag2,flag3</Value>
             </ExtendedAttribute>
             <Active>1</Active>
@@ -501,8 +541,8 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-01-01T08:00:00</Start>
-            <Finish>2000-02-03T16:59:00</Finish>
+            <Start>2000-01-01T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -520,8 +560,8 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-01-01T08:00:00</Start>
-            <Finish>2000-01-21T16:59:00</Finish>
+            <Start>2000-01-01T06:00:00</Start>
+            <Finish>2000-02-03T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -539,8 +579,8 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-01-21T08:00:00</Start>
-            <Finish>2000-01-21T16:59:00</Finish>
+            <Start>2000-01-01T06:00:00</Start>
+            <Finish>2000-01-21T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -558,8 +598,8 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-01-21T08:00:00</Start>
-            <Finish>2000-02-03T16:59:00</Finish>
+            <Start>2000-01-21T06:00:00</Start>
+            <Finish>2000-01-21T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -577,8 +617,8 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-01-21T08:00:00</Start>
-            <Finish>2000-01-21T16:59:00</Finish>
+            <Start>2000-01-21T06:00:00</Start>
+            <Finish>2000-02-03T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -596,8 +636,8 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-02-03T08:00:00</Start>
-            <Finish>2000-02-05T16:59:00</Finish>
+            <Start>2000-01-21T06:00:00</Start>
+            <Finish>2000-01-21T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -615,8 +655,8 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-02-03T08:00:00</Start>
-            <Finish>2000-02-04T16:59:00</Finish>
+            <Start>2000-02-03T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -634,8 +674,27 @@
             <MaxUnits>1</MaxUnits>
             <PeakUnits>1</PeakUnits>
             <OverAllocated>0</OverAllocated>
-            <Start>2000-02-05T08:00:00</Start>
-            <Finish>2000-02-05T16:59:00</Finish>
+            <Start>2000-02-03T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
+            <CanLevel>0</CanLevel>
+            <StandardRateFormat>3</StandardRateFormat>
+            <OvertimeRateFormat>3</OvertimeRateFormat>
+            <IsGeneric>0</IsGeneric>
+            <IsInactive>0</IsInactive>
+            <IsEnterprise>0</IsEnterprise>
+            <IsBudget>0</IsBudget>
+            <AvailabilityPeriods/>
+        </Resource>
+        <Resource>
+            <UID>9</UID>
+            <ID>9</ID>
+            <Type>1</Type>
+            <IsNull>0</IsNull>
+            <MaxUnits>1</MaxUnits>
+            <PeakUnits>1</PeakUnits>
+            <OverAllocated>0</OverAllocated>
+            <Start>2000-02-05T06:00:00</Start>
+            <Finish>2000-02-05T06:00:00</Finish>
             <CanLevel>0</CanLevel>
             <StandardRateFormat>3</StandardRateFormat>
             <OvertimeRateFormat>3</OvertimeRateFormat>
@@ -651,118 +710,125 @@
             <UID>1</UID>
             <TaskUID>1</TaskUID>
             <ResourceUID>1</ResourceUID>
-            <PercentWorkComplete>37</PercentWorkComplete>
-            <ActualStart>2000-01-01T08:00:00</ActualStart>
-            <ActualWork>PT74H0M0S</ActualWork>
-            <Finish>2000-02-03T16:59:00</Finish>
+            <PercentWorkComplete>53</PercentWorkComplete>
+            <ActualStart>2000-01-01T06:00:00</ActualStart>
+            <ActualWork>PT152H38M24S</ActualWork>
+            <Finish>2000-02-05T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <RemainingWork>PT125H59M60S</RemainingWork>
-            <Start>2000-01-01T08:00:00</Start>
+            <RemainingWork>PT135H21M36S</RemainingWork>
+            <Start>2000-01-01T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT200H0M0S</Work>
+            <Work>PT288H0M0S</Work>
         </Assignment>
         <Assignment>
             <UID>2</UID>
             <TaskUID>2</TaskUID>
             <ResourceUID>2</ResourceUID>
-            <PercentWorkComplete>0</PercentWorkComplete>
-            <ActualStart>2000-01-01T08:00:00</ActualStart>
-            <Finish>2000-01-21T16:59:00</Finish>
+            <PercentWorkComplete>58</PercentWorkComplete>
+            <ActualStart>2000-01-01T06:00:00</ActualStart>
+            <ActualWork>PT157H45M36S</ActualWork>
+            <Finish>2000-02-03T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <RemainingWork>PT128H0M0S</RemainingWork>
-            <Start>2000-01-01T08:00:00</Start>
+            <RemainingWork>PT114H14M24S</RemainingWork>
+            <Start>2000-01-01T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT128H0M0S</Work>
+            <Work>PT272H0M0S</Work>
         </Assignment>
         <Assignment>
             <UID>3</UID>
             <TaskUID>3</TaskUID>
             <ResourceUID>3</ResourceUID>
-            <PercentWorkComplete>40</PercentWorkComplete>
-            <ActualStart>2000-01-21T08:00:00</ActualStart>
-            <ActualWork>PT3H12M0S</ActualWork>
-            <Finish>2000-01-21T16:59:00</Finish>
+            <PercentWorkComplete>36</PercentWorkComplete>
+            <ActualStart>2000-01-01T06:00:00</ActualStart>
+            <ActualWork>PT60H28M48S</ActualWork>
+            <Finish>2000-01-21T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <RemainingWork>PT4H48M0S</RemainingWork>
-            <Start>2000-01-21T08:00:00</Start>
+            <RemainingWork>PT107H31M12S</RemainingWork>
+            <Start>2000-01-01T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT8H0M0S</Work>
+            <Work>PT168H0M0S</Work>
         </Assignment>
         <Assignment>
             <UID>4</UID>
             <TaskUID>4</TaskUID>
             <ResourceUID>4</ResourceUID>
-            <PercentWorkComplete>90</PercentWorkComplete>
-            <ActualStart>2000-01-21T08:00:00</ActualStart>
-            <ActualWork>PT71H59M60S</ActualWork>
-            <Finish>2000-02-03T16:59:00</Finish>
+            <PercentWorkComplete>40</PercentWorkComplete>
+            <ActualStart>2000-01-21T06:00:00</ActualStart>
+            <Finish>2000-01-21T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <RemainingWork>PT8H0M0S</RemainingWork>
-            <Start>2000-01-21T08:00:00</Start>
+            <Start>2000-01-21T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT80H0M0S</Work>
         </Assignment>
         <Assignment>
             <UID>5</UID>
             <TaskUID>5</TaskUID>
             <ResourceUID>5</ResourceUID>
             <PercentWorkComplete>90</PercentWorkComplete>
-            <ActualStart>2000-01-21T08:00:00</ActualStart>
-            <ActualWork>PT7H11M60S</ActualWork>
-            <Finish>2000-01-21T16:59:00</Finish>
+            <ActualStart>2000-01-21T06:00:00</ActualStart>
+            <ActualWork>PT100H47M60S</ActualWork>
+            <Finish>2000-02-03T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <RemainingWork>PT0H48M0S</RemainingWork>
-            <Start>2000-01-21T08:00:00</Start>
+            <RemainingWork>PT11H12M0S</RemainingWork>
+            <Start>2000-01-21T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT8H0M0S</Work>
+            <Work>PT112H0M0S</Work>
         </Assignment>
         <Assignment>
             <UID>6</UID>
             <TaskUID>6</TaskUID>
             <ResourceUID>6</ResourceUID>
-            <PercentWorkComplete>33</PercentWorkComplete>
-            <ActualStart>2000-02-03T08:00:00</ActualStart>
-            <ActualWork>PT5H16M48S</ActualWork>
-            <Finish>2000-02-05T16:59:00</Finish>
+            <PercentWorkComplete>0</PercentWorkComplete>
+            <ActualStart>2000-01-21T06:00:00</ActualStart>
+            <Finish>2000-01-21T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <RemainingWork>PT10H43M12S</RemainingWork>
-            <Start>2000-02-03T08:00:00</Start>
+            <Start>2000-01-21T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT16H0M0S</Work>
         </Assignment>
         <Assignment>
             <UID>7</UID>
             <TaskUID>7</TaskUID>
             <ResourceUID>7</ResourceUID>
             <PercentWorkComplete>0</PercentWorkComplete>
-            <ActualStart>2000-02-03T08:00:00</ActualStart>
-            <Finish>2000-02-04T16:59:00</Finish>
+            <ActualStart>2000-02-03T06:00:00</ActualStart>
+            <Finish>2000-02-05T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <RemainingWork>PT16H0M0S</RemainingWork>
-            <Start>2000-02-03T08:00:00</Start>
+            <RemainingWork>PT24H0M0S</RemainingWork>
+            <Start>2000-02-03T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT16H0M0S</Work>
+            <Work>PT24H0M0S</Work>
         </Assignment>
         <Assignment>
             <UID>8</UID>
             <TaskUID>8</TaskUID>
             <ResourceUID>8</ResourceUID>
-            <PercentWorkComplete>100</PercentWorkComplete>
-            <ActualStart>2000-02-05T08:00:00</ActualStart>
-            <ActualWork>PT8H0M0S</ActualWork>
-            <Finish>2000-02-05T16:59:00</Finish>
+            <PercentWorkComplete>0</PercentWorkComplete>
+            <ActualStart>2000-02-03T06:00:00</ActualStart>
+            <Finish>2000-02-05T06:00:00</Finish>
             <HasFixedRateUnits>1</HasFixedRateUnits>
             <FixedMaterial>0</FixedMaterial>
-            <Start>2000-02-05T08:00:00</Start>
+            <RemainingWork>PT24H0M0S</RemainingWork>
+            <Start>2000-02-03T06:00:00</Start>
             <Units>1</Units>
-            <Work>PT8H0M0S</Work>
+            <Work>PT24H0M0S</Work>
+        </Assignment>
+        <Assignment>
+            <UID>9</UID>
+            <TaskUID>9</TaskUID>
+            <ResourceUID>9</ResourceUID>
+            <PercentWorkComplete>0</PercentWorkComplete>
+            <ActualStart>2000-02-05T06:00:00</ActualStart>
+            <Finish>2000-02-05T06:00:00</Finish>
+            <HasFixedRateUnits>1</HasFixedRateUnits>
+            <FixedMaterial>0</FixedMaterial>
+            <Start>2000-02-05T06:00:00</Start>
+            <Units>1</Units>
         </Assignment>
     </Assignments>
 </Project>
