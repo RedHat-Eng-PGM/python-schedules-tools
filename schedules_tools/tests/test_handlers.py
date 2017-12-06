@@ -29,12 +29,12 @@ class TestHandlers(object):
 
     scenarios_import_combinations = [
         ('msp', 'import-schedule-msp.xml'),
-        #('jsonstruct', 'import-schedule-json-struct.json'),
+        ('json', 'import-schedule-json.json'),
         ('tjx2', 'import-schedule-tjx2.tjx'),
     ]
     scenarios_export_combinations = [
-        #('msp', 'import-schedule-msp.xml'),
-        #('json', 'import-schedule-json.json')
+        ('msp', 'export-schedule-msp.xml'),
+        ('json', 'export-schedule-json.json')
     ]
 
     @staticmethod
