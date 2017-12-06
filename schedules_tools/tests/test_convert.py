@@ -8,7 +8,7 @@ import datetime
 import mock
 import pytest
 
-DATA_DIR = 'data'
+DATA_DIR = 'schedule_files'
 
 PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 BASE_DIR = os.path.dirname(os.path.realpath(
@@ -20,7 +20,7 @@ class BaseTestConvert(object):
     _filenames = {
         'tjx': 'proj-10-1-2.tjx',
         'tjx2': 'proj-10-1-2-v2.tjx',
-        'smartsheet': 'proj-10-1-2-smartsheet.xml'
+        'smartsheet': 'import-schedule-msp.xml'
     }
     file_tjx = ''
     file_tjx2 = ''
@@ -271,8 +271,8 @@ class TestConverter(BaseTestConvert):
         conv = converter.ScheduleConverter()
         schedule = conv.import_schedule(self.file_smartsheet)
 
-        # Test1 - Release task
-        assert ['flag2'] == schedule.tasks[0].tasks[0].tasks[2].flags
+        # Test1 - Testing Phase task
+        assert ['flag1'] == schedule.tasks[0].tasks[0].tasks[2].flags
 
         # Test2 - Another task
         assert ['flag1', 'flag2', 'flag3'] == schedule.tasks[0].tasks[1].tasks[1].flags
