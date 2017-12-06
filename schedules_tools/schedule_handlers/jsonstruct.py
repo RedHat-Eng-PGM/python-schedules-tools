@@ -145,9 +145,6 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         # We intentionally don't export id_reg attribute here - it's collected
         # during import
 
-        now = datetime.datetime.now()
-        schedule_dict['now'] = now.strftime('%s')
-
         schedule_dict['changelog'] = self.schedule.changelog
         for log in self.schedule.changelog.itervalues():
             log['date'] = datetime.datetime.strftime(log['date'], '%Y-%m-%d')
