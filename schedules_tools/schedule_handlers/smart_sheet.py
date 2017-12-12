@@ -78,6 +78,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     def import_schedule(self):
         self.schedule = models.Schedule()
+        self.schedule.name = self.sheet.name
+        self.schedule.slug = self.schedule.unique_id_re.sub('_', self.schedule.name)
         self.schedule.mtime = self.get_handle_mtime()
         parents_stack = []
 
@@ -136,11 +138,21 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 task.milestone = int(match[0]) == 0
         task.p_complete = cells[COLUMN_P_COMPLETE]
         if COLUMN_FLAGS in cells and cells[COLUMN_FLAGS]:
-            flags_str = cells[COLUMN_FLAGS].strip(' ,')
-            for flag in flags_str.split(', '):
-                task.flags.append(flag)
-        if COLUMN_LINK in cells:
-            task.link = cells[COLUMN_LINK]
+            # try first to parse workaround format 'Flags: qe, dev'
+            task.parse_extended_attr(cells[COLUMN_FLAGS])
+
+            # then try to consider the value as it is 'qe, dev'
+            if not task.flags:
+                task.parse_extended_attr(cells[COLUMN_FLAGS],
+                                         force_key=models.ATTR_PREFIX_FLAG)
+
+        if COLUMN_LINK in cells and cells[COLUMN_LINK]:
+            # try first to parse workaround format 'Link: http://some.url'
+            task.parse_extended_attr(cells[COLUMN_LINK])
+            # then try to consider the value as it is 'http://some.url'
+            if not task.link:
+                task.parse_extended_attr(cells[COLUMN_LINK],
+                                         force_key=models.ATTR_PREFIX_LINK)
 
         curr_stack_item = {
             'rowid': row.id,
@@ -148,23 +160,20 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         }
         if not parents_stack:
             # Current task is the topmost (root)
-            logger.info('push to stack - empty stack')
             self.schedule.tasks = [task]
             parents_stack.insert(0, curr_stack_item)
         elif row.parent_id == parents_stack[0]['rowid']:
             # Current task is direct descendant of latest task
-            logger.info('push to stack - going deeper (curr {}, currid {}, parent {})'.format(
-                task.name, row.id, parents_stack[0]['rowid']))
-            parents_stack.insert(0, curr_stack_item)
             parents_stack[0]['task'].tasks.append(task)
+            parents_stack.insert(0, curr_stack_item)
         elif row.parent_id != parents_stack[0]['rowid']:
             # We are currently in the same, or upper, level of tree
             while row.parent_id != parents_stack[0]['rowid']:
-                logger.info('pop top of stack - row.id = %s' % parents_stack[0]['rowid'])
                 parents_stack.pop(0)
-            parents_stack.insert(0, curr_stack_item)
             parents_stack[0]['task'].tasks.append(task)
+            parents_stack.insert(0, curr_stack_item)
 
+        task.check_for_phase()
         task.level = len(parents_stack)
 
     def _load_task_cells(self, row):
