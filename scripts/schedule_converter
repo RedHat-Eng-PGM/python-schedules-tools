@@ -137,9 +137,10 @@ def main(args):
     for task_name in arguments.check_taskname_startswith:
         check_tasks[task_name] = True
 
-    missing_tasks = converter.schedule.check_for_taskname(check_tasks)
-    if missing_tasks:
-        logger.info('Missing tasks: {}'.format(list(missing_tasks)))
+    if arguments.check_taskname or arguments.check_taskname_startswith:
+        missing_tasks = converter.schedule.check_for_taskname(check_tasks)
+        if missing_tasks:
+            logger.info('Missing tasks: {}'.format(list(missing_tasks)))
 
     converter.export_schedule(arguments.target,
                               arguments.target_format,
