@@ -6,6 +6,11 @@ import logging
 import copy
 
 logger = logging.getLogger(__name__)
+re_flags_separator = re.compile('[, ]+')
+
+ATTR_PREFIX_FLAG = 'Flags'
+ATTR_PREFIX_LINK = 'Link'
+ATTR_PREFIX_NOTE = 'Note'
 
 
 class Task(object):
@@ -48,6 +53,43 @@ class Task(object):
 
     def __str__(self):
         return unicode(self).encode('utf-8')
+
+    def parse_extended_attr(self, value, force_key=None):
+        """According to given content will guess if the value is flag
+        or link definition and fill proper task attribute.
+
+        """
+        if not value:
+            return
+
+        if force_key:
+            key = force_key
+            val = value
+        else:
+            pieces = value.split(':', 1)
+            if len(pieces) != 2:
+                # it's not a string in format 'Flag: qe, dev' - don't process
+                return
+
+            key, val = pieces
+            key = key.strip().lower()
+            val = val.strip()
+
+        if key == ATTR_PREFIX_FLAG.lower():
+            val = val.lower()
+            flags = re_flags_separator.split(val)
+            for flag in flags:
+                flag = flag.strip()
+                if flag:
+                    self.flags.append(flag)
+            self._schedule.used_flags |= set(self.flags)
+        elif key == ATTR_PREFIX_LINK.lower():
+            self.link = val
+        elif key == ATTR_PREFIX_NOTE.lower():
+            # in case of multiple notes - concatenate
+            self.note = ' '.join([self.note, val]).lstrip()
+        else:
+            logger.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
     @staticmethod
     def _workaround_it_phase_names(eTask):

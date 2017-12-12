@@ -10,11 +10,6 @@ from lxml import etree
 MSP_FLAGS_ATTRS = ('Flags', )
 datetime_format = '%Y-%m-%dT%H:%M:%S'
 
-PREFIX_FLAG = 'Flags'
-PREFIX_LINK = 'Link'
-PREFIX_NOTE = 'Note'
-
-re_flags_separator = re.compile('[, ]+')
 logger = logging.getLogger(__name__)
 
 
@@ -294,47 +289,13 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                 task._schedule.used_flags |= set(task.flags)
 
         # workaround for SmartSheet exports - load flags, links
+        # @param value: XPath element instance (/Project/Tasks/Task/ExtendedAttribute/Value)
         ext_attr_elements = eTask.xpath('ExtendedAttribute/Value')
         for ext_attr in ext_attr_elements:
-            self._parse_extended_attr(task, ext_attr)
+            task.parse_extended_attr(ext_attr.text)
 
         task.check_for_phase()
         return True
-
-    def _parse_extended_attr(self, task, element):
-        """According to content of element will guess if the value is flag
-        or link definition.
-
-        @param element: XPath element instance (/Project/Tasks/Task/ExtendedAttribute/Value)
-        """
-        element_val = element.text
-        if not element_val:
-            return
-
-        pieces = element_val.split(':', 1)
-        if len(pieces) != 2:
-            # it's not a string in format 'Flag: qe, dev' - don't process
-            return
-
-        key, val = pieces
-        key = key.strip().lower()
-        val = val.strip()
-
-        if key == PREFIX_FLAG.lower():
-            val = val.lower()
-            flags = re_flags_separator.split(val)
-            for flag in flags:
-                flag = flag.strip()
-                if flag:
-                    task.flags.append(flag)
-            self.schedule.used_flags |= set(task.flags)
-        elif key == PREFIX_LINK.lower():
-            task.link = val
-        elif key == PREFIX_NOTE.lower():
-            # in case of multiple notes - concatenate
-            task.note = ' '.join([task.note, val]).lstrip()
-        else:
-            logger.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
     # Task
     def task_export_msp_node(self, task):
@@ -370,7 +331,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if flags_str:
             ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
             value_element = etree.SubElement(ext_attr_element, 'Value')
-            value_element.text = '{}: {}'.format(PREFIX_FLAG, flags_str)
+            value_element.text = '{}: {}'.format(models.ATTR_PREFIX_FLAG, flags_str)
 
             # this value is not used, but required by SmartSheets import
             fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')
@@ -378,7 +339,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if task.link:
             ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
             value_element = etree.SubElement(ext_attr_element, 'Value')
-            value_element.text = '{}: {}'.format(PREFIX_LINK, task.link)
+            value_element.text = '{}: {}'.format(models.ATTR_PREFIX_LINK, task.link)
 
             # this value is not used, but required by SmartSheets import
             fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')

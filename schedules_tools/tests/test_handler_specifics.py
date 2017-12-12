@@ -12,19 +12,13 @@ logging.basicConfig()
 class TestUnit_msp_parseExtAttrs(object):
     schedule = None
     task = None
-    handle = None
-    element = None
-
 
     def _prepare_inject_value(self):
         self.schedule = models.Schedule()
         self.task = models.Task(schedule=self.schedule)
-        self.handle = msp.ScheduleHandler_msp(schedule=self.schedule)
-        self.element = etree.Element('Value')
 
     def _inject_value(self, value):
-        self.element.text = value
-        self.handle._parse_extended_attr(self.task, self.element)
+        self.task.parse_extended_attr(value)
 
     def test_link(self):
         url = 'http://www.somewhere.io'
