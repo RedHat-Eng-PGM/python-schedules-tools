@@ -102,6 +102,8 @@ def main(args):
     parser.add_argument('--cvs-lock-redis-uri',
                         help='Redis URI that is required by --cvs-exclusive-access, default: localhost:6379/0',
                         default='localhost:6379/0')
+    parser.add_argument('--smartsheet-token',
+                        help='Access token for using SmartSheet API')
     parser.add_argument('--source-format',
                         choices=discovery.schedule_handlers.keys(),
                         metavar='SRC_FORMAT',
