@@ -101,7 +101,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         return self.schedule
 
     def _parse_date(self, string):
-        return datetime.datetime.strptime(string, self.date_format)
+        date = datetime.datetime.strptime(string, self.date_format)
+        # We don't require so precise timestamp, so ignore seconds
+        date = date.replace(second=0)
+        return date
 
     def _load_task(self, row, parents_stack):
         task = models.Task(self.schedule)
