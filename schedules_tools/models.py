@@ -54,16 +54,19 @@ class Task(object):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def parse_extended_attr(self, value, force_key=None):
-        """According to given content will guess if the value is flag
-        or link definition and fill proper task attribute.
+    def parse_extended_attr(self, value, key=None):
+        """
+        According to given value it will guess if it is flag, link or note
+        definition and fill proper task attribute.
 
+        Args:
+            value: string to parse, or set attribute specified by 'key' arg
+            key: (optional) set value to task attribute according to this key
         """
         if not value:
             return
 
-        if force_key:
-            key = force_key
+        if key:
             val = value
         else:
             pieces = value.split(':', 1)

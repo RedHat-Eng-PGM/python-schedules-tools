@@ -148,7 +148,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             # then try to consider the value as it is 'qe, dev'
             if not task.flags:
                 task.parse_extended_attr(cells[COLUMN_FLAGS],
-                                         force_key=models.ATTR_PREFIX_FLAG)
+                                         key=models.ATTR_PREFIX_FLAG)
 
         if COLUMN_LINK in cells and cells[COLUMN_LINK]:
             # try first to parse workaround format 'Link: http://some.url'
@@ -156,7 +156,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             # then try to consider the value as it is 'http://some.url'
             if not task.link:
                 task.parse_extended_attr(cells[COLUMN_LINK],
-                                         force_key=models.ATTR_PREFIX_LINK)
+                                         key=models.ATTR_PREFIX_LINK)
 
         curr_stack_item = {
             'rowid': row.id,
