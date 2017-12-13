@@ -29,6 +29,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     date_format = '%Y-%m-%dT%H:%M:%S'  # 2017-01-20T08:00:00
     _client_instance = None
     _sheet_instance = None
+    _re_number = re.compile('[0-9]+')
     columns_mapping_name = {
         'Task Name': COLUMN_TASK_NAME,
         'Duration': COLUMN_DURATION,
@@ -136,7 +137,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         if COLUMN_DURATION in cells:
             # duration cell contains values like '14d', '~0'
-            match = re.findall('[0-9]+', cells[COLUMN_DURATION])
+            match = re.findall(self._re_number, cells[COLUMN_DURATION])
             if match:
                 task.milestone = int(match[0]) == 0
         task.p_complete = round(cells[COLUMN_P_COMPLETE] * 100, 1)
