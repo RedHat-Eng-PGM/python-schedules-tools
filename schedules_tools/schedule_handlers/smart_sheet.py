@@ -139,7 +139,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             match = re.findall('[0-9]+', cells[COLUMN_DURATION])
             if match:
                 task.milestone = int(match[0]) == 0
-        task.p_complete = cells[COLUMN_P_COMPLETE]
+        task.p_complete = round(cells[COLUMN_P_COMPLETE] * 100, 1)
         if COLUMN_FLAGS in cells and cells[COLUMN_FLAGS]:
             # try first to parse workaround format 'Flags: qe, dev'
             task.parse_extended_attr(cells[COLUMN_FLAGS])
