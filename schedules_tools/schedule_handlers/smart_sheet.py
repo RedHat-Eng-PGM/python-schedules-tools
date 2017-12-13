@@ -110,7 +110,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         task = models.Task(self.schedule)
         cells = self._load_task_cells(row)
 
-        task.index = None
+        task.index = row.row_number
         # task.slug is generated at the end of importing whole schedule
         task.name = cells[COLUMN_TASK_NAME]
 
