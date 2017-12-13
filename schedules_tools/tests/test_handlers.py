@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import pytest
+import re
 import shutil
 
 from schedules_tools.converter import ScheduleConverter
@@ -35,8 +37,12 @@ class TestHandlers(object):
     ]
     scenarios_export_combinations = [
         ('msp', 'export-schedule-msp.xml'),
-        ('json', 'export-schedule-json.json')
+        ('json', 'export-schedule-json.json'),
+        ('ics', 'export-schedule-ics.ics'),
     ]
+
+    def _sanitize_export_test_ics(self, content):
+        return re.sub('DTSTAMP:[0-9]+T[0-9]+Z', 'DTSTAMP:20170101T010101Z', content)
 
     @staticmethod
     def _clean_interm_struct(input_dict):
@@ -137,6 +143,12 @@ class TestHandlers(object):
 
         with open(full_export_schedule_file) as fd:
             expected_output = fd.read()
+        
+        # sanitize if needed
+        if hasattr(self, '_sanitize_export_test_{}'.format(handler_name)):
+            sanitize_func = getattr(self, '_sanitize_export_test_{}'.format(handler_name))
+            expected_output = sanitize_func(expected_output)
+            actual_output = sanitize_func(actual_output)
 
         assert expected_output == actual_output
 
