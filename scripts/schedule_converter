@@ -113,6 +113,20 @@ def main(args):
                         help='Target format to convert')
     parser.add_argument('target', metavar='TARGET',
                         help='Output target', default=None, nargs='?')
+    
+    parser.add_argument('--flat',
+                        help='Make output schedule flat',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('--flag-show',
+                        help='Filter schedule - show tasks with any of these flags',
+                        default='',
+                        )
+    parser.add_argument('--flag-hide',
+                        help='Filter schedule - hide tasks with any of these flags, hide has preferrence over show',
+                        default='',
+                        )
 
     arguments = parser.parse_args(args)
     opt_args = vars(arguments)
@@ -141,6 +155,19 @@ def main(args):
         missing_tasks = converter.schedule.check_for_taskname(check_tasks)
         if missing_tasks:
             logger.info('Missing tasks: {}'.format(list(missing_tasks)))
+
+    if arguments.flat:
+        converter.schedule.make_flat()
+        
+    flag_show = arguments.flag_show.split(',')
+    if flag_show == ['']:
+        flag_show = []        
+
+    flag_hide = [f for f in arguments.flag_hide.split(',') if f]
+    if flag_hide == ['']:
+        flag_hide = []  
+        
+    converter.schedule.filter_flags(flag_show, flag_hide)      
 
     converter.export_schedule(arguments.target,
                               arguments.target_format,

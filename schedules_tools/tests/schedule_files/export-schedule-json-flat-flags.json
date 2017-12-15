@@ -1,0 +1,42 @@
+{
+    "changelog": {},
+    "end": "949726800",
+    "ext_attr": {},
+    "flags_attr_id": null,
+    "name": "Test project 10",
+    "phases": [
+        {
+            "actualEnd": "949554000",
+            "actualStart": "948430800",
+            "complete": 90.0,
+            "name": "Testing Phase",
+            "planEnd": "949554000",
+            "planStart": "948430800"
+        }
+    ],
+    "resources": {},
+    "slug": "Test_project_10",
+    "start": "946702800",
+    "tasks": [
+        {
+            "_level": 3,
+            "actualEnd": "949554000",
+            "actualStart": "948430800",
+            "complete": 90.0,
+            "flags": [
+                "flag1"
+            ],
+            "index": 5,
+            "name": "Testing Phase",
+            "parentTask": "",
+            "planEnd": "949554000",
+            "planStart": "948430800",
+            "priority": 500,
+            "slug": "Test_project_10.test.testing",
+            "type": "Task"
+        }
+    ],
+    "used_flags": [
+        "flag1"
+    ]
+}

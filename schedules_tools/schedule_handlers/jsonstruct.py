@@ -1,7 +1,7 @@
 import datetime
-import os
 import json
 import logging
+import os
 
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools.models import Schedule, Task
@@ -112,8 +112,8 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         return task
 
-    def export_schedule(self, out_file, flat=False):
-        json_schedule = self.export_schedule_as_dict(flat)
+    def export_schedule(self, out_file):
+        json_schedule = self.export_schedule_as_dict()
         content = json.dumps(json_schedule,
                              sort_keys=True,
                              indent=4,
@@ -123,7 +123,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         return content
 
-    def export_schedule_as_dict(self, flat=False):
+    def export_schedule_as_dict(self):
         schedule_dict = dict()
         schedule_dict['slug'] = self.schedule.slug
         schedule_dict['name'] = self.schedule.name
@@ -152,13 +152,8 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         schedule_dict['tasks'] = []
         self.schedule.task_id_reg = set()
 
-        if flat:
-            add_task_func = schedule_dict['tasks'].extend
-        else:
-            add_task_func = schedule_dict['tasks'].append
-
         for task in self.schedule.tasks:
-            add_task_func(self.export_task_as_dict(task, flat=flat))
+            schedule_dict['tasks'].append(self.export_task_as_dict(task))
 
         schedule_dict['phases'] = []
         for phase in self.schedule.phases:
@@ -166,7 +161,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         return schedule_dict
 
-    def export_task_as_dict(self, task, parent_slug='', flat=False):
+    def export_task_as_dict(self, task, parent_slug=''):
         task_export = {}
 
         task_export['slug'] = task.slug
@@ -190,24 +185,14 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task_export['actualStart'] = task.dAcStart.strftime('%s')
         task_export['actualEnd'] = task.dAcFinish.strftime('%s')
 
-        task_list = [task_export]
-
         if task.tasks:  # task has subtasks
             # prepare tasklist
-            if flat:
-                add_func = task_list.extend
-            else:
-                task_export['tasks'] = []
-                add_func = task_export['tasks'].append
+            task_export['tasks'] = []
 
             for subtask in task.tasks:
-                add_func(self.export_task_as_dict(
-                    subtask, task.slug, flat))
+                task_export['tasks'].append(self.export_task_as_dict(subtask, task.slug))
 
-        if flat:
-            return task_list
-        else:
-            return task_export
+        return task_export
 
     def export_phase_as_dict(self, phase):
         phase_export = dict()

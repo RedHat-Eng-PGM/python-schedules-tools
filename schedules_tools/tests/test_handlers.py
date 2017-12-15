@@ -20,7 +20,7 @@ def pytest_generate_tests(metafunc):
         argvalues = metafunc.cls.scenarios_import_combinations
         metafunc.parametrize(argnames, argvalues)
     elif source_function == 'test_export':
-        argnames = ['handler_name', 'export_schedule_file']
+        argnames = ['handler_name', 'export_schedule_file', 'flat', 'flag_show', 'flag_hide']
         argvalues = metafunc.cls.scenarios_export_combinations
         metafunc.parametrize(argnames, argvalues)
 
@@ -36,9 +36,12 @@ class TestHandlers(object):
         ('tjx2', 'import-schedule-tjx2.tjx'),
     ]
     scenarios_export_combinations = [
-        ('msp', 'export-schedule-msp.xml'),
-        ('json', 'export-schedule-json.json'),
-        ('ics', 'export-schedule-ics.ics'),
+        ('msp', 'export-schedule-msp.xml', False, [], []),
+        ('json', 'export-schedule-json.json', False, [], []),
+        ('json', 'export-schedule-json.json-flags', False, ['flag1'], ['flag2']),
+        ('json', 'export-schedule-json-flat.json', True, [], []),
+        ('json', 'export-schedule-json-flat-flags.json', True, ['flag1'], ['flag2']),
+        ('ics', 'export-schedule-ics.ics', False, [], []),
     ]
 
     def _sanitize_export_test_ics(self, content):
@@ -118,7 +121,8 @@ class TestHandlers(object):
 
         assert reference_dict == imported_schedule_dict
 
-    def test_export(self, handler_name, export_schedule_file, tmpdir):
+    def test_export(self, handler_name, export_schedule_file, 
+                    flat, flag_show, flag_hide, tmpdir):
         interm_reference_file = os.path.join(self.basedir,
                                              self.intermediary_reference_file)
 
@@ -132,6 +136,12 @@ class TestHandlers(object):
         export_output_filename = str(export_output_file)
 
         conv = ScheduleConverter(intermediary_input)
+        
+        if flat:
+            conv.schedule.make_flat()
+        
+        conv.schedule.filter_flags(flag_show, flag_hide)
+        
         conv.export_schedule(export_output_filename, handler_name)
         actual_output = export_output_file.read()
 

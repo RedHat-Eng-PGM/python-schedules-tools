@@ -3,7 +3,8 @@ import pprint
 import datetime
 import re
 import logging
-import copy
+
+from copy import copy
 
 logger = logging.getLogger(__name__)
 re_flags_separator = re.compile('[, ]+')
@@ -146,7 +147,7 @@ class Task(object):
             return 'Task'
 
     def dump_as_dict(self, recursive=True):
-        attrs = copy.copy(vars(self))
+        attrs = copy(vars(self))
         # avoid infinite looping schedule > task > schedule ...
         exclude = ['_schedule']
 
@@ -207,6 +208,59 @@ class Schedule(object):
         self.unique_id_re = re.compile('[\W_]+')
         self.errors_import = []
         self.mtime = None
+
+
+    def make_flat(self):
+        '''Convert tasks structure to flat list'''
+        def add_tasks_to_list(tasks, tasks_list):
+            for task in tasks:
+                subtasks = copy(task.tasks)
+                task.tasks = []
+                tasks_list.append(task)
+                add_tasks_to_list(subtasks, tasks_list)
+        
+        flat_tasks = []
+        add_tasks_to_list(self.tasks, flat_tasks)
+        self.tasks = flat_tasks
+        
+    
+    def filter_flags(self, show=None, hide=None):
+        '''
+        Keep only tasks that match flag conditions or contain children tha match
+        
+        Args:
+            show: list of flags to show
+            hide: list of flags to hide
+        '''
+        
+        def add_filtered_tasks(tasks, tasks_list):
+            for task in tasks:
+                # for each task we'll be replacing/filtering it's children
+                filtered_subtasks = []
+                
+                # see if there are any matching children
+                add_filtered_tasks(task.tasks, filtered_subtasks)
+                
+                # if child or task itself matches - add to the result
+                if (filtered_subtasks or 
+                        (not (set(task.flags) & set(hide)) 
+                         and (set(task.flags) & set(show)))):
+                    task.tasks = filtered_subtasks
+                    tasks_list.append(task)
+                    
+                    self.used_flags.update(task.flags)
+            
+        if show is None:
+            show = []
+        if hide is None:
+            hide = []
+            
+        if show or hide:
+            tasks = []
+            self.used_flags = set()
+            
+            add_filtered_tasks(self.tasks, tasks)
+            self.tasks = tasks
 
 
     def check_top_task(self):
@@ -401,7 +455,7 @@ class Schedule(object):
             self.id_reg.add(id_prefix)
             return id_prefix
 
-        pref = copy.copy(id_prefix)
+        pref = copy(id_prefix)
         pref += '.'
 
         source = self.slugify_str(orig_str)
@@ -431,7 +485,7 @@ class Schedule(object):
         return test_id
 
     def dump_as_dict(self):
-        schedule = copy.copy(vars(self))
+        schedule = copy(vars(self))
 
         schedule['tasks'] = []
         for task in self.tasks:
