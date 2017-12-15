@@ -5,7 +5,6 @@ from lxml.html import etree
 logger = logging.getLogger(__name__)
 
 
-date_format = '%Y-%m-%d (%a)'
 css = """
 table {
     border-collapse: collapse;
@@ -35,6 +34,11 @@ table td div.note {
 class ScheduleHandler_html(ScheduleHandlerBase):
     provide_export = True
     indent_level_px = 14
+
+    def __init__(self, *args, **kwargs):
+        super(ScheduleHandler_html, self).__init__(*args, **kwargs)
+        if not self.options.get('date_format', False):
+            self.options['date_format'] = '%a %Y-%m-%d'
 
     @classmethod
     def is_valid_source(cls, handle=None):
@@ -66,10 +70,10 @@ class ScheduleHandler_html(ScheduleHandlerBase):
             e_link.text = task.link
 
         e_td = etree.SubElement(e_tr, 'td')
-        e_td.text = str(task.dAcStart.strftime(date_format))
+        e_td.text = str(task.dAcStart.strftime(self.options['date_format']))
 
         e_td = etree.SubElement(e_tr, 'td')
-        e_td.text = str(task.dAcFinish.strftime(date_format))
+        e_td.text = str(task.dAcFinish.strftime(self.options['date_format']))
 
         duration = task.dAcFinish - task.dAcStart
         e_td = etree.SubElement(e_tr, 'td')

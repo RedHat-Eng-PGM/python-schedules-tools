@@ -98,6 +98,10 @@ def main(args):
                         default='localhost:6379/0')
     parser.add_argument('--smartsheet-token',
                         help='Access token for using SmartSheet API')
+    
+    parser.add_argument('--date-format',
+                        help='Date format used for export where applicable')    
+    
     parser.add_argument('--source-format',
                         choices=discovery.schedule_handlers.keys(),
                         metavar='SRC_FORMAT',
