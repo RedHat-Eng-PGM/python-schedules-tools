@@ -95,11 +95,11 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         if 'note' in jsonobj:
             task.note = jsonobj['note']
 
-        task.dStart = self._parse_timestamp(jsonobj['planStart'])
-        task.dFinish = self._parse_timestamp(jsonobj['planEnd'])
+        task.dStart = self._parse_timestamp(jsonobj['start'])
+        task.dFinish = self._parse_timestamp(jsonobj['end'])
 
-        task.dAcStart = self._parse_timestamp(jsonobj['actualStart'])
-        task.dAcFinish = self._parse_timestamp(jsonobj['actualEnd'])
+        task.dAcStart = task.dStart
+        task.dAcFinish = task.dFinish
 
         schedule.used_flags |= set(task.flags)
 
@@ -180,10 +180,8 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         task_export['parentTask'] = parent_slug
 
-        task_export['planStart'] = task.dStart.strftime('%s')
-        task_export['planEnd'] = task.dFinish.strftime('%s')
-        task_export['actualStart'] = task.dAcStart.strftime('%s')
-        task_export['actualEnd'] = task.dAcFinish.strftime('%s')
+        task_export['start'] = task.dAcStart.strftime('%s')
+        task_export['end'] = task.dAcFinish.strftime('%s')
 
         if task.tasks:  # task has subtasks
             # prepare tasklist
@@ -198,9 +196,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         phase_export = dict()
         phase_export['name'] = phase.name
         phase_export['complete'] = phase.p_complete
-        phase_export['planStart'] = phase.dStart.strftime('%s')
-        phase_export['planEnd'] = phase.dFinish.strftime('%s')
-        phase_export['actualStart'] = phase.dAcStart.strftime('%s')
-        phase_export['actualEnd'] = phase.dAcFinish.strftime('%s')
+        phase_export['start'] = phase.dAcStart.strftime('%s')
+        phase_export['end'] = phase.dAcFinish.strftime('%s')
 
         return phase_export
