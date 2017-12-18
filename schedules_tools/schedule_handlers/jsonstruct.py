@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 class ScheduleHandler_json(ScheduleHandlerBase):
     provide_export = True
+    
+    default_export_ext = 'json'
+    
     changelog_date_format = '%Y-%m-%d'
 
     @classmethod

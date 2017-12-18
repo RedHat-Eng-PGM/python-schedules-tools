@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 class ScheduleHandler_msp(ScheduleHandlerBase):
     provide_export = True
+    
+    default_export_ext = 'xml'
 
     @classmethod
     def is_valid_source(cls, handle=None):

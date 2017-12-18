@@ -22,6 +22,8 @@ class ScheduleHandlerBase(object):
     provide_mtime = False
     
     options = {}
+    
+    default_export_ext = None
 
     def __init__(self, handle=None, schedule=None, options=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general
@@ -76,6 +78,8 @@ class ScheduleHandlerBase(object):
 
 
 class TJXCommonMixin(object):   
+    default_export_ext = 'tjx'
+    
     src_tree = None
     provide_changelog = True
     provide_mtime = True

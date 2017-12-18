@@ -1,8 +1,12 @@
-import discovery
 import logging
+import os
 
+from schedules_tools import discovery
 from schedules_tools import SchedulesToolsException
+from schedules_tools.discovery import search_paths
 from schedules_tools.models import Schedule
+from schedules_tools.storage_handlers import AcquireLockException
+
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +193,7 @@ class ScheduleConverter(object):
         
         return self.schedule
 
-    def export_schedule(self, output, target_format, options=dict()):
+    def export_schedule(self, output, target_format, update_filename=False, options=dict()):
         schedule_slug = options.get('slug', '')
 
         schedule_handler_cls = self._get_schedule_handler_cls(format=target_format)
@@ -200,5 +204,166 @@ class ScheduleConverter(object):
                 .format(target_format))
 
         schedule_handler = schedule_handler_cls(schedule=self.schedule, options=options)
+        
+        if update_filename and schedule_handler.default_export_ext:  # change/add export extension according to handler
+            output = '.'.join([os.path.splitext(output)[0], 
+                               schedule_handler.default_export_ext])
 
         schedule_handler.export_schedule(output)
+        
+        
+
+def convert(args):
+    opt_args = vars(args)
+    
+    for path in opt_args.pop('handlers_path'):
+        search_paths.append(path)
+
+    converter = ScheduleConverter()
+
+    try:
+        converter.import_schedule(handle=args.source,
+                                  schedule_src_format=args.source_format,
+                                  storage_src_format=args.source_storage_format,
+                                  options=opt_args)
+    except AcquireLockException as e:
+        logger.error(e)
+        return
+
+
+    check_tasks = dict()
+    for task_name in args.check_taskname:
+        check_tasks[task_name] = False
+
+    for task_name in args.check_taskname_startswith:
+        check_tasks[task_name] = True
+
+    if args.check_taskname or args.check_taskname_startswith:
+        missing_tasks = converter.schedule.check_for_taskname(check_tasks)
+        if missing_tasks:
+            logger.info('Missing tasks: {}'.format(list(missing_tasks)))
+
+    if args.flat:
+        converter.schedule.make_flat()
+        
+    flag_show = args.flag_show.split(',')
+    if flag_show == ['']:
+        flag_show = []        
+
+    flag_hide = [f for f in args.flag_hide.split(',') if f]
+    if flag_hide == ['']:
+        flag_hide = []  
+        
+    converter.schedule.filter_flags(flag_show, flag_hide)      
+
+
+    # do we have target name defined?
+    update_filename = False
+    if not args.target:
+        args.target = args.source
+        update_filename = True
+
+    converter.export_schedule(args.target,
+                              args.target_format,
+                              update_filename=update_filename,
+                              options=opt_args)   
+
+
+def get_handlers_args_parser(add_help=False):
+    '''Return parent parser for schedules tools scripts with handler arguments'''
+    import argparse 
+    
+    parser = argparse.ArgumentParser(add_help=add_help)
+    
+    parser.add_argument('--log-level',
+                        help='ERROR (default) | WARN | INFO | DEBUG',
+                        default='ERROR')
+
+    parser.add_argument('--handlers-path', 
+                        help='Add python-dot-notation path to discover handlers (needs to '
+                             'be python module), can be called several times '
+                             '(conflicting names will be overriden - the last '
+                             'implementation will be used)',
+                        action='append',
+                        default=[],
+                        )
+
+    parser.add_argument('-f', '--force',
+                        help='Force target overwrite',
+                        default=False,
+                        action='store_true')
+
+    parser.add_argument('--slug', metavar='SCHEDULE_SLUG',
+                        help='Override schedule slug (e.g. rhel)')
+    parser.add_argument('--use-tji-file',
+                        help='Use TJI file when exporting into TJP',
+                        default=False,
+                        action='store_true')
+
+    parser.add_argument('--rally-iter', help='Rally iteration to import',
+                        default='')
+
+    parser.add_argument('--check-taskname',
+                        help='Check existence given task name as exact match '
+                             '(can be used multiple times)',
+                        action='append', metavar='TASKNAME', default=[])
+    parser.add_argument('--check-taskname-startswith',
+                        help='Check existence given task by matching beginning '
+                             'name (can be used multiple times)',
+                        action='append', metavar='TASKNAME_STARTSWITH',
+                        default=[])
+
+    parser.add_argument('--source-storage-format',
+                        choices=discovery.storage_handlers.keys(),
+                        metavar='SRC_STORAGE_FORMAT',
+                        help='Source storage format to use')
+    parser.add_argument('--cvs-repo-name',
+                        help='Name of CVS repository to checkout')
+    parser.add_argument('--cvs-root',
+                        help='Root of CVS repository')
+    parser.add_argument('--cvs-checkout-path',
+                        help='Path to shared working copy of CVS repository')
+    parser.add_argument('--cvs-exclusive-access',
+                        help='Restrict to run just one CVS command at the same time',
+                        action='store_true')
+    parser.add_argument('--cvs-lock-redis-uri',
+                        help='Redis URI that is required by --cvs-exclusive-access, default: localhost:6379/0',
+                        default='localhost:6379/0')
+    parser.add_argument('--smartsheet-token',
+                        help='Access token for using SmartSheet API')
+    
+    parser.add_argument('--date-format',
+                        help='Date format used for export where applicable')    
+
+    parser.add_argument('--html-title',
+                        help='HTML export page title')    
+    parser.add_argument('--html-table-header',
+                        help='HTML export table header')    
+
+    
+    parser.add_argument('--flat',
+                        help='Make output schedule flat',
+                        default=False,
+                        action='store_true')
+    
+    parser.add_argument('--flag-show',
+                        help='Filter schedule - show tasks with any of these flags',
+                        default='',
+                        )
+    parser.add_argument('--flag-hide',
+                        help='Filter schedule - hide tasks with any of these flags, hide has preferrence over show',
+                        default='',
+                        )
+
+
+    parser.add_argument('--source-format',
+                        metavar='SRC_FORMAT',
+                        help='Source format to enforce')
+
+    parser.add_argument('--target-format',
+                        metavar='TARGET_FORMAT',
+                        help='Target format to convert',
+                        default='html')
+    
+    return parser
+    

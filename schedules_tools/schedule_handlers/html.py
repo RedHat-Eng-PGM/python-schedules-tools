@@ -33,6 +33,9 @@ table td div.note {
 
 class ScheduleHandler_html(ScheduleHandlerBase):
     provide_export = True
+    
+    default_export_ext = 'html'
+    
     indent_level_px = 14
 
     def __init__(self, *args, **kwargs):
@@ -90,14 +93,11 @@ class ScheduleHandler_html(ScheduleHandlerBase):
 
         e_encoding = etree.SubElement(e_head, 'meta', charset="utf-8")
 
-        print self.options
         if self.options.get('html_title', False):
             title = self.options['html_title']
         else:
             title = self.schedule.name
-            
-        print title
-        
+                    
         e_title = etree.SubElement(e_head, 'title')
         e_title.text = title
 

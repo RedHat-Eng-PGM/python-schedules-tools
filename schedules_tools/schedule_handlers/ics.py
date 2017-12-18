@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 class ScheduleHandler_ics(ScheduleHandlerBase):
     provide_export = True
+    
+    default_export_ext = 'ics'
+    
     _datetime_format = '%Y%m%dT%H%M%SZ'
     _now = None
 
