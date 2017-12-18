@@ -299,6 +299,10 @@ def get_handlers_args_parser(add_help=False):
                         help='Use TJI file when exporting into TJP',
                         default=False,
                         action='store_true')
+    parser.add_argument('--tjp-keep-tjx',
+                        help='Keep tjx intermediate file when importing from TJP',
+                        default=False,
+                        action='store_true')
 
     parser.add_argument('--rally-iter', help='Rally iteration to import',
                         default='')
@@ -317,6 +321,7 @@ def get_handlers_args_parser(add_help=False):
                         choices=discovery.storage_handlers.keys(),
                         metavar='SRC_STORAGE_FORMAT',
                         help='Source storage format to use')
+    
     parser.add_argument('--cvs-repo-name',
                         help='Name of CVS repository to checkout')
     parser.add_argument('--cvs-root',
@@ -329,6 +334,7 @@ def get_handlers_args_parser(add_help=False):
     parser.add_argument('--cvs-lock-redis-uri',
                         help='Redis URI that is required by --cvs-exclusive-access, default: localhost:6379/0',
                         default='localhost:6379/0')
+    
     parser.add_argument('--smartsheet-token',
                         help='Access token for using SmartSheet API')
     
