@@ -90,7 +90,14 @@ class ScheduleHandler_html(ScheduleHandlerBase):
 
         e_encoding = etree.SubElement(e_head, 'meta', charset="utf-8")
 
-        title = self.schedule.name
+        print self.options
+        if self.options.get('html_title', False):
+            title = self.options['html_title']
+        else:
+            title = self.schedule.name
+            
+        print title
+        
         e_title = etree.SubElement(e_head, 'title')
         e_title.text = title
 
@@ -101,6 +108,9 @@ class ScheduleHandler_html(ScheduleHandlerBase):
 
         e_h1 = etree.SubElement(e_body, 'h1')
         e_h1.text = title
+        
+        if self.options.get('html_table_header', False):
+            e_body.append(etree.fromstring(self.options['html_table_header']))
 
         e_table = etree.SubElement(e_body, 'table', align='center')
         e_tr_head = etree.SubElement(e_table, 'tr')

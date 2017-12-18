@@ -101,6 +101,12 @@ def main(args):
     
     parser.add_argument('--date-format',
                         help='Date format used for export where applicable')    
+
+    parser.add_argument('--html-title',
+                        help='HTML export page title')    
+    parser.add_argument('--html-table-header',
+                        help='HTML export table header')    
+
     
     parser.add_argument('--source-format',
                         choices=discovery.schedule_handlers.keys(),
