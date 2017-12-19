@@ -55,7 +55,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             handle = cls.handle
         try:
             int(handle)
-            #cls.client.get_sheet(handle)
         except ValueError:
             return False
 
@@ -79,8 +78,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     def import_schedule(self):
         self.schedule = models.Schedule()
-        self.schedule.name = self.sheet.name
-        self.schedule.slug = self.schedule.unique_id_re.sub('_', self.schedule.name)
+        self.schedule.name = str(self.sheet.name)
+        self.schedule.slug = str(self.schedule.unique_id_re.sub('_', self.schedule.name))
         self.schedule.mtime = self.get_handle_mtime()
         parents_stack = []
 
@@ -113,13 +112,14 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         task.index = row.row_number
         # task.slug is generated at the end of importing whole schedule
-        task.name = cells[COLUMN_TASK_NAME]
+        task.name = str(cells[COLUMN_TASK_NAME])
 
         # skip empty rows
         if not task.name:
             return
 
-        task.note = cells[COLUMN_NOTE]
+        if cells[COLUMN_NOTE]:
+            task.note = str(cells[COLUMN_NOTE])
         if COLUMN_PRIORITY in cells:
             task.priority = cells[COLUMN_PRIORITY]
 
@@ -140,7 +140,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             match = re.findall(self._re_number, cells[COLUMN_DURATION])
             if match:
                 task.milestone = int(match[0]) == 0
-        task.p_complete = round(cells[COLUMN_P_COMPLETE] * 100, 1)
+        complete = cells[COLUMN_P_COMPLETE]
+        if complete is not None:
+            task.p_complete = round(complete * 100, 1)
         if COLUMN_FLAGS in cells and cells[COLUMN_FLAGS]:
             # try first to parse workaround format 'Flags: qe, dev'
             task.parse_extended_attr(cells[COLUMN_FLAGS])
