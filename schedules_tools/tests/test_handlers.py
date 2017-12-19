@@ -1,9 +1,12 @@
+import datetime
 import json
 import logging
 import os
 import pytest
 import re
 import shutil
+# TODO(mpavlase): don't fail if the module is not installed
+from smartsheet import Smartsheet
 
 from schedules_tools.converter import ScheduleConverter
 from schedules_tools.tests import jsondate
@@ -34,6 +37,7 @@ class TestHandlers(object):
 
     scenarios_import_combinations = [
         ('msp', 'import-schedule-msp.xml'),
+        ('smartsheet', ''),
         ('json', 'import-schedule-json.json'),
         ('tjx2', 'import-schedule-tjx2.tjx'),
     ]
@@ -48,6 +52,10 @@ class TestHandlers(object):
         ('html', 'export-schedule-html-options.html', False, [], [], dict(html_title='Test title',
                                                                           html_table_header='<p>Test header</p>')),
     ]
+
+    smartsheet_columns_ids = ()
+    smartsheet_sheet_id = None
+    smartsheet_client = None
 
     def _sanitize_export_test_ics(self, content):
         return re.sub('DTSTAMP:[0-9]+T[0-9]+Z', 'DTSTAMP:20170101T010101Z', content)
@@ -90,6 +98,152 @@ class TestHandlers(object):
 
         # if it's anything else, return it in its original form
         return data
+
+    def fixture_import_smartsheet(self):
+        token = os.environ.get('SMARTSHEET_TOKEN', None)
+        if not token:
+            pytest.fail('You need to specify environment variable '
+                        'SMARTSHEET_TOKEN to run smartsheet tests.')
+        self.smartsheet_client = Smartsheet(token)
+
+        # Create a new sheet based on public Project template ('from_id' arg)
+        sheet_spec = self.smartsheet_client.models.Sheet({
+            'name': 'Test project 10',
+            'from_id': 5066554783098756,
+        })
+        resp = self.smartsheet_client.Home.create_sheet_from_template(sheet_spec)
+        assert resp.message == 'SUCCESS'
+
+        self.smartsheet_sheet_id = resp.result.id
+
+        column_spec_flags = self.smartsheet_client.models.Column({
+            'title': 'Flags',
+            'type': 'TEXT_NUMBER',
+            'index': 4,
+        })
+        column_spec_link = self.smartsheet_client.models.Column({
+            'title': 'Link',
+            'type': 'TEXT_NUMBER',
+            'index': 4,
+        })
+        resp = self.smartsheet_client.Sheets.add_columns(
+            self.smartsheet_sheet_id,
+            [column_spec_flags, column_spec_link]
+        )
+        assert resp.message == 'SUCCESS'
+
+        sheet = self.smartsheet_client.Sheets.get_sheet(self.smartsheet_sheet_id)
+
+        # get columns ID
+        self.smartsheet_columns_ids = (
+            sheet.columns[0].id,  # task name
+            sheet.columns[1].id,  # duration
+            sheet.columns[2].id,  # start
+            sheet.columns[3].id,  # finish
+            sheet.columns[4].id,  # flags
+            sheet.columns[5].id,  # link
+            sheet.columns[8].id,  # complete
+            sheet.columns[10].id,  # comment
+        )
+
+        def format_date(year, month, day):
+            return datetime.datetime(year, month, day).isoformat()
+
+        task_proj10 = self._smartsheet_create_row(
+            name='Test project 10')
+        task_test1 = self._smartsheet_create_row(
+            name='Test 1', parent_id=task_proj10)
+        task_development = self._smartsheet_create_row(
+            name='Development',
+            duration='21d',
+            start=format_date(2000, 1, 1),
+            link='Link: https://github.com/1',
+            complete=0.36,
+            parent_id=task_test1)
+        task_dev = self._smartsheet_create_row(
+            name='Dev',
+            duration='~0',
+            start=format_date(2000, 1, 21),
+            complete=0.4,
+            parent_id=task_test1)
+        task_testing = self._smartsheet_create_row(
+            name='Testing Phase',
+            duration='14d',
+            start=format_date(2000, 1, 21),
+            flags='Flags: flag1',
+            complete=0.9,
+            parent_id=task_test1)
+        task_release = self._smartsheet_create_row(
+            name='Release',
+            duration='~0',
+            start=format_date(2000, 1, 21),
+            link='Link: https://github.com/2',
+            flags='Flags: flag2',
+            parent_id=task_test1)
+        task_test2 = self._smartsheet_create_row(
+            name='Test 2',
+            parent_id=task_proj10)
+        task_first = self._smartsheet_create_row(
+            name='First task',
+            duration='3d',
+            start=format_date(2000, 2, 3),
+            parent_id=task_test2)
+        task_another = self._smartsheet_create_row(
+            name='Another task',
+            duration='~0',
+            start=format_date(2000, 2, 5),
+            flags='Flags: flag1,flag2,flag3',
+            comment='test2 note',
+            parent_id=task_test2)
+
+        converter_options = {
+            'smartsheet_token': token,
+        }
+
+        # returns tuple: (handle, converter_options)
+        yield self.smartsheet_sheet_id, converter_options
+
+        # teardown 'phase'
+        self.client.Sheets.delete_sheet(self.smartsheet_sheet_id)
+
+    def _smartsheet_create_row(self, name, duration=None, start=None,
+                               finish=None, flags=None, link=None,
+                               complete=None, comment=None, parent_id=None):
+        """
+        Helper function to create new row at the end of sheet/parent subtree.
+
+        Args:
+            name: task name
+            duration: length of the task as string (i.e.: '3d', '~0')
+            start: date as ISO-8601 format
+            finish: date as ISO-8601 format
+            flags: string (i.e.: 'qe, dev', 'flags: qe, dev')
+            link: URL string
+            comment: string
+            complete: percent complete as float within range 0.0 - 1.0
+            parent_id: parent row ID, or optionally None (insert it as root node)
+
+        Returns:
+            ID of just inserted row
+        """
+        row = self.smartsheet_client.models.Row()
+        row.parent_id = parent_id
+        row.to_bottom = True
+
+        columns = (name, duration, start, finish, flags, link, complete, comment)
+        for column_id, value in zip(self.smartsheet_columns_ids, columns):
+            if value is None:
+                continue
+
+            row.cells.append({
+                'column_id': column_id,
+                'value': value
+            })
+        resp = self.smartsheet_client.Sheets.add_rows(self.smartsheet_sheet_id, [row])
+        assert resp.message == 'SUCCESS', resp.result.message
+        assert 1 == len(resp.result)
+
+        return resp.result[0].id
 
     @pytest.fixture(scope='function')
     def fixture_import_handle(self, request):
