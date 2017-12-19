@@ -91,15 +91,47 @@ class TestHandlers(object):
         # if it's anything else, return it in its original form
         return data
 
-    def test_import(self, handler_name, import_schedule_file):
-        converter_options = {
-            'source_storage_format': 'local'
-        }
-        full_import_schedule_file = os.path.join(self.basedir, self.schedule_files_dir,
-                                                 import_schedule_file)
+    @pytest.fixture(scope='function')
+    def fixture_import_handle(self, request):
+        """
+        Generic pytest fixture that provides arguments for import_schedule meth.
+        If there is specified 'import_schedule_file' value of argument,
+        its considered as filename of file-based handle.
+        Otherwise will try to call 'fixture_import_handlename' method that
+        provides these arguments (handle, options).
+        Also it works as setup/teardown-like method of the handle's test
+        (using yield within the 'fixture_import_' method).
+        """
+        import_schedule_file = request.getfuncargvalue('import_schedule_file')
+        handler_name = request.getfuncargvalue('handler_name')
+        handle = None
+        converter_options = dict()
+
+        if import_schedule_file:
+            handle = os.path.join(self.basedir, self.schedule_files_dir,
+                                  import_schedule_file)
+            converter_options = {
+                'source_storage_format': 'local'
+            }
+            yield handle, converter_options
+        else:
+            callback_name = 'fixture_import_' + handler_name
+
+            try:
+                fixture_fn = self.__getattribute__(callback_name)
+                fixture_value = fixture_fn()  # expect to return tuple (handle, options)
+                yield fixture_value.next()
+
+                # this line will cause final exit of this function
+                fixture_value.next()
+            except AttributeError:
+                yield handle, converter_options
+
+    def test_import(self, fixture_import_handle, handler_name, import_schedule_file):
+        handle, converter_options = fixture_import_handle
 
         conv = ScheduleConverter()
-        schedule = conv.import_schedule(full_import_schedule_file,
+        schedule = conv.import_schedule(handle,
                                         schedule_src_format=handler_name,
                                         options=converter_options)
         assert 0 == len(schedule.errors_import)
@@ -111,7 +143,8 @@ class TestHandlers(object):
                                              self.intermediary_reference_file)
         regenerate = os.environ.get('REGENERATE', False) == 'true'
         if regenerate:
-            logger.info('test_import: Regenerating interm. reference file from imported schedule.')
+            logger.info('test_import: Regenerating interm. reference file'
+                        'from imported schedule.')
 
             with open(interm_reference_file, 'w+') as fd:
                 jsondate.dump(imported_schedule_dict,
