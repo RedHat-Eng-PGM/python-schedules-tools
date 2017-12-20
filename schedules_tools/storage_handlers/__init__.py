@@ -30,6 +30,7 @@ class StorageBase(object):
     lock_acquired = None
     lock_timeout = 120
     lock_sleep = 0.5  # seconds
+    lock_max_workers = 10  # max number of workers waiting
     
 
     def __init__(self, handle=None, options=dict()):
@@ -50,7 +51,7 @@ class StorageBase(object):
                                 name=self.redis_key, 
                                 timeout=self.lock_timeout - 10,  # max life time for lock 
                                 sleep=self.lock_sleep, 
-                                blocking_timeout=self.lock_timeout 
+                                blocking_timeout=self.lock_timeout * self.lock_max_workers
                             )         
 
     @property
