@@ -348,8 +348,9 @@ class TestHandlers(object):
             expected_output = fd.read()
         
         # sanitize if needed
-        if hasattr(self, '_sanitize_export_test_{}'.format(handler_name)):
-            sanitize_func = getattr(self, '_sanitize_export_test_{}'.format(handler_name))
+        sanitize_fn_name = '_sanitize_export_test_{}'.format(handler_name)
+        if hasattr(self, sanitize_fn_name):
+            sanitize_func = getattr(self, sanitize_fn_name)
             expected_output = sanitize_func(expected_output)
             actual_output = sanitize_func(actual_output)
 
