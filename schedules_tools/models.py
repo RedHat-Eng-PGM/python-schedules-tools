@@ -79,7 +79,7 @@ class Task(object):
             key = key.strip().lower()
             val = val.strip()
 
-        if key == ATTR_PREFIX_FLAG.lower():
+        if key.lower() == ATTR_PREFIX_FLAG.lower():
             val = val.lower()
             flags = re_flags_separator.split(val)
             for flag in flags:
@@ -87,9 +87,9 @@ class Task(object):
                 if flag:
                     self.flags.append(flag)
             self._schedule.used_flags |= set(self.flags)
-        elif key == ATTR_PREFIX_LINK.lower():
+        elif key.lower() == ATTR_PREFIX_LINK.lower():
             self.link = str(val)
-        elif key == ATTR_PREFIX_NOTE.lower():
+        elif key.lower() == ATTR_PREFIX_NOTE.lower():
             # in case of multiple notes - concatenate
             self.note = ' '.join([self.note, val]).lstrip()
         else:
