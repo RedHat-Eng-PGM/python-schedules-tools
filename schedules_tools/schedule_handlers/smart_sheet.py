@@ -25,7 +25,7 @@ smartsheet_logger.setLevel(logging.INFO)
 
 
 class ScheduleHandler_smartsheet(ScheduleHandlerBase):
-    provide_export = False
+    provide_export = True
     date_format = '%Y-%m-%dT%H:%M:%S'  # 2017-01-20T08:00:00
     _client_instance = None
     _sheet_instance = None
@@ -193,3 +193,117 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             mapped_cells[cell_name] = cell.value
 
         return mapped_cells
+
+    def export_schedule(self, output=None):
+        sheet_spec = self.client.models.Sheet({
+            'name': self.schedule.name,
+            'from_id': 5066554783098756,
+        })
+        resp = self.client.Home.create_sheet_from_template(sheet_spec)
+        self.handle = resp.result.id
+        column_spec_flags = self.client.models.Column({
+            'title': 'Flags',
+            'type': 'TEXT_NUMBER',
+            'index': 4,
+        })
+        column_spec_link = self.client.models.Column({
+            'title': 'Link',
+            'type': 'TEXT_NUMBER',
+            'index': 4,
+        })
+        resp = self.client.Sheets.add_columns(
+            self.handle,
+            [column_spec_flags, column_spec_link]
+        )
+        assert resp.message == 'SUCCESS'
+
+        for task in self.schedule.tasks:
+            self.export_task(task, parent_id=None)
+
+        # sheet ID
+        return self.handle
+
+    @staticmethod
+    def calculate_working_days_duration(dstart, dfinish):
+        """
+        Calculate number of days in starting and ending week.
+        https://gist.github.com/archugs/bfbee2b8d210ca07c424#file-workingdaysusingloop-py
+
+        Args:
+            dstart: later date
+            dfinish: sooner date
+
+        Returns:
+            number of working days between dstart and dfinish
+        """
+        all_days = [dstart + datetime.timedelta(days=x) for x in
+                    range((dfinish - dstart).days + 1)]
+        working_days = sum(1 for d in all_days if d.weekday() < 5)
+
+        # Smartsheet's duration between two same days are 1. All all other
+        # ranges are increased by this constant.
+        working_days += 1
+        logger.debug('duration: {} working days ({} - {})'.format(working_days,
+                                                                  dstart,
+                                                                  dfinish))
+        return working_days
+
+    def export_task(self, task, parent_id=None):
+        row = self.client.models.Row()
+        row.parent_id = parent_id
+        row.to_bottom = True
+
+        if task.name:
+            row.cells.append({
+                'column_id': self.sheet.columns[0].id,
+                'value': task.name
+            })
+        if task.dStart:
+            row.cells.append({
+                'column_id': self.sheet.columns[2].id,
+                'value': task.dStart.isoformat()
+            })
+        if task.milestone:
+            row.cells.append({
+                'column_id': self.sheet.columns[1].id,
+                'value': '~0'
+            })
+        elif task.dFinish:
+            # finish date can be set only as (start, duration) tuple,
+            # not directly filled Finish column
+            duration = self.calculate_working_days_duration(task.dStart,
+                                                            task.dFinish)
+            row.cells.append({
+                'column_id': self.sheet.columns[1].id,  # finish #3
+                'value': '{}d'.format(duration)
+            })
+        if task.flags:
+            row.cells.append({
+                'column_id': self.sheet.columns[4].id,
+                'value': ', '.join(task.flags)
+            })
+        if task.link:
+            row.cells.append({
+                'column_id': self.sheet.columns[5].id,
+                'value': task.link
+            })
+        if task.p_complete:
+            row.cells.append({
+                'column_id': self.sheet.columns[8].id,
+                'value': task.p_complete / 100.0
+            })
+        if task.note:
+            row.cells.append({
+                'column_id': self.sheet.columns[10].id,
+                'value': task.note
+            })
+        resp = self.client.Sheets.add_rows(self.handle, [row])
+        assert resp.message == 'SUCCESS', resp.result.message
+        assert 1 == len(resp.result)
+
+        row_id = resp.result[0].id
+
+        for nested_task in task.tasks:
+            self.export_task(nested_task, parent_id=row_id)
+
+        return row_id
