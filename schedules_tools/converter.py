@@ -209,7 +209,7 @@ class ScheduleConverter(object):
             output = '.'.join([os.path.splitext(output)[0], 
                                schedule_handler.default_export_ext])
 
-        schedule_handler.export_schedule(output)
+        return schedule_handler.export_schedule(output)
         
         
 
