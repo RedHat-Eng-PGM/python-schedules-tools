@@ -60,14 +60,27 @@ class TestHandlers(object):
     def _sanitize_export_test_ics(self, content):
         return re.sub('DTSTAMP:[0-9]+T[0-9]+Z', 'DTSTAMP:20170101T010101Z', content)
 
-    @staticmethod
-    def _clean_interm_struct(input_dict):
-        """Removes keys that is not needed for comparison"""
+    def _clean_interm_struct(self, input_dict):
+        """Removes keys that is not needed for comparison,
+        unify time-part of dates"""
         keys_to_remove = ['unique_id_re', 'id_reg', 'ext_attr', 'flags_attr_id',
                           'resources']
         for key in keys_to_remove:
             if key in input_dict:
                 input_dict.pop(key)
+
+        for task in input_dict['tasks']:
+            self._clear_task_time(task)
+
+    def _clear_task_time(self, task):
+        """For comparison purpose we ignore hours and minutes of task."""
+        task['dStart'] = task['dStart'].replace(hour=0, minute=0)
+        task['dAcStart'] = task['dAcStart'].replace(hour=0, minute=0)
+        task['dFinish'] = task['dFinish'].replace(hour=0, minute=0)
+        task['dAcFinish'] = task['dAcFinish'].replace(hour=0, minute=0)
+
+        for inner_task in task['tasks']:
+            self._clear_task_time(inner_task)
 
     @classmethod
     def _convert_struct_unicode_to_str(cls, data, ignore_dicts=False):
