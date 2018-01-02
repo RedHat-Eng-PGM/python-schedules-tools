@@ -239,10 +239,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         all_days = [dstart + datetime.timedelta(days=x) for x in
                     range((dfinish - dstart).days + 1)]
         working_days = sum(1 for d in all_days if d.weekday() < 5)
-
-        # Smartsheet's duration between two same days are 1. All all other
-        # ranges are increased by this constant.
-        working_days += 1
         logger.debug('duration: {} working days ({} - {})'.format(working_days,
                                                                   dstart,
                                                                   dfinish))
@@ -270,7 +266,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             })
         elif task.dFinish:
             # finish date can be set only as (start, duration) tuple,
-            # not directly filled Finish column
+            # put direct value for Finish column is not allowed.
             duration = self.calculate_working_days_duration(task.dStart,
                                                             task.dFinish)
             row.cells.append({
