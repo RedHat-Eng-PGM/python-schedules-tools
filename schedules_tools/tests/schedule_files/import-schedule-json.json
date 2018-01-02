@@ -1,52 +1,49 @@
 {
     "changelog": {},
-    "end": "949726800",
+    "end": "950223600",
     "ext_attr": {},
     "flags_attr_id": null,
     "name": "Test project 10",
     "phases": [
         {
-            "end": "949554000",
-            "start": "948430800",
             "complete": 90.0,
+            "end": "950050800",
             "name": "Testing Phase",
-            "planEnd": "949554000",
-            "planStart": "948430800"
+            "start": "948409200"
         }
     ],
     "resources": {},
     "slug": "Test_project_10",
-    "start": "946702800",
+    "start": "946854000",
     "tasks": [
         {
             "_level": 1,
-            "end": "949726800",
-            "start": "946702800",
-            "complete": 53.0,
+            "complete": 48.0,
+            "end": "950223600",
             "flags": [],
             "index": 1,
             "name": "Test project 10",
             "parentTask": "",
             "priority": 500,
             "slug": "Test_project_10",
+            "start": "946854000",
             "tasks": [
                 {
                     "_level": 2,
-                    "end": "949554000",
-                    "start": "946702800",
                     "complete": 58.0,
+                    "end": "950050800",
                     "flags": [],
                     "index": 2,
                     "name": "Test 1",
                     "parentTask": "Test_project_10",
                     "priority": 500,
                     "slug": "Test_project_10.test",
+                    "start": "946854000",
                     "tasks": [
                         {
                             "_level": 3,
-                            "end": "948430800",
-                            "start": "946702800",
                             "complete": 36.0,
+                            "end": "949014000",
                             "flags": [],
                             "index": 3,
                             "link": "https://github.com/1",
@@ -54,26 +51,26 @@
                             "parentTask": "Test_project_10.test",
                             "priority": 500,
                             "slug": "Test_project_10.test.development",
+                            "start": "946854000",
                             "type": "Task"
                         },
                         {
                             "_level": 3,
-                            "end": "948430800",
-                            "start": "948430800",
                             "complete": 40.0,
+                            "end": "948409200",
                             "flags": [],
                             "index": 4,
                             "name": "Dev",
                             "parentTask": "Test_project_10.test",
                             "priority": 500,
                             "slug": "Test_project_10.test.dev",
+                            "start": "948409200",
                             "type": "Milestone"
                         },
                         {
                             "_level": 3,
-                            "end": "949554000",
-                            "start": "948430800",
                             "complete": 90.0,
+                            "end": "950050800",
                             "flags": [
                                 "flag1"
                             ],
@@ -82,13 +79,13 @@
                             "parentTask": "Test_project_10.test",
                             "priority": 500,
                             "slug": "Test_project_10.test.testing",
+                            "start": "948409200",
                             "type": "Task"
                         },
                         {
                             "_level": 3,
-                            "end": "948430800",
-                            "start": "948430800",
                             "complete": 0.0,
+                            "end": "948409200",
                             "flags": [
                                 "flag2"
                             ],
@@ -98,6 +95,7 @@
                             "parentTask": "Test_project_10.test",
                             "priority": 500,
                             "slug": "Test_project_10.test.release",
+                            "start": "948409200",
                             "type": "Milestone"
                         }
                     ],
@@ -105,34 +103,33 @@
                 },
                 {
                     "_level": 2,
-                    "end": "949726800",
-                    "start": "949554000",
                     "complete": 0.0,
+                    "end": "950223600",
                     "flags": [],
                     "index": 7,
                     "name": "Test 2",
                     "parentTask": "Test_project_10",
                     "priority": 500,
                     "slug": "Test_project_10.test_2",
+                    "start": "949705200",
                     "tasks": [
                         {
                             "_level": 3,
-                            "end": "949726800",
-                            "start": "949554000",
                             "complete": 0.0,
+                            "end": "950223600",
                             "flags": [],
                             "index": 8,
                             "name": "First task",
                             "parentTask": "Test_project_10.test_2",
                             "priority": 500,
                             "slug": "Test_project_10.test_2.first",
+                            "start": "950050800",
                             "type": "Task"
                         },
                         {
                             "_level": 3,
-                            "end": "949726800",
-                            "start": "949726800",
                             "complete": 0.0,
+                            "end": "949705200",
                             "flags": [
                                 "flag1",
                                 "flag2",
@@ -144,6 +141,7 @@
                             "parentTask": "Test_project_10.test_2",
                             "priority": 500,
                             "slug": "Test_project_10.test_2.another",
+                            "start": "949705200",
                             "type": "Milestone"
                         }
                     ],
