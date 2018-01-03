@@ -1,5 +1,6 @@
 import subprocess
 import functools
+import re
 
 from subprocess import Popen, PIPE
 
@@ -10,6 +11,13 @@ def write_version(file_name, version_tuple):
     fo = open(file_name, "w")
     fo.write('VERSION = ("%s", %s, "%s")\n' % tuple(version_tuple))
     fo.close()
+    
+def read_version(file_name):
+    with open(file_name, "r") as f:
+        match = re.match('^VERSION[^(]*\("([^"]+)", ([^,]+), "([^"]+)"\)', f.read())
+        if match:
+            return match.groups()
+    
 
 
 def memoize(obj):

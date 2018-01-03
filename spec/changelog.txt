@@ -1,3 +1,549 @@
+* Wed Jan 03 2018 Pavel Slama <pslama@redhat.com> 7.8-35.git20180103.58dbd52
+- update license, setup for pypi
+
+* Tue Jan 02 2018 Martin Pavlasek <mpavlase@redhat.com> 7.8-34.git20180103.ced2701
+- tests: update schedule files, due changes in interm. reference
+
+* Tue Jan 02 2018 Martin Pavlasek <mpavlase@redhat.com> 7.8-33.git20180103.0fbc995
+- tests: fix import/export tests
+
+* Tue Jan 02 2018 Martin Pavlasek <mpavlase@redhat.com> 7.8-32.git20180103.c51096d
+- smartsheet: fix calculating working days
+
+* Thu Dec 21 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-27.git20180103.6fea96e
+- smartsheet: implement export (create new sheet from interm. struct)
+
+* Wed Dec 20 2017 Pavel Slama <pslama@redhat.com> 7.8-26.git20180103.aaabfd9
+- block time for lock depends on number of workers
+
+* Tue Dec 19 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-25.git20180103.a789755
+- add smartsheet into requirements-extra.txt file
+
+* Tue Dec 19 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-24.git20180103.49ea0ad
+- tests: added test for smartsheet, still needs to correct schedule dates
+
+* Tue Dec 19 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-23.git20180103.5cff014
+- tests: add ability to specify setup/teardown method per handler
+
+* Tue Dec 19 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-21.git20180103.dfdb8d0
+- models: parsing ext. attr - convert values into strings
+
+* Mon Dec 18 2017 Pavel Slama <pslama@redhat.com> 7.8-20.git20180103.ad6c484
+- remove tjx when importing tjp by default
+
+* Mon Dec 18 2017 Pavel Slama <pslama@redhat.com> 7.8-19.git20180103.8f09aa9
+- auto extension change, refactor arg parser and convert from standalone script
+
+* Mon Dec 18 2017 Ivo Silva <ivfernan@redhat.com> 7.8-18.git20180103.d8e18c9
+- Add version 2 of ScheduleDiff - WIP
+
+* Mon Dec 18 2017 Pavel Slama <pslama@redhat.com> 7.8-17.git20180103.e4624ff
+- add html title and table header params, tests
+
+* Fri Dec 15 2017 Pavel Slama <pslama@redhat.com> 7.8-16.git20180103.baa5ee2
+- html handler - parametrize date format
+
+* Fri Dec 15 2017 Pavel Slama <pslama@redhat.com> 7.8-15.git20180103.742881c
+- replace plan/actual by pure start/end keys in json handler
+
+* Fri Dec 15 2017 Pavel Slama <pslama@redhat.com> 7.8-14.git20180103.ad2b0b1
+- add schedule flat processing, flag filtering + converter script options
+
+* Wed Dec 13 2017 Pavel Slama <pslama@redhat.com> 7.8-13.git20180103.fe9133d
+- ics export handler + test
+
+* Wed Dec 13 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-12.git20180103.0ef935b
+- models: rename parse_ext_attr arg 'force_key' to 'key'
+
+* Wed Dec 13 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-11.git20180103.38f8a3e
+- smartsheet: compile reg. expr. to parse numbers just once
+
+* Wed Dec 13 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-10.git20180103.2005279
+- smartsheet: store percent complete as number 0.0 to 100.0
+
+* Wed Dec 13 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-9.git20180103.a68f083
+- smartsheet: fill task index attribute properly
+
+* Wed Dec 13 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-8.git20180103.7c65b10
+- smartsheet: ignore seconds when parsing timestamps
+
+* Tue Dec 12 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-7.git20180103.f446a78
+- converter script: check tasks, only if they are specified
+
+* Tue Dec 12 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-6.git20180103.301fcc1
+- smartsheet: finish/fix flags, links, slugs, phases, tree building
+
+* Tue Dec 12 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-5.git20180103.8c0ffcc
+- converter script: cleanup of unused code
+
+* Tue Dec 12 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-4.git20180103.f0104c8
+- move parsing 'Flags: qa, dev' etc. under Task class
+
+* Tue Dec 12 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-3.git20180103.306653e
+- added smartsheet schedule handler, still wip
+
+* Mon Dec 11 2017 Martin Pavlasek <mpavlase@redhat.com> 7.8-2.git20180103.a81388d
+- smartsheet handler - wip
+
+* Wed Dec 06 2017 Pavel Slama <pslama@redhat.com> 7.8-1.git20180103.28cdcc5
+- ignore eclipse settings
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-28.git20180103.64c3c5a
+- remove testrunner leftover (reference generator)
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-27.git20180103.18bd919
+- gitignore: remove 'failed_tests_output' - not used anymore
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-26.git20180103.33d6505
+- tests: move schedule files path as class attribute
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-25.git20180103.16d8ab9
+- test convert: remove im/export combination - duplicated with test_handlers
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-24.git20180103.406dd27
+- tests: update test_convert
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-21.git20180103.4f11772
+- tests: add more keys to ignore for comparison
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-20.git20180103.f70638a
+- tests: added export json schedule
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-19.git20180103.9ec59f9
+- json handler: remove 'now' field
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-18.git20180103.75b4b2c
+- added import test schedules data for MSP, TJX v2
+
+* Wed Dec 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-16.git20180103.40ccc3b
+- tests: use better name to cleanup interm. struct. method
+
+* Wed Dec 06 2017 Ivo Silva <ivfernan@redhat.com> 7.7-15.git20180103.a88ad2e
+- ScheduleDiff - apply change on children tasks, when parent is removed
+
+* Wed Dec 06 2017 Pavel Slama <pslama@redhat.com> 7.7-14.git20180103.137bcdd
+- fix handlers discovery, remove not used args
+
+* Tue Dec 05 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-12.git20180103.e90e433
+- remove test runner, not needed anymore
+
+* Tue Dec 05 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-11.git20180103.8f12d2e
+- tests: refactor import/export test (w/o test data)
+
+* Tue Dec 05 2017 Martin Pavlasek <mpavlase@redhat.com> 7.7-7.git20180103.e08d8c4
+- msp handler: parse percent complete as float number
+
+* Mon Dec 04 2017 Ivo Silva <ivfernan@redhat.com> 7.7-6.git20180103.2765ba0
+- Update schedule_diff script to use ScheduleDiff
+
+* Mon Dec 04 2017 Ivo Silva <ivfernan@redhat.com> 7.7-5.git20180103.51c20c7
+- Refactor tasks' diff + correct prefix for non modified tasks
+
+* Mon Dec 04 2017 Ivo Silva <ivfernan@redhat.com> 7.7-4.git20180103.49a4db9
+- Add methods to print tasks' diff + code refactor
+
+* Mon Dec 04 2017 Ivo Silva <ivfernan@redhat.com> 7.7-3.git20180103.1092956
+- Refactor method that walks dicts
+
+* Wed Nov 29 2017 Pavel Slama <pslama@redhat.com> 7.7-2.git20180103.19d0b13
+- save last refresh time in redis if possible
+
+* Wed Nov 22 2017 Pavel Slama <pslama@redhat.com> 7.7-1.git20180103.a67379f
+- import changelog and mtime for tjx2
+
+* Wed Nov 22 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-33.git20180103.7643203
+- json: update tests, add missing attributes into im/export
+
+* Wed Nov 22 2017 Ivo Silva <ivfernan@redhat.com> 7.6-32.git20180103.4d94829
+- Add ScheduleDiff class
+
+* Wed Nov 22 2017 Pavel Slama <pslama@redhat.com> 7.6-31.git20180103.1ba9357
+- no need to hardcode loggers any more
+
+* Mon Nov 20 2017 Pavel Slama <pslama@redhat.com> 7.6-30.git20180103.27b5f6d
+- fix typo and test data
+
+* Mon Nov 20 2017 Pavel Slama <pslama@redhat.com> 7.6-29.git20180103.f303801
+- refactor unique id generator, update test files
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-28.git20180103.b3c6ff7
+- testrunner: fixed typo in assert message
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-27.git20180103.55ed2b0
+- testrunner: make import test failure more verbose, reformat code
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-26.git20180103.d487ccc
+- tests: added json struct import test
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-25.git20180103.35ee219
+- tests: updated json struct|flat test data
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-24.git20180103.d9eb770
+- jsonstruct handler: import properly link, note, slug, milestone, flags
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-23.git20180103.2407ebc
+- tests: rename parametrized tests, use 'import' instead of 'in' etc.
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-22.git20180103.513e5f6
+- jsonstruct handler: remove proj_id attribute (not used anymore)
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-21.git20180103.4434510
+- jsonstruct handler: give variables more descriptive names
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-20.git20180103.f36cb76
+- schedule_handlers: rename 'file' param to avoid shaddowing with builtin
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-17.git20180103.ab94092
+- json handler: added import
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-16.git20180103.c8db714
+- testrunner: give variables more descriptive names, update comments
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-15.git20180103.380d34d
+- testrunner: rename test_input to test_import (+output/export)
+
+* Mon Nov 20 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-14.git20180103.e901ede
+- testrunner: added comments to TestRunner class/methods
+
+* Thu Nov 16 2017 Pavel Slama <pslama@redhat.com> 7.6-13.git20180103.9a8f2da
+- fix tests
+
+* Thu Nov 16 2017 Pavel Slama <pslama@redhat.com> 7.6-12.git20180103.5a489a6
+- change order
+
+* Thu Nov 16 2017 Pavel Slama <pslama@redhat.com> 7.6-11.git20180103.84f2f50
+- add slug to json export
+
+* Thu Nov 16 2017 Martin Pavlasek <mpavlase@redhat.com> 7.6-3.git20180103.5ab0621
+- pretty print json reference files
+
+* Thu Nov 16 2017 Pavel Slama <pslama@redhat.com> 7.6-2.git20180103.8f5bbe1
+- remove ambiguos intermediary properties, remove unnecessary conversion code
+
+* Fri Nov 10 2017 Pavel Slama <pslama@redhat.com> 7.6-1.git20180103.637032d
+- add eclipse settings
+
+* Thu Nov 09 2017 Pavel Slama <pslama@redhat.com> 7.4-5.git20180103.1cc459b
+- really remove testtools deps, use pytest
+
+* Thu Nov 09 2017 Martin Pavlasek <mpavlase@redhat.com> 7.4-3.git20180103.1018b86
+- update tests to rely on pytest (not testtools)
+
+* Thu Nov 09 2017 Pavel Slama <pslama@redhat.com> 7.4-2.git20180103.d3bc45b
+- eclipse settings
+
+* Thu Oct 05 2017 Pavel Slama <pslama@redhat.com> 7.4-1.git20180103.9266ab1
+- make storage locking more generic - move into base class
+
+* Wed Sep 27 2017 Martin Pavlasek <mpavlase@redhat.com> 7.3-5.git20180103.c3a03cf
+- rename 'handlers', 'storage' to 'schedule/storage_handlers'
+
+* Wed Sep 27 2017 Martin Pavlasek <mpavlase@redhat.com> 7.3-4.git20180103.a234e37
+- small cleanup of test_handlers
+
+* Wed Sep 27 2017 Martin Pavlasek <mpavlase@redhat.com> 7.3-3.git20180103.9a5c950
+- discovery: improve determining if new discovery is needed
+
+* Tue Sep 26 2017 Martin Pavlasek <mpavlase@redhat.com> 7.3-2.git20180103.00ca8ad
+- use python-dot-notation to point to additional handlers, update help msgs
+
+* Tue Sep 26 2017 Martin Pavlasek <mpavlase@redhat.com> 7.3-1.git20180103.032abc5
+- fix permissions to converter.py (it's not commandline tool)
+
+* Tue Sep 26 2017 Martin Pavlasek <mpavlase@redhat.com> 7.1-3.git20180103.1887f2a
+- tests: rename class that verifies parsing flags, note, link from MSP
+
+* Tue Sep 26 2017 Martin Pavlasek <mpavlase@redhat.com> 7.1-2.git20180103.3895736
+- add tests to parse flags, note and url from XML (msp)
+
+* Wed Sep 06 2017 Martin Pavlasek <mpavlase@redhat.com> 7.1-1.git20180103.5753904
+- discovery module: rephrased logging message
+
+* Mon Sep 04 2017 Martin Pavlasek <mpavlase@redhat.com> 7.0-1.git20180103.e26051e
+- fix tests
+
+* Thu Aug 24 2017 Pavel Slama <pslama@redhat.com> 6.0-20.git20180103.30a1f4a
+- cache local handle and storage handler, cvs - methods for lock works
+
+* Wed Aug 23 2017 Pavel Slama <pslama@redhat.com> 6.0-19.git20180103.c256dd6
+- better redis locking
+
+* Tue Aug 22 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-18.git20180103.da8111a
+- add/update tests of CVS _clean_checkout_directory method
+
+* Tue Aug 22 2017 Pavel Slama <pslama@redhat.com> 6.0-17.git20180103.89e967f
+- better place for cmd log
+
+* Tue Aug 22 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-16.git20180103.3e812fe
+- Don't let _clean_checkout_directory fail if the path is already deleted
+
+* Tue Aug 22 2017 Pavel Slama <pslama@redhat.com> 6.0-15.git20180103.14bfa1f
+- add log
+
+* Tue Aug 22 2017 Pavel Slama <pslama@redhat.com> 6.0-14.git20180103.b5e4c0c
+- auto cleanup
+
+* Tue Aug 22 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-13.git20180103.fdc6f95
+- cvs handler: add cmd string to exception message
+
+* Tue Aug 22 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-12.git20180103.04dac87
+- converter: remove duplicated condition
+
+* Tue Aug 22 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-11.git20180103.b45ffc4
+- fix tests
+
+* Thu Aug 17 2017 Pavel Slama <pslama@redhat.com> 6.0-10.git20180103.5882708
+- error preparation
+
+* Wed Aug 16 2017 Pavel Slama <pslama@redhat.com> 6.0-9.git20180103.7a75c7a
+- add cleanup log msg
+
+* Tue Aug 15 2017 Pavel Slama <pslama@redhat.com> 6.0-8.git20180103.403eb6b
+- reduce cvs updates - add validity period
+
+* Fri Aug 11 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-7.git20180103.b941246
+- addded tests for cvs storage handler
+
+* Fri Aug 11 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-6.git20180103.8225aac
+- updated CVS storage handler
+
+* Fri Aug 11 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-5.git20180103.055fce8
+- Schedule model: added errors_import, updated reference JSONs for tests
+
+* Thu Aug 10 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-4.git20180103.eb1446e
+- Revert "added ErrorContainer to store (and read) global error messages"
+
+* Thu Aug 10 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-3.git20180103.9d14507
+- added ErrorContainer to store (and read) global error messages
+
+* Thu Aug 10 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-2.git20180103.c660f08
+- added CmdException definition
+
+* Mon Jul 03 2017 Martin Pavlasek <mpavlase@redhat.com> 6.0-1.git20180103.f3af8dd
+- tests: store failed test ouputs into files
+
+* Fri Jun 30 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-15.git20180103.b520df6
+- tests: add/update reference data for TJXv2 and MSP
+
+* Fri Jun 30 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-14.git20180103.d187058
+- test handlers: add patching method for JSON handlers
+
+* Fri Jun 30 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-13.git20180103.8e24743
+- testrunner: use asserts insteard of return, add patching ability of output
+
+* Fri Jun 30 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-12.git20180103.c29b88c
+- schedule_converter: rename passing opt_args as options
+
+* Fri Jun 30 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-11.git20180103.e01d8b5
+- MSP handler: fix passing level value
+
+* Fri Jun 30 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-10.git20180103.9b502c5
+- run_tests: fix passing specific test name
+
+* Fri Jun 30 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-9.git20180103.16c0ad8
+- tests: update json struct export result
+
+* Thu Jun 29 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-8.git20180103.db0b75f
+- test handlers: run teardown method even if test fails
+
+* Thu Jun 29 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-7.git20180103.8f20afd
+- local storage handler: cleanup of unused method
+
+* Thu Jun 29 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-6.git20180103.d8a9053
+- add teardown option to test_handlers (converter)
+
+* Wed Jun 28 2017 Pavel Slama <pslama@redhat.com> 5.0-5.git20180103.2d4acb6
+- round local mtime to seconds
+
+* Wed Jun 28 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-4.git20180103.22afd63
+- local storage handler: always return source handler, don't copy it
+
+* Wed Jun 28 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-3.git20180103.32b1d3e
+- update tests
+
+* Wed Jun 28 2017 Pavel Slama <pslama@redhat.com> 5.0-2.git20180103.17c654e
+- move local handle logic to handlers, change paramtere names
+
+* Thu Jun 15 2017 Martin Pavlasek <mpavlase@redhat.com> 5.0-1.git20180103.10dae71
+- add pytest.ini to disable django plugin
+
+* Thu Jun 08 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-12.git20180103.cdec825
+- tests: converter, get_local_handle, cleanup_local_handle
+
+* Wed Jun 07 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-11.git20180103.23753f9
+- run_tests: fix coverage paths
+
+* Wed Jun 07 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-10.git20180103.324e231
+- tests: cover converter import_schedule
+
+* Tue Jun 06 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-9.git20180103.b975393
+- tests: add tests of handle_modified_since + init_storage_handler
+
+* Tue Jun 06 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-8.git20180103.15e42de
+- converter: handle_modified_since return True if h. mtime is newer than provided
+
+* Tue Jun 06 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-7.git20180103.2ace293
+- converter: fix import datetime module
+
+* Tue Jun 06 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-6.git20180103.f879f53
+- cvs handler: Use .get to read values from opt_args
+
+* Fri Jun 02 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-5.git20180103.be13121
+- refactoring, move all storage handlers logic into converter
+
+* Wed May 31 2017 Pavel Slama <pslama@redhat.com> 4.0-4.git20180103.df2dcbb
+- ideas to split schedule/storage handlers
+
+* Thu May 25 2017 Pavel Slama <pslama@redhat.com> 4.0-3.git20180103.25f7ff6
+- join multiple notes in xml import
+
+* Wed May 17 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-2.git20180103.b910074
+- added new line
+
+* Mon May 15 2017 Martin Pavlasek <mpavlase@redhat.com> 4.0-1.git20180103.e105b80
+- add test runner (bash script)
+
+* Tue Apr 25 2017 Pavel Slama <pslama@redhat.com> 3.0-3.git20180103.8eb0832
+- return changelog as dict
+
+* Thu Apr 20 2017 Pavel Slama <pslama@redhat.com> 3.0-2.git20180103.4319467
+- fix tjx handler to provide changelog
+
+* Wed Apr 12 2017 Pavel Slama <pslama@redhat.com> 3.0-1.git20180103.545728d
+- return empty changelog from handler when nothing else available
+
+* Wed Apr 12 2017 Pavel Slama <pslama@redhat.com> 2.0-14.git20180103.019767d
+- refactor changelog processing
+
+* Wed Apr 12 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-13.git20180103.0625d50
+- add missing test reference files (.xml)
+
+* Wed Apr 12 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-12.git20180103.16f2d41
+- remove .xml from .gitignore
+
+* Tue Apr 04 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-11.git20180103.87a1e62
+- diff CLI: setup logging facility
+
+* Tue Apr 04 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-10.git20180103.c40e0cb
+- diff CLI: add --handlers-path
+
+* Tue Apr 04 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-9.git20180103.a17f58e
+- converter: update several get_* to static/classmethod
+
+* Mon Apr 03 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-8.git20180103.b4042e8
+- converter: Add CLI params to facilitate exclusive access for CVS
+
+* Mon Apr 03 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-7.git20180103.ced340c
+- converter: pass 'handle' to storage handler constructor
+
+* Mon Apr 03 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-6.git20180103.9cb547c
+- local storage: fix clean_local_handle
+
+* Wed Mar 29 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-5.git20180103.6f8098f
+- models: verify dict type of input of check_for_taskname
+
+* Wed Mar 29 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-4.git20180103.d476643
+- added tests for check taskname existence
+
+* Wed Mar 29 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-3.git20180103.920b027
+- integrate check-taskname into model and schedule_converter
+
+* Wed Mar 29 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-2.git20180103.ffba1f8
+- models: small refactoring (de-spaghetting)
+
+* Tue Mar 28 2017 Martin Pavlasek <mpavlase@redhat.com> 2.0-1.git20180103.00ee1ce
+- update test_handlers to use 'local' storage handler + updates on testrunner
+
+* Tue Mar 28 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-31.git20180103.51a92fa
+- add 'local' storage handler
+
+* Tue Mar 28 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-30.git20180103.0ad68a0
+- test runner: add passing optarg
+
+* Tue Mar 28 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-29.git20180103.90f36b9
+- storage base: update base class
+
+* Tue Mar 28 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-28.git20180103.62a42df
+- json handler: reformating code, removed whitespaces
+
+* Tue Mar 28 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-27.git20180103.f9eb5ac
+- converter: remove CVS specific optarg from import_schedule
+
+* Tue Mar 28 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-26.git20180103.1fb188e
+- discovery: refresh discovered paths after adding new path
+
+* Mon Mar 27 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-25.git20180103.4265a10
+- added test runner for handlers + input/output files
+
+* Fri Mar 24 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-24.git20180103.88f0271
+- json handlers: fix passing output filename
+
+* Fri Mar 24 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-23.git20180103.a1c019c
+- fix storage handler passing handle
+
+* Fri Mar 24 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-22.git20180103.8d1005c
+- discovery: make run_discovery public
+
+* Fri Mar 24 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-21.git20180103.72d3a67
+- rename test_handlers and handler_testrunner
+
+* Thu Mar 23 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-18.git20180103.23832bf
+- tjx handler: remove 'now' element from export
+
+* Thu Mar 23 2017 Pavel Slama <pslama@redhat.com> 1.1-17.git20180103.f7c6230
+- pass handle to storage handler from schedule handler
+
+* Wed Mar 15 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-16.git20180103.1df49fe
+- tests: add logging setup
+
+* Tue Mar 14 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-15.git20180103.7a3ea5d
+- get_local_handle: cleanup
+
+* Tue Mar 14 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-14.git20180103.0468a14
+- storage h. base: cleanup
+
+* Tue Mar 14 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-13.git20180103.5534e8a
+- msp handler: be more robust in is_valid_source
+
+* Tue Mar 14 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-12.git20180103.3745460
+- consider storage handler during import schedule handle
+
+* Fri Mar 10 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-11.git20180103.b1390c5
+- rename storage_update to get_local_handle
+
+* Thu Mar 09 2017 Pavel Slama <pslama@redhat.com> 1.1-10.git20180103.2d6f760
+- rename main storage handler function + notes
+
+* Thu Mar 09 2017 Pavel Slama <pslama@redhat.com> 1.1-9.git20180103.7ba8e29
+- different parameter handling
+
+* Tue Mar 07 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-8.git20180103.1f9760e
+- html handler: rename variable to correspond content
+
+* Tue Mar 07 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-7.git20180103.cba9b42
+- html handler: render also link attribute of tasks (if existst)
+
+* Tue Mar 07 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-6.git20180103.ba80959
+- storage_update script: integrate storage update
+
+* Mon Mar 06 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-5.git20180103.e36c2b7
+- storage_update: integrate autodiscovery handlers from converter
+
+* Thu Mar 02 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-4.git20180103.9d92f78
+- WIP: CLI interface to update-repository part of handling storage
+
+* Thu Mar 02 2017 Martin Pavlasek <mpavlase@redhat.com> 1.1-3.git20180103.b1bb3a1
+- html handler: export only, mimics TaskJuggler task-overview.html export
+
+* Thu Mar 02 2017 Pavel Slama <pslama@redhat.com> 1.1-2.git20180103.860de8c
+- new branching policy
+
+* Wed Mar 01 2017 Pavel Slama <pslama@redhat.com> 1.1-1.git20180103.ef36507
+- remove Text1 from possible flags fields since it can contain other data
+
+* Wed Mar 01 2017 Pavel Slama <pslama@redhat.com> 1.0-1.git20180103.73566a0
+- update rpm log and changleog
+
 * Wed Mar 01 2017 Martin Pavlasek <mpavlase@redhat.com> 1.0-1.git20170301.542b3ad
 - msp handler: remove parser changelog from TJX
 

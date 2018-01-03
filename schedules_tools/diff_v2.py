@@ -134,8 +134,10 @@ class ScheduleDiff(object):
                     self.diff(task['tasks'], tasks_b[last_b_index]['tasks'])
                 else:
                     # structure NOT changed => CHANGED, no further processing - copy task
+                    pass
 
         if last_b_index < len(tasks_b) - 1:
             # the rest => ADDED
+            pass
 
         return res

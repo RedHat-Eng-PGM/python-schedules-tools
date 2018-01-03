@@ -1,6 +1,3 @@
-NAME = python-schedules-tools
-
-
 all: help
 
 
@@ -15,42 +12,24 @@ help:
 	@echo " source                  create source tarball"
 
 
-rpm: prebuild
-	rpmbuild --define "dist .el7eso" -ba build/$(NAME).spec
-
-
-rpm-copr: rpm
-	devel-tools/copr.py ~/rpmbuild/SRPMS/$(NAME)-$(version)-$(release).$(checkout).el7eso.src.rpm
-
-rpm-brew: rpm
-	brew build eso-rhel-7-candidate ~/rpmbuild/SRPMS/$(NAME)-$(version)-$(release).$(checkout).el7eso.src.rpm 
-
-copr: prebuild
-	devel-tools/copr.py ~/rpmbuild/SRPMS/$(NAME)-$(version)-$(release).$(checkout).el7eso.src.rpm
-
-brew: prebuild
-	brew build eso-rhel-7-candidate ~/rpmbuild/SRPMS/$(NAME)-$(version)-$(release).$(checkout).el7eso.src.rpm 
-
-
-prebuild: source
-	$(eval version := $(shell cat build/version.txt))
-	echo "%define version $(version)" > build/$(NAME).spec
-	$(eval release := $(shell cat build/release.txt))
-	echo "%define release $(release)" >> build/$(NAME).spec
-	$(eval checkout := $(shell cat build/checkout.txt))
-	echo "%define checkout $(checkout)" >> build/$(NAME).spec
-	cat spec/$(NAME).spec.in >> build/$(NAME).spec
-	@python scripts/rpm_log.py >> build/$(NAME).spec
+rpm: source
 	mkdir -p ~/rpmbuild/SOURCES
-	cp dist/$(NAME)-$(version).tar.gz ~/rpmbuild/SOURCES
+	cp dist/*.tar.gz ~/rpmbuild/SOURCES
+
+	rpmbuild --define "dist .el7eso" -ba dist/*.spec
+
+
+pypi: source
+	twine upload dist/* 
+
+pypitest: source
+	twine upload dist/*tar.gz -r pypitest 
 
 
 clean:
 	@python setup.py clean
-	rm -f MANIFEST build/$(NAME).spec
-	rm -rf build
-	mkdir -p build
 	find . -\( -name "*.pyc" -o -name '*.pyo' -o -name "*~" -\) -delete
+	rm -rf ./*.egg-info ./dist
 
 install:
 	@python setup.py install
@@ -61,4 +40,3 @@ log:
 
 source: clean
 	@python setup.py sdist
-

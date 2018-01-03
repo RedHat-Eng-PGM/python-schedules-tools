@@ -2,4 +2,4 @@ include LICENSE.txt
 include MANIFEST.in
 include README.md
 include Makefile
-recursive-include scripts *.py *.sh
+recursive-include scripts *.py

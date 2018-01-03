@@ -3,11 +3,13 @@
 import os
 
 from setuptools import setup, find_packages
+from shutil import copyfile
 
-from scripts.setup_utils import write_version, get_rpm_version
+from scripts.setup_utils import read_version, write_version, get_rpm_version
+from scripts.rpm_log import get_rpm_log
 
 
-project_name = "python-schedules-tools"
+project_name = "schedules-tools"
 save_version_dirs = ["schedules_tools"]
 project_url = "https://github.com/RedHat-Eng-PGM/python-schedules-tools"
 project_author = "Red Hat, Inc."
@@ -28,31 +30,47 @@ if os.path.isdir(".git"):
     for i in save_version_dirs:
         file_name = os.path.join(i, "version.py")
         write_version(file_name, package_version)
+else:  # see if there is already saved version
+    for i in save_version_dirs:
+        file_name = os.path.join(i, "version.py")
+        version = read_version(file_name)
+        if version:
+            package_version = list(version)
+            break
+    
 
-try:
-    f = open('build/version.txt', 'w')
-    f.write(package_version[0])
-    f = open('build/release.txt', 'w')
-    f.write(str(package_version[1]))
-    f = open('build/checkout.txt', 'w')
-    f.write(package_version[2])
-    f.close()
-except:
-    pass
+# prepare specfile if existing
+spec = 'python-{}.spec'.format(project_name)
+spec_in = 'spec/{}.in'.format(spec)
+spec_tgt = 'dist/' + spec
+if os.path.exists(spec_in):
+    if not os.path.exists('dist'):
+        os.mkdir('dist')
+        
+    copyfile(spec_in, spec_tgt)
+    
+    with open(spec_tgt, 'r+') as f:
+        orig_content = f.read()
+        f.seek(0, 0)
+        f.write('%define version {}\n%define release_number {}\n%define checkout {}\n'.format(
+            *package_version))
+        f.write(orig_content)
+        f.write(get_rpm_log())
+
 
 setup(
     name=package_name,
     url=project_url,
-    version=package_version[0],
+    version='.'.join([str(v) for v in package_version[0:2]]),
     license='GPL',
     author=project_author,
     author_email=project_author_email,
     description=project_description,
-    packages=find_packages(),
+    packages=find_packages(exclude=('scripts',)),
     include_package_data=True,
     test_suite='tests',
     tests_require=['testtools'],
     scripts=[
-        'scripts/schedule_converter',
+        'scripts/schedule_convert',
         'scripts/schedule_diff'],
 )
