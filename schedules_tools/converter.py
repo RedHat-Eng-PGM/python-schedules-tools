@@ -23,6 +23,10 @@ class HandleWithoutExport(Exception):
     pass
 
 
+class HandlerMissingDeps(Exception):
+    pass
+
+
 class ScheduleConverter(object):
     """
     Abstraction class to work with handles/schedules
@@ -40,7 +44,7 @@ class ScheduleConverter(object):
     @staticmethod
     def _get_schedule_handler_for_handle(handle):
         for module in discovery.schedule_handlers.values():
-            if module['class'].is_valid_source(handle):
+            if module['class'].handle_deps_satisfied and module['class'].is_valid_source(handle):
                 return module
 
         msg = "Can't find schedule handler for handle: {}".format(handle)
@@ -135,6 +139,11 @@ class ScheduleConverter(object):
                                             handle=local_handle, 
                                             format=schedule_src_format
                                             )
+
+            if not schedule_handler_cls.handle_deps_satisfied:
+                msg = ('Schedule handler {} has unsatisfied dependencies, '
+                       'can\'t get modified time.'.format(schedule_handler_cls))
+                raise HandlerMissingDeps(msg)
     
             handle_modified = schedule_handler_cls(
                                             handle=local_handle, 
@@ -163,6 +172,11 @@ class ScheduleConverter(object):
                                         handle=local_handle, 
                                         format=schedule_src_format
                                         )
+        if not schedule_handler_cls.handle_deps_satisfied:
+            msg = ('Schedule handler {} has unsatisfied dependencies, '
+                   'can\'t import schedule.'.format(schedule_handler_cls))
+            raise HandlerMissingDeps(msg)
+
         schedule_handler = schedule_handler_cls(
                                         handle=local_handle, 
                                         options=options
@@ -201,6 +215,11 @@ class ScheduleConverter(object):
             raise HandleWithoutExport(
                 'Schedule handler for {} doesn\'t provide export.'
                 .format(target_format))
+
+        if not schedule_handler_cls.handle_deps_satisfied:
+            msg = ('Schedule handler {} has unsatisfied dependencies, '
+                   'can\'t export schedule.'.format(schedule_handler_cls))
+            raise HandlerMissingDeps(msg)
 
         schedule_handler = schedule_handler_cls(schedule=self.schedule, options=options)
         

@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
     provide_export = False
+
+    handle_deps_satisfied = True
+
     task_index = 1
 
     @classmethod

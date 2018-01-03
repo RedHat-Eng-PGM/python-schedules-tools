@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 class ScheduleHandler_msp(ScheduleHandlerBase):
     provide_export = True
+
+    handle_deps_satisfied = True
     
     default_export_ext = 'xml'
 

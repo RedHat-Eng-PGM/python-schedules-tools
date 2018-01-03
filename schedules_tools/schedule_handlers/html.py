@@ -33,7 +33,9 @@ table td div.note {
 
 class ScheduleHandler_html(ScheduleHandlerBase):
     provide_export = True
-    
+
+    handle_deps_satisfied = True
+
     default_export_ext = 'html'
 
     indent_level_px = 14

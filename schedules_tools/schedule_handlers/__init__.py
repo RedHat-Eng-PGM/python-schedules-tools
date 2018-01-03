@@ -25,6 +25,12 @@ class ScheduleHandlerBase(object):
     
     default_export_ext = None
 
+    # Handlers can depend on additional python modules. We don't require from
+    # users to have all of them installed if they aren't used.
+    # This flag indicates that the handler can be fully utilized and there is
+    # no missing dependent packages installed.
+    handle_deps_satisfied = False
+
     def __init__(self, handle=None, schedule=None, options=dict()):
         self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule

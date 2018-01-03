@@ -1,6 +1,5 @@
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools import models
-from pyral import Rally, rallySettings
 import sys
 import datetime
 import os
@@ -8,9 +7,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+try:
+    from pyral import Rally, rallySettings
+    additional_deps_satistifed = True
+except ImportError:
+    additional_deps_satistifed = False
+
 
 class ScheduleHandler_rally(ScheduleHandlerBase):
     provide_export = False
+
+    handle_deps_satisfied = additional_deps_satistifed
 
     @classmethod
     def is_valid_source(cls, handle=None):

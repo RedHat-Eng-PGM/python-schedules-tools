@@ -1,6 +1,5 @@
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools import models
-from smartsheet import Smartsheet
 import logging
 import datetime
 import re
@@ -19,13 +18,21 @@ COLUMN_LINK = 'link'
 COLUMN_PRIORITY = 'priority'
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+
 smartsheet_logger = logging.getLogger('smartsheet.smartsheet')
 smartsheet_logger.setLevel(logging.INFO)
+
+try:
+    from smartsheet import Smartsheet
+    additional_deps_satistifed = True
+except ImportError:
+    additional_deps_satistifed = False
 
 
 class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     provide_export = True
+    handle_deps_satisfied = additional_deps_satistifed
+
     date_format = '%Y-%m-%dT%H:%M:%S'  # 2017-01-20T08:00:00
     _client_instance = None
     _sheet_instance = None

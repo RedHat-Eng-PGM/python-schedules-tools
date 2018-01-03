@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
     provide_changelog = True
+
+    handle_deps_satisfied = True
     
     @classmethod
     def is_valid_source(cls, handle=None):

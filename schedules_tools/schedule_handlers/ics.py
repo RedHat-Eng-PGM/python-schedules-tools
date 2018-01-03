@@ -1,17 +1,22 @@
 import datetime
 import logging
 
-from icalendar import Calendar, Event
-
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 
 logger = logging.getLogger(__name__)
+
+try:
+    from icalendar import Calendar, Event
+    additional_deps_satistifed = True
+except ImportError:
+    additional_deps_satistifed = False
 
 
 class ScheduleHandler_ics(ScheduleHandlerBase):
     provide_export = True
     
     default_export_ext = 'ics'
+    handle_deps_satisfied = additional_deps_satistifed
     
     _datetime_format = '%Y%m%dT%H%M%SZ'
     _now = None
