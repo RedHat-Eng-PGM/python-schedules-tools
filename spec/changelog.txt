@@ -1,3 +1,6 @@
+* Wed Jan 03 2018 Pavel Slama <pslama@redhat.com> 7.8-36.git20180103.094341b
+- overhaul building process, add pypi, update changelog
+
 * Wed Jan 03 2018 Pavel Slama <pslama@redhat.com> 7.8-35.git20180103.58dbd52
 - update license, setup for pypi
 

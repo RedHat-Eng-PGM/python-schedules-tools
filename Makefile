@@ -20,10 +20,10 @@ rpm: source
 
 
 pypi: source
-	twine upload dist/* 
+	twine upload dist/*tar.gz -r pypi-pgm
 
 pypitest: source
-	twine upload dist/*tar.gz -r pypitest 
+	twine upload dist/*tar.gz -r pypitest-pgm 
 
 
 clean:
