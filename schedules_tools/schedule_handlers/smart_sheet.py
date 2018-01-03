@@ -112,11 +112,11 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         task.index = row.row_number
         # task.slug is generated at the end of importing whole schedule
-        task.name = str(cells[COLUMN_TASK_NAME])
 
         # skip empty rows
-        if not task.name:
+        if not cells[COLUMN_TASK_NAME]:
             return
+        task.name = str(cells[COLUMN_TASK_NAME])
 
         if cells[COLUMN_NOTE]:
             task.note = str(cells[COLUMN_NOTE])
