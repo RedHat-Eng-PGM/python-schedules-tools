@@ -1,8 +1,5 @@
-include AUTHORS
-include INSTALL
-include COPYING
-include LICENSE
+include LICENSE.txt
 include MANIFEST.in
-include README
+include README.md
 include Makefile
 recursive-include scripts *.py *.sh
