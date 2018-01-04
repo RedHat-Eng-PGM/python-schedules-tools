@@ -70,6 +70,6 @@ setup(
     test_suite='tests',
     tests_require=['testtools'],
     scripts=[
-        'scripts/schedule_convert',
-        'scripts/schedule_diff'],
+        'scripts/schedule-convert',
+        'scripts/schedule-diff'],
 )

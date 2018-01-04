@@ -1,3 +1,9 @@
+* Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-43.git20180104.4d335a7
+- update changelog
+
+* Thu Jan 04 2018 Martin Pavlasek <mpavlase@redhat.com> 7.8-39.git20180104.407f50f
+- smartsheet: fix skipping empty task rows
+
 * Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-38.git20180104.1fbd99e
 - remove unnecessary lines
 
