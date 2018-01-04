@@ -1,3 +1,6 @@
+* Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-44.git20180104.2cf7822
+- rename executables
+
 * Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-43.git20180104.4d335a7
 - update changelog
 

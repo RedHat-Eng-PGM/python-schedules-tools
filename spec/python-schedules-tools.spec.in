@@ -62,7 +62,7 @@ done
 %{py_sitedir}/schedules_tools
 %{py_sitedir}/schedules_tools*.egg-info
 
-%attr(755,root,root) %{_bindir}/schedule_*
+%attr(755,root,root) %{_bindir}/schedule-*
 
 # setup permissions so that logrotate works correctly
 %defattr(664,root,apache,755)
