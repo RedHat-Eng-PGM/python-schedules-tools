@@ -2,7 +2,6 @@ from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools import models
 from datetime import datetime
 import os
-import re
 import tempfile
 import logging
 from lxml import etree

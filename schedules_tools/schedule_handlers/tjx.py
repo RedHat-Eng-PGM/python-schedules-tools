@@ -27,7 +27,6 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
                 return True
         return False
     
-    # Schedule
     def import_schedule(self):
         self.schedule = models.Schedule()
 
@@ -58,7 +57,8 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
             if root_task_name:
                 self.schedule.name = root_task_name[0].text
         else:
-            logger.info('Can\'t find single root task in %s (found %d root tasks)' % (self.handle, len(eRoot_tasks)))
+            logger.info('Can\'t find single root task in {} (found {} root '
+                        'tasks)'.format(self.handle, len(eRoot_tasks)))
 
         self.schedule.name = self.schedule.name.strip()
 
@@ -91,7 +91,6 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
         return self.schedule
 
-    # Task
     @staticmethod
     def _load_tjx_date(eTask, datetype, what=''):
         """Returns datetime with datetype = plan|actual what = start|end"""
@@ -100,7 +99,6 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
         if eTag:
             return datetime.datetime.fromtimestamp(float(eTag[0].text))
 
-    # Task
     def task_load_tjx_node(self, task, eTask):
         task.index = int(eTask.xpath('Index')[0].text)
         task.slug = eTask.get('Id')

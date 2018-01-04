@@ -41,7 +41,6 @@ class ScheduleHandler_ics(ScheduleHandlerBase):
             calendar.add_component(self.task2ical(task))
             self.add_tasks_to_calendar(calendar, task.tasks)
 
-
     def task2ical(self, task):
         event = Event()
         event['uid'] = '{}-{}'.format(task.index, task.slug)

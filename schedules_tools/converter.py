@@ -35,7 +35,8 @@ class ScheduleConverter(object):
     def __init__(self, schedule=None):
         self.schedule = schedule
 
-# TODO: take a look if _get_handler* methods can't be shared for both schedule/storage
+    # TODO: take a look if _get_handler* methods can't be shared for both
+    # schedule/storage
     @staticmethod
     def _get_schedule_handler_for_handle(handle):
         for module in discovery.schedule_handlers.values():
@@ -78,9 +79,8 @@ class ScheduleConverter(object):
     def _get_storage_handler_cls(cls, *args, **kwargs):
         return cls._get_storage_handler_for_format(*args, **kwargs)['class']
 
-
     def _init_storage_handler(self, handle, storage_src_format, options=dict()):
-        """ Prepare storage handler if it's necessary and isn't already prepared """
+        """Prepare storage handler if it's necessary and isn't already prepared"""
         if storage_src_format and not self.storage_handler:
             storage_handler_cls = self._get_storage_handler_cls(storage_src_format)
             storage_handler = storage_handler_cls(handle=handle,
@@ -106,7 +106,6 @@ class ScheduleConverter(object):
             self.storage_handler.clean_local_handle()
         
         self.local_handle = None
-
 
     # Following methods call their counterparts on handlers
     def handle_modified_since(self, 

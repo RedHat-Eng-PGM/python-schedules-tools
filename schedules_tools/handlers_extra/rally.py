@@ -22,7 +22,6 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
                 return True
         return False
 
-    # Schedule
     def import_schedule(self):
         self.schedule = models.Schedule()
         start_time = None

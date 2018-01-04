@@ -35,7 +35,7 @@ class ScheduleHandler_html(ScheduleHandlerBase):
     provide_export = True
     
     default_export_ext = 'html'
-    
+
     indent_level_px = 14
 
     def __init__(self, *args, **kwargs):
