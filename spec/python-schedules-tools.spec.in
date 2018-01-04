@@ -69,4 +69,6 @@ done
 %dir %log_dir
 %ghost %config %log_dir/*
 
+
+
 %changelog

@@ -1,3 +1,6 @@
+* Wed Jan 03 2018 Pavel Slama <pslama@redhat.com> 7.8-37.git20180103.b5ba4cf
+- pgm custom pypi setup
+
 * Wed Jan 03 2018 Pavel Slama <pslama@redhat.com> 7.8-36.git20180103.094341b
 - overhaul building process, add pypi, update changelog
 

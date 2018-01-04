@@ -16,7 +16,6 @@ project_author = "Red Hat, Inc."
 project_author_email = "pp-dev-list@redhat.com"
 project_description = "Schedules tools to handle/convert various schedule formats"
 package_name = project_name
-package_module_name = "schedules_tools"
 package_version = ['5.30.0', 1, 'git']  # default
 
 
