@@ -1,3 +1,6 @@
+* Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-38.git20180104.1fbd99e
+- remove unnecessary lines
+
 * Wed Jan 03 2018 Pavel Slama <pslama@redhat.com> 7.8-37.git20180103.b5ba4cf
 - pgm custom pypi setup
 
