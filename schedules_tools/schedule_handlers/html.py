@@ -6,26 +6,28 @@ logger = logging.getLogger(__name__)
 
 
 css = """
-table {
+a[href=""] {display:none}
+
+table.schedule {
     border-collapse: collapse;
 }
 
-table th, table td {
+table.schedule th, table.schedule td {
     border: 2px solid black;
     padding: 3px;
 }
 
-table th {
+table.schedule th {
     background-color: #a5c2ff;
 }
-table td {
+table.schedule td {
     background-color: #f3ebae;
 }
-table td.duration {
+table.schedule td.duration {
     text-align: right;
 }
 
-table td div.note {
+table.schedule td div.note {
     font-size: 80%;
 }
 """
@@ -114,7 +116,8 @@ class ScheduleHandler_html(ScheduleHandlerBase):
         if self.options.get('html_table_header', False):
             e_body.append(etree.fromstring(self.options['html_table_header']))
 
-        e_table = etree.SubElement(e_body, 'table', align='center')
+        e_table = etree.SubElement(e_body, 'table', attrib={'align': 'center',
+                                                            'class': 'schedule'})
         e_tr_head = etree.SubElement(e_table, 'tr')
         head_columns = ['HierarchIndex', 'Name', 'Start', 'End', 'Duration']
         for column in head_columns:
