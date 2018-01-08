@@ -7,7 +7,7 @@ from schedules_tools.models import Task
 from deepdiff import DeepDiff
 from deepdiff.helper import NotPresent
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 def _custom_json_encoder(obj):
@@ -127,7 +127,7 @@ class ScheduleDiff(object):
         try:
             parent = self.walk_dict(to_dict, path)
         except (ValueError, KeyError):
-            logger.warning("Change skipped."
+            log.warning("Change skipped."
                            "Could not find any item with the path: %s" % change.path())
             return
 

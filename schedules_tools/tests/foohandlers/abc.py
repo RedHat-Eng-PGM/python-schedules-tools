@@ -5,7 +5,7 @@ import logging
 import os
 from lxml import etree
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 class ScheduleHandler_abc(ScheduleHandlerBase):
     provide_export = True

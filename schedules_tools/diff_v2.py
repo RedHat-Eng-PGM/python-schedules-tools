@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 REPORT_NO_CHANGE = ''

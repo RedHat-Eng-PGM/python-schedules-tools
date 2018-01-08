@@ -5,7 +5,7 @@ import datetime
 import os
 import logging
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 try:
     from pyral import Rally, rallySettings

@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 from lxml import etree
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 # Handle implementation must be in format ScheduleHandler_format

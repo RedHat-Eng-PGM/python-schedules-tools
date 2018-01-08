@@ -5,7 +5,7 @@ import logging
 import os
 from lxml import etree
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
@@ -50,7 +50,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
             if root_tasks_count == 1:
                 eRoot_task = eRoot_tasks[0]
             elif root_tasks_count == 0:
-                logger.warning('Empty schedule %s ' % (self.handle,))
+                log.warning('Empty schedule %s ' % (self.handle,))
         else:
             eRoot_task = eRoot_tasks[0]
 
@@ -59,7 +59,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
             if root_task_name:
                 self.schedule.name = root_task_name[0].text
         else:
-            logger.info('Can\'t find single root task in {} (found {} root '
+            log.info('Can\'t find single root task in {} (found {} root '
                         'tasks)'.format(self.handle, len(eRoot_tasks)))
 
         self.schedule.name = self.schedule.name.strip()

@@ -8,7 +8,7 @@ from schedules_tools.models import Schedule
 from schedules_tools.storage_handlers import AcquireLockException
 
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ScheduleFormatNotSupported(Exception):
@@ -167,7 +167,6 @@ class ScheduleConverter(object):
                                                            storage_src_format,
                                                            options
                                                            )
-
         schedule_handler_cls = self._get_schedule_handler_cls(
                                         handle=local_handle, 
                                         format=schedule_src_format
@@ -244,10 +243,15 @@ def convert(args):
                                   schedule_src_format=args.source_format,
                                   storage_src_format=args.source_storage_format,
                                   options=opt_args)
-    except AcquireLockException as e:
-        logger.error(e)
-        return
 
+        if converter.schedule.errors_import:
+            for err in converter.schedule.errors_import:
+                log.error(err)
+            return False
+        
+    except AcquireLockException as e:
+        log.error(e)
+        return
 
     check_tasks = dict()
     for task_name in args.check_taskname:
@@ -259,10 +263,13 @@ def convert(args):
     if args.check_taskname or args.check_taskname_startswith:
         missing_tasks = converter.schedule.check_for_taskname(check_tasks)
         if missing_tasks:
-            logger.info('Missing tasks: {}'.format(list(missing_tasks)))
+            log.info('Missing tasks: {}'.format(list(missing_tasks)))
 
-    if args.flat:
+    if args.flat or args.milestones:
         converter.schedule.make_flat()
+        
+    if args.milestones:
+        converter.schedule.filter_milestones()
         
     flag_show = args.flag_show.split(',')
     if flag_show == ['']:
@@ -367,6 +374,11 @@ def get_handlers_args_parser(add_help=False):
     
     parser.add_argument('--flat',
                         help='Make output schedule flat',
+                        default=False,
+                        action='store_true')
+
+    parser.add_argument('--milestones',
+                        help='Filter only milestones (implies --flat)',
                         default=False,
                         action='store_true')
     

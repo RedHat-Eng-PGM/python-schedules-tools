@@ -6,7 +6,7 @@ import os
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools.models import Schedule, Task
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ScheduleHandler_json(ScheduleHandlerBase):

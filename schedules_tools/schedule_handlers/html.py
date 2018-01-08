@@ -2,7 +2,7 @@ from schedules_tools.schedule_handlers import ScheduleHandlerBase
 import logging
 from lxml.html import etree
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 css = """
@@ -22,6 +22,10 @@ table.schedule th {
 }
 table.schedule td {
     background-color: #f3ebae;
+}
+table.schedule td.date {
+    font-size: 90%;
+    white-space: nowrap;
 }
 table.schedule td.duration {
     text-align: right;
@@ -77,9 +81,11 @@ class ScheduleHandler_html(ScheduleHandlerBase):
             e_link.text = task.link
 
         e_td = etree.SubElement(e_tr, 'td')
+        e_td.attrib['class'] = 'date'
         e_td.text = str(task.dAcStart.strftime(self.options['date_format']))
 
         e_td = etree.SubElement(e_tr, 'td')
+        e_td.attrib['class'] = 'date'
         e_td.text = str(task.dAcFinish.strftime(self.options['date_format']))
 
         duration = task.dAcFinish - task.dAcStart

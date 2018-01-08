@@ -12,7 +12,7 @@ from schedules_tools.converter import ScheduleConverter
 from schedules_tools.tests import jsondate
 from schedules_tools.models import Schedule
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 def pytest_generate_tests(metafunc):
@@ -200,7 +200,7 @@ class TestHandlers(object):
                                                  self.intermediary_reference_file)
             regenerate = os.environ.get('REGENERATE', False) == 'true'
             if regenerate:
-                logger.info('test_import: Regenerating interm. reference file'
+                log.info('test_import: Regenerating interm. reference file'
                             'from imported schedule.')
 
                 with open(interm_reference_file, 'w+') as fd:
@@ -242,7 +242,7 @@ class TestHandlers(object):
         regenerate = os.environ.get('REGENERATE', False) == 'true'
 
         if regenerate:
-            logger.info('test_export: Regenerating exported file from reference schedule.')
+            log.info('test_export: Regenerating exported file from reference schedule.')
             shutil.copy(export_output_filename, full_export_schedule_file)
 
         with open(full_export_schedule_file) as fd:

@@ -17,7 +17,7 @@ COLUMN_FLAGS = 'flags'
 COLUMN_LINK = 'link'
 COLUMN_PRIORITY = 'priority'
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 smartsheet_logger = logging.getLogger('smartsheet.smartsheet')
 smartsheet_logger.setLevel(logging.INFO)
@@ -94,7 +94,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         for column in self.sheet.columns:
             index = self.columns_mapping_name.get(column.title, None)
             if index is None:
-                logger.debug('Unknown column %s, skipping.' % column.title)
+                log.debug('Unknown column %s, skipping.' % column.title)
                 continue
             self.columns_mapping_id[column.id] = index
 
@@ -246,7 +246,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         all_days = [dstart + datetime.timedelta(days=x) for x in
                     range((dfinish - dstart).days + 1)]
         working_days = sum(1 for d in all_days if d.weekday() < 5)
-        logger.debug('duration: {} working days ({} - {})'.format(working_days,
+        log.debug('duration: {} working days ({} - {})'.format(working_days,
                                                                   dstart,
                                                                   dfinish))
         return working_days

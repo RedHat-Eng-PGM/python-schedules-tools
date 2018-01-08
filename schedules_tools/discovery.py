@@ -10,7 +10,7 @@ PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
 BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 re_schedule_handler = re.compile('^ScheduleHandler_(\S+)$')
 re_storage_handler = re.compile('^StorageHandler_(\S+)$')
 
@@ -70,7 +70,7 @@ class AutodiscoverHandlers(object):
                 pass
 
             ret[key] = val
-            logger.debug('Discovered new handler: {} from {}'.format(key, module))
+            log.debug('Discovered new handler: {} from {}'.format(key, module))
         return ret
 
     def _discover_path(self, filename, parent_module):
@@ -90,7 +90,7 @@ class AutodiscoverHandlers(object):
                 msg = ('Found handler with name \'{}\', that already exists '
                        'and would be overridden (existing: {}, '
                        'new: {})').format(k, cls_existing, cls_new)
-                logger.info(msg)
+                log.info(msg)
 
         self._discovered_handlers.update(classes)
 
@@ -98,7 +98,7 @@ class AutodiscoverHandlers(object):
         try:
             loaded_module = self._load_module(pypath)
         except ImportError as e:
-            logger.warn('Skipping path "{}", couldn\'t load'
+            log.warn('Skipping path "{}", couldn\'t load'
                         'it: {} )'.format(pypath, e))
             return self._discovered_handlers
 
@@ -151,7 +151,7 @@ class LazyDictDiscovery(dict):
         ret = dict()
 
         for pypath in search_paths:
-            logger.debug('Searching for handlers in: {}'.format(pypath))
+            log.debug('Searching for handlers in: {}'.format(pypath))
             ret = self.autodiscovery.discover(pypath)
 
         # override all existing keys/values

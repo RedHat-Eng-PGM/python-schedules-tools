@@ -6,7 +6,7 @@ import logging
 
 from copy import copy
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 re_flags_separator = re.compile('[, ]+')
 
 ATTR_PREFIX_FLAG = 'Flags'
@@ -93,7 +93,7 @@ class Task(object):
             # in case of multiple notes - concatenate
             self.note = ' '.join([self.note, val]).lstrip()
         else:
-            logger.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
+            log.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
     @staticmethod
     def _workaround_it_phase_names(eTask):
@@ -222,6 +222,27 @@ class Schedule(object):
         flat_tasks = []
         add_tasks_to_list(self.tasks, flat_tasks)
         self.tasks = flat_tasks
+
+
+    def filter_milestones(self):
+        '''Keep only tasks that are milestones or contain children that are'''
+        def filter_tasks(tasks):
+            tasks_list = []
+            for task in tasks:
+                filtered_subtasks = filter_tasks(task.tasks)
+                
+                logmsg_fmt = 'REMOVE: {} {}'
+                
+                if task.milestone or filtered_subtasks:
+                    task.tasks = filtered_subtasks
+                    tasks_list.append(task)
+                    logmsg_fmt = 'ADD: {} {}'
+                    
+                log.info(logmsg_fmt.format(task.name, task.milestone))
+                    
+            return tasks_list
+        
+        self.tasks = filter_tasks(self.tasks)
         
     
     def filter_flags(self, show=None, hide=None):
@@ -233,22 +254,29 @@ class Schedule(object):
             hide: list of flags to hide
         '''
         
-        def add_filtered_tasks(tasks, tasks_list):
+        def filter_tasks(tasks):
+            tasks_list = []
             for task in tasks:
-                # for each task we'll be replacing/filtering it's children
-                filtered_subtasks = []
-                
                 # see if there are any matching children
-                add_filtered_tasks(task.tasks, filtered_subtasks)
-                
-                # if child or task itself matches - add to the result
-                if (filtered_subtasks or 
-                        (not (set(task.flags) & set(hide)) 
-                         and (set(task.flags) & set(show)))):
+                filtered_subtasks = filter_tasks(task.tasks)
+
+                # Add to result if not hidden and (has subtasks or fits show)
+                logmsg_fmt = 'REMOVE: {} {}'
+                if (not (set(task.flags) & set(hide)) 
+                    and (filtered_subtasks 
+                         or (set(task.flags) & set(show))
+                         or not show)):
                     task.tasks = filtered_subtasks
                     tasks_list.append(task)
                     
+                    logmsg_fmt = 'ADD: {} {}'
+                    
                     self.used_flags.update(task.flags)
+                
+                log.info(logmsg_fmt.format(task.name, task.flags))
+                
+            
+            return tasks_list
             
         if show is None:
             show = []
@@ -256,11 +284,11 @@ class Schedule(object):
             hide = []
             
         if show or hide:
-            tasks = []
             self.used_flags = set()
             
-            add_filtered_tasks(self.tasks, tasks)
-            self.tasks = tasks
+            log.info('FLAG filter: SHOW {}   HIDE {}'.format(show, hide))
+
+            self.tasks = filter_tasks(self.tasks)
 
 
     def check_top_task(self):
@@ -480,7 +508,7 @@ class Schedule(object):
             test_id = '%s_%s' % (test_id, n)
             self.id_reg.add(test_id)
 
-            logger.info('Duplicate Names: %s, adding: %s' % (source, test_id))
+            log.info('Duplicate Names: %s, adding: %s' % (source, test_id))
 
         return test_id
 

@@ -1,7 +1,7 @@
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 import logging
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ScheduleHandler_tjx(ScheduleHandlerBase):

@@ -9,7 +9,7 @@ from lxml import etree
 MSP_FLAGS_ATTRS = ('Flags', )
 datetime_format = '%Y-%m-%dT%H:%M:%S'
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ScheduleHandler_msp(ScheduleHandlerBase):

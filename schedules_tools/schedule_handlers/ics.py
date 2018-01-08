@@ -3,7 +3,7 @@ import logging
 
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 try:
     from icalendar import Calendar, Event
