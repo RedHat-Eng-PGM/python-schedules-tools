@@ -269,7 +269,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         if task.milestone:
             row.cells.append({
                 'column_id': self.sheet.columns[1].id,
-                'value': '~0'
+                'value': '0'
             })
         elif task.dFinish:
             # finish date can be set only as (start, duration) tuple,
