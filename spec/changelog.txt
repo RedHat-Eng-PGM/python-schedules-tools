@@ -1,3 +1,18 @@
+* Mon Jan 08 2018 Pavel Slama <pslama@redhat.com> 7.8-49.git20180108.dc45709
+- update tests
+
+* Mon Jan 08 2018 Pavel Slama <pslama@redhat.com> 7.8-48.git20180108.1db55b5
+- refactor log, milestones and flag filters
+
+* Mon Jan 08 2018 Martin Pavlasek <mpavlase@redhat.com> 7.8-47.git20180108.cb8e7aa
+- smartsheet: export milestone as ordinary (0d), not extended (~0d)
+
+* Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-46.git20180108.850b001
+- add class to schedule table, update css
+
+* Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-45.git20180108.a3f8864
+- typo
+
 * Thu Jan 04 2018 Pavel Slama <pslama@redhat.com> 7.8-44.git20180104.2cf7822
 - rename executables
 
