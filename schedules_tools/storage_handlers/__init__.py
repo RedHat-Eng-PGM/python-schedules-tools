@@ -1,13 +1,17 @@
 import datetime
 import logging
 
-import redis
-
-
 from schedules_tools import SchedulesToolsException
 
 
 log = logging.getLogger(__name__)
+
+try:
+    import redis
+    redis_available = True
+except ImportError:
+    log.info('Redis unavailable - will not use exclusive access to storage')
+    redis_available = False
 
 
 class AcquireLockException(SchedulesToolsException):
@@ -37,7 +41,8 @@ class StorageBase(object):
         self.handle = handle  # 'handle' is source/target of schedule in general        
         self.options = options
         
-        self.exclusive_access = options.get(self.exclusive_access_option, self.exclusive_access)
+        self.exclusive_access = redis_available and options.get(self.exclusive_access_option, 
+                                                                self.exclusive_access)
 
         if self.exclusive_access:
             redis_url = options.get('redis_url', '')
