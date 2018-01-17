@@ -37,6 +37,7 @@ class Task(object):
     _date_format = '%Y-%m-%dT%H:%M:%S'
     _rx = None
     _schedule = None
+    _subtree_hash = None
 
     def __init__(self, schedule=None, level=1):
         self.tasks = []
@@ -174,6 +175,19 @@ class Task(object):
             task.tasks.append(Task.load_from_dict(new_task, schedule))
 
         return task
+
+    @property
+    def subtree_hash(self):
+        attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish']
+
+        if self._subtree_hash is None:
+            self._subtree_hash = ''
+
+            for child_task in self.tasks:
+                values_list = [str(getattr(child_task, attr)) for attr in attrs]
+                self._subtree_hash += ''.join(values_list) + child_task.subtree_hash
+
+        return self._subtree_hash
 
 
 class Schedule(object):
