@@ -7,8 +7,8 @@ REPORT_NO_CHANGE = ''
 REPORT_ADDED = '_added_'
 REPORT_REMOVED = '_removed_'
 REPORT_CHANGED = '_changed_'
-REPORT_NEW_VALUE = 'new_value'
-REPORT_OLD_VALUE = 'old_value'
+# REPORT_NEW_VALUE = 'new_value'
+# REPORT_OLD_VALUE = 'old_value'
 
 REPORT_KEYS = {
     REPORT_ADDED,
@@ -26,62 +26,46 @@ REPORT_PREFIX_MAP = {
 
 class ScheduleDiff(object):
 
-    subtree_hash_attr_name = '_subtree_hash_'
+    result = None
 
-    """ List of attributes used to create the subtree hash. """
-    subtree_hash_attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish']
+    subtree_hash_attr_name = 'subtree_hash'
 
     """ List of attributes used to compare 2 tasks. """
-    tasks_match_attrs = subtree_hash_attrs + [subtree_hash_attr_name]
+    tasks_match_attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish', subtree_hash_attr_name]
 
     def __init__(self, schedule_a, schedule_b):
         self.schedule_a = schedule_a
         self.schedule_b = schedule_b
 
-        self.diff_res = self.diff()
+        self.result = self._diff()
 
-    def _get_or_create_subtree_hash(self, task):
-        if self.subtree_hash_attr_name not in task:
-            subtree_hash = ''
-
-            for child_task in task['tasks']:
-                subtree_hash += ''.join([child_task[attr] for attr in self.subtree_hash_attrs])
-                subtree_hash += self._get_or_create_subtree_hash(child_task)
-
-            task[self.subtree_hash_attr_name] = subtree_hash
-        return task[self.subtree_hash_attr_name]
-
-    def _create_report(self, report_key, new_value=None, old_value=None):
+    def _create_report(self, report_type, left=None, right=None, tasks=[], changed_attrs=[]):
         """
-        Returns a dictionary with the change report.
+        Returns a dictionary representing a possible change.
 
-        @param report_key: one of the REPORT_KEYS elements.
+            {
+                left: Task or None,
+                right: Task or None,
+                tasks: List of reports from the child Tasks,
+                changed_attr: List of changed attributes,
+                report_type: Type of change
+            }
+
         """
-        value = {}
-
-        if report_key == REPORT_CHANGED:
-            if new_value is None:
-                value[REPORT_NEW_VALUE] = new_value
-            if old_value is None:
-                value[REPORT_OLD_VALUE] = old_value
-
-        else:  # added or removed
-            value = new_value if report_key == REPORT_ADDED else old_value
-
-        return {report_key: value}
+        return {
+            'left': left,
+            'right': right,
+            'tasks': tasks,
+            'changed_attrs': changed_attrs,
+            'report_type': report_type,
+        }
 
     def task_diff(self, task_a, task_b):
         """
         Uses attributes defined in `tasks_match_attrs` to compare 2 tasks and 
         returns a list of atts that don't match.
-
-        It also makes sure that tasks have a `subtree_hash` generated.
         """
-
-        self._get_or_create_subtree_hash(task_a)
-        self._get_or_create_subtree_hash(task_b)
-
-        return [attr for attr in self.tasks_match_attrs if a[attr] != b[attr]]
+        return [attr for attr in self.tasks_match_attrs if getattr(task_a, attr) != getattr(task_b, attr)]
 
     def find_best_match_index(self, task, in_tasks, start_at_index=0):
         """
@@ -91,7 +75,7 @@ class ScheduleDiff(object):
         match_index = None
         unmatched_attrs = self.tasks_match_attrs[:]
 
-        for i in range(start_at_index, len(in_tasks) - 1):
+        for i in range(start_at_index, len(in_tasks)):
             unmatched = self.task_diff(task, in_tasks[i])
 
             if len(unmatched) < len(unmatched_attrs):
@@ -100,8 +84,7 @@ class ScheduleDiff(object):
 
         return match_index, unmatched_attrs
 
-    # WIP
-    def diff(self, tasks_a=None, tasks_b=None):
+    def _diff(self, tasks_a=None, tasks_b=None):
 
         if tasks_a is None:
             tasks_a = self.schedule_a.tasks
@@ -111,33 +94,55 @@ class ScheduleDiff(object):
 
         res = []
         last_b_index = 0
+
         for i, task in enumerate(tasks_a):
             match_index, diff_attrs = self.find_best_match_index(task, tasks_b, start_at_index=last_b_index)
+            report = {}
 
             if match_index is None:
                 # no match => REMOVED
-                report = self._create_report(REPORT_REMOVED, old_value=task)
-                res.append(report)
+                report = self._create_report(REPORT_REMOVED, left=tasks_a[i])
 
             else:
-                # TODO:
-                #   ALL elements between last_b_index and match_index => ADDED
+
+                # ALL elements between last_b_index and match_index => ADDED
+                for k in range(last_b_index, match_index):
+                    report = self._create_report(REPORT_ADDED, right=tasks_b[k])
+                    res.append(report)
+
+                # exact match => NO CHANGE
+                if len(diff_attrs) == 0:
+                    report = self._create_report(REPORT_NO_CHANGE,
+                                                 left=tasks_a[i],
+                                                 right=tasks_b[match_index])
+
+                # structural change => CHANGED / NO CHANGE
+                elif self.subtree_hash_attr_name in diff_attrs:
+
+                    # process child tasks
+                    tasks = self._diff(tasks_a[i].tasks, tasks_b[match_index].tasks)
+
+                    report_type = REPORT_CHANGED if len(diff_attrs) > 1 else REPORT_NO_CHANGE
+                    report = self._create_report(report_type,
+                                                 left=tasks_a[i],
+                                                 right=tasks_b[match_index],
+                                                 changed_attrs=diff_attrs,
+                                                 tasks=tasks)
+
+                # no structural changes => CHANGED
+                else:
+                    report = self._create_report(REPORT_CHANGED,
+                                                 left=tasks_a[i],
+                                                 right=tasks_b[match_index],
+                                                 changed_attrs=diff_attrs)
 
                 last_b_index = match_index
 
-                if len(diff_attrs) == 0:
-                    # exact match => NO CHANGE, copy task
-                    res.append(task)
+            res.append(report)
 
-                elif self.subtree_hash_attr_name in diff_attrs:
-                    # structure changed => NO CHANGE, recursive call on children
-                    self.diff(task['tasks'], tasks_b[last_b_index]['tasks'])
-                else:
-                    # structure NOT changed => CHANGED, no further processing - copy task
-                    pass
-
-        if last_b_index < len(tasks_b) - 1:
-            # the rest => ADDED
-            pass
+        # remaining tasks => ADDED
+        for k in range(last_b_index + 1, len(tasks_b)):
+            report = self._create_report(REPORT_ADDED, right=tasks_b[k])
+            res.append(report)
 
         return res
