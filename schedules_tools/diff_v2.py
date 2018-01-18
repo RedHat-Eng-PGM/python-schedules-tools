@@ -100,7 +100,6 @@ class ScheduleDiff(object):
             report = {}
 
             if match_index is None:
-                # no match => REMOVED
                 report = self._create_report(REPORT_REMOVED, left=tasks_a[i])
 
             else:
