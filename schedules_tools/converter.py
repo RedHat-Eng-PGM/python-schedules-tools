@@ -195,7 +195,7 @@ class ScheduleConverter(object):
                     schedule.mtime = self.storage_handler.get_handle_mtime()                
             
         except SchedulesToolsException as e:
-            error_item = e.__class__.__name__, str(e).split('\n')
+            error_item = e.__class__.__name__, str(e).split('\n'), e.source
             schedule.errors_import.append(error_item)
 
         self.schedule = schedule
@@ -246,7 +246,8 @@ def convert(args):
 
         if converter.schedule.errors_import:
             for err in converter.schedule.errors_import:
-                log.error(err)
+                msg = '{} Handle: {}\n{}'.format(err[0], err[2], '\n'.join(err[1]))
+                log.error(msg)
             return False
         
     except AcquireLockException as e:

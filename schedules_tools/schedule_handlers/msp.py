@@ -1,15 +1,22 @@
-from schedules_tools.schedule_handlers import ScheduleHandlerBase
-from schedules_tools import models
-from datetime import datetime
 import os
 import tempfile
 import logging
+
+from datetime import datetime
 from lxml import etree
+
+from schedules_tools import models, SchedulesToolsException
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
+
 
 MSP_FLAGS_ATTRS = ('Flags', )
 datetime_format = '%Y-%m-%dT%H:%M:%S'
 
 log = logging.getLogger(__name__)
+
+
+class MSPImportException(SchedulesToolsException):
+    pass
 
 
 class ScheduleHandler_msp(ScheduleHandlerBase):
@@ -36,37 +43,40 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
     def import_schedule(self):
         self.schedule = models.Schedule()
 
-        # remove project's xmlns
-        tmp_file = tempfile.mkstemp()[1]
-        with open(tmp_file, 'wt') as hTmp_file:
-            for line in open(self.handle):
-                hTmp_file.write(line.replace(' xmlns="http://schemas.microsoft.com/project"', ''))
-
-        start_level = 1
-        tree = etree.parse(tmp_file)
-
-        eTask_list = tree.xpath('Tasks/Task[OutlineLevel >= %s]' % start_level)
-        self.schedule.name = tree.xpath('Name|Title')[0].text.strip()
-        self.schedule.slug = self.schedule.unique_id_re.sub('_', self.schedule.name)
-
-        # extended attributes
-        for eExtAttr in tree.xpath('ExtendedAttributes/ExtendedAttribute'):
-            fieldID = int(eExtAttr.xpath('FieldID')[0].text)
-            fieldName = eExtAttr.xpath('FieldName')[0].text
-            self.schedule.ext_attr[fieldName] = fieldID
-
-        if self.schedule.ext_attr:  # choose flags field
-            for ff_name in MSP_FLAGS_ATTRS:
-                if ff_name in self.schedule.ext_attr:
-                    self.schedule.flags_attr_id = self.schedule.ext_attr[ff_name]
-                    break
-
-        self.schedule.tasks = self._load_tasks_level(start_level, eTask_list)
-
-        os.unlink(tmp_file)
-        self.schedule.check_top_task()
-        self.schedule.generate_slugs()
-        return self.schedule
+        try:
+            # remove project's xmlns
+            tmp_file = tempfile.mkstemp()[1]
+            with open(tmp_file, 'wt') as hTmp_file:
+                for line in open(self.handle):
+                    hTmp_file.write(line.replace(' xmlns="http://schemas.microsoft.com/project"', ''))
+    
+            start_level = 1
+            tree = etree.parse(tmp_file)
+    
+            eTask_list = tree.xpath('Tasks/Task[OutlineLevel >= %s]' % start_level)
+            self.schedule.name = tree.xpath('Name|Title')[0].text.strip()
+            self.schedule.slug = self.schedule.unique_id_re.sub('_', self.schedule.name)
+    
+            # extended attributes
+            for eExtAttr in tree.xpath('ExtendedAttributes/ExtendedAttribute'):
+                fieldID = int(eExtAttr.xpath('FieldID')[0].text)
+                fieldName = eExtAttr.xpath('FieldName')[0].text
+                self.schedule.ext_attr[fieldName] = fieldID
+    
+            if self.schedule.ext_attr:  # choose flags field
+                for ff_name in MSP_FLAGS_ATTRS:
+                    if ff_name in self.schedule.ext_attr:
+                        self.schedule.flags_attr_id = self.schedule.ext_attr[ff_name]
+                        break
+    
+            self.schedule.tasks = self._load_tasks_level(start_level, eTask_list)
+    
+            os.unlink(tmp_file)
+            self.schedule.check_top_task()
+            self.schedule.generate_slugs()
+            return self.schedule
+        except etree.XMLSyntaxError as e:
+            raise MSPImportException(e, source=self.handle)
 
     # Schedule
     def export_schedule(self, out_file=None):
