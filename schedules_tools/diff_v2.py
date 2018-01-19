@@ -100,20 +100,21 @@ class ScheduleDiff(object):
             report = {}
 
             if match_index is None:
-                report = self._create_report(REPORT_REMOVED, left=tasks_a[i])
+                report = self._create_report(REPORT_REMOVED, left=tasks_a[i], tasks=tasks_a[i].tasks)
 
             else:
 
                 # ALL elements between last_b_index and match_index => ADDED
                 for k in range(last_b_index, match_index):
-                    report = self._create_report(REPORT_ADDED, right=tasks_b[k])
+                    report = self._create_report(REPORT_ADDED, right=tasks_b[k], tasks=tasks_b[k].tasks)
                     res.append(report)
 
                 # exact match => NO CHANGE
                 if len(diff_attrs) == 0:
                     report = self._create_report(REPORT_NO_CHANGE,
                                                  left=tasks_a[i],
-                                                 right=tasks_b[match_index])
+                                                 right=tasks_b[match_index],
+                                                 tasks=tasks_b[match_index].tasks)
 
                 # structural change => CHANGED / NO CHANGE
                 elif self.subtree_hash_attr_name in diff_attrs:
@@ -133,7 +134,8 @@ class ScheduleDiff(object):
                     report = self._create_report(REPORT_CHANGED,
                                                  left=tasks_a[i],
                                                  right=tasks_b[match_index],
-                                                 changed_attrs=diff_attrs)
+                                                 changed_attrs=diff_attrs,
+                                                 tasks=tasks_b[match_index].tasks)
 
                 last_b_index = match_index
 
@@ -141,7 +143,7 @@ class ScheduleDiff(object):
 
         # remaining tasks => ADDED
         for k in range(last_b_index + 1, len(tasks_b)):
-            report = self._create_report(REPORT_ADDED, right=tasks_b[k])
+            report = self._create_report(REPORT_ADDED, right=tasks_b[k], tasks=tasks_b[k].tasks)
             res.append(report)
 
         return res
