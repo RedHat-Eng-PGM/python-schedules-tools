@@ -150,7 +150,7 @@ class Task(object):
     def dump_as_dict(self, recursive=True):
         attrs = copy(vars(self))
         # avoid infinite looping schedule > task > schedule ...
-        exclude = ['_schedule']
+        exclude = ['_schedule', '_subtree_hash']
 
         if recursive:
             attrs['tasks'] = []
