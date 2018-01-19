@@ -43,6 +43,42 @@ class ScheduleDiff(object):
 
         self.result = self._diff()
 
+    def __unicode__(self):
+        return self.result_to_str()
+
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+
+    def result_to_str(self, items=None, level=0, report_type=None):
+        """ Textual representation of the diff. """
+        res = ''
+
+        if items is None:
+            items = self.result
+
+        for item in items:
+
+            if isinstance(item, Task):
+                task = item
+                child_tasks = task.tasks
+                report_type = report_type or REPORT_NO_CHANGE
+
+            else:
+                child_tasks = item['tasks']
+                report_type = item['report_type']
+
+                if item['left'] is None or report_type is REPORT_CHANGED:
+                    task = item['right']
+                else:
+                    task = item['left']
+
+            res += '{} {}{}\n'.format(REPORT_PREFIX_MAP[report_type], level * ' ', str(task))
+
+            if child_tasks:
+                res += self.result_to_str(child_tasks, level + 1, report_type=report_type)
+
+        return res
+
     def _create_report(self, report_type, left=None, right=None, tasks=[], changed_attrs=[]):
         """
         Returns a dictionary representing a possible change.
