@@ -1,4 +1,8 @@
 import logging
+import json
+
+from schedules_tools import jsondate
+from schedules_tools.models import Task
 
 log = logging.getLogger(__name__)
 
@@ -147,3 +151,13 @@ class ScheduleDiff(object):
             res.append(report)
 
         return res
+
+    def dump_json(self, **kwargs):
+
+        def _encoder(obj):
+            if isinstance(obj, Task):
+                return obj.dump_as_dict(recursive=False)
+            return jsondate._datetime_encoder(obj)
+
+        kwargs['default'] = _encoder
+        return json.dumps(self.result, **kwargs)
