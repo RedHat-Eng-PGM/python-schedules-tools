@@ -159,7 +159,7 @@ class Task(object):
         else:
             exclude.append('tasks')
 
-        [attrs.pop(item) for item in exclude]
+        [attrs.pop(item) for item in exclude if item in attrs]
 
         return attrs
 
