@@ -49,7 +49,7 @@ class ScheduleDiff(object):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def result_to_str(self, items=None, level=0, report_type=None):
+    def result_to_str(self, items=None, level=0, parent_report_type=None):
         """ Textual representation of the diff. """
         res = ''
 
@@ -61,7 +61,7 @@ class ScheduleDiff(object):
             if isinstance(item, Task):
                 task = item
                 child_tasks = task.tasks
-                report_type = report_type or REPORT_NO_CHANGE
+                report_type = parent_report_type or REPORT_NO_CHANGE
 
             else:
                 child_tasks = item['tasks']
@@ -75,7 +75,7 @@ class ScheduleDiff(object):
             res += '{} {}{}\n'.format(REPORT_PREFIX_MAP[report_type], level * ' ', str(task))
 
             if child_tasks:
-                res += self.result_to_str(child_tasks, level + 1, report_type=report_type)
+                res += self.result_to_str(child_tasks, level + 1, report_type)
 
         return res
 
