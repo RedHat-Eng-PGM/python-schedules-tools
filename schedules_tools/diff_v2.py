@@ -30,7 +30,7 @@ REPORT_PREFIX_MAP = {
 
 class ScheduleDiff(object):
 
-    result = None
+    result = []
 
     subtree_hash_attr_name = 'subtree_hash'
 
@@ -92,13 +92,28 @@ class ScheduleDiff(object):
             }
 
         """
-        return {
-            'left': left,
-            'right': right,
-            'tasks': tasks,
-            'changed_attrs': changed_attrs,
-            'report_type': report_type,
-        }
+
+        if report_type is REPORT_NO_CHANGE and not tasks:
+            report = left
+
+        else:
+            # No need to keep the whole structure,
+            # child tasks will be placed in report['tasks']
+            if left is not None:
+                left.tasks = []
+
+            if right is not None:
+                right.tasks = []
+
+            report = {
+                'left': left,
+                'right': right,
+                'tasks': tasks,
+                'changed_attrs': changed_attrs,
+                'report_type': report_type,
+            }
+
+        return report
 
     def task_diff(self, task_a, task_b):
         """
@@ -118,6 +133,7 @@ class ScheduleDiff(object):
         for i in range(start_at_index, len(in_tasks)):
             unmatched = self.task_diff(task, in_tasks[i])
 
+            # NOTE: maybe 'name' should weight more than the other attrs
             if len(unmatched) < len(unmatched_attrs):
                 match_index = i
                 unmatched_attrs = unmatched
@@ -135,6 +151,11 @@ class ScheduleDiff(object):
         res = []
         last_b_index = 0
 
+        # shortcut to create a report for an added task
+        def report_task_added(index):
+            task = tasks_b[index]
+            return self._create_report(REPORT_ADDED, right=task, tasks=task.tasks)
+
         for i, task in enumerate(tasks_a):
             match_index, diff_attrs = self.find_best_match_index(task, tasks_b, start_at_index=last_b_index)
             report = {}
@@ -143,28 +164,23 @@ class ScheduleDiff(object):
                 report = self._create_report(REPORT_REMOVED, left=tasks_a[i], tasks=tasks_a[i].tasks)
 
             else:
-
                 # ALL elements between last_b_index and match_index => ADDED
-                for k in range(last_b_index, match_index):
-                    report = self._create_report(REPORT_ADDED, right=tasks_b[k], tasks=tasks_b[k].tasks)
-                    res.append(report)
+                res.extend([report_task_added(k) for k in range(last_b_index, match_index)])
 
                 # exact match => NO CHANGE
                 if len(diff_attrs) == 0:
                     report = self._create_report(REPORT_NO_CHANGE,
-                                                 left=tasks_a[i],
-                                                 right=tasks_b[match_index],
-                                                 tasks=tasks_b[match_index].tasks)
+                                                 left=task,
+                                                 right=tasks_b[match_index])
 
                 # structural change => CHANGED / NO CHANGE
                 elif self.subtree_hash_attr_name in diff_attrs:
-
                     # process child tasks
                     tasks = self._diff(tasks_a[i].tasks, tasks_b[match_index].tasks)
 
                     report_type = REPORT_CHANGED if len(diff_attrs) > 1 else REPORT_NO_CHANGE
                     report = self._create_report(report_type,
-                                                 left=tasks_a[i],
+                                                 left=task,
                                                  right=tasks_b[match_index],
                                                  changed_attrs=diff_attrs,
                                                  tasks=tasks)
@@ -172,19 +188,17 @@ class ScheduleDiff(object):
                 # no structural changes => CHANGED
                 else:
                     report = self._create_report(REPORT_CHANGED,
-                                                 left=tasks_a[i],
+                                                 left=task,
                                                  right=tasks_b[match_index],
                                                  changed_attrs=diff_attrs,
                                                  tasks=tasks_b[match_index].tasks)
 
-                last_b_index = match_index
+                last_b_index = match_index + 1
 
             res.append(report)
 
         # remaining tasks => ADDED
-        for k in range(last_b_index + 1, len(tasks_b)):
-            report = self._create_report(REPORT_ADDED, right=tasks_b[k], tasks=tasks_b[k].tasks)
-            res.append(report)
+        res.extend([report_task_added(k) for k in range(last_b_index, len(tasks_b))])
 
         return res
 
@@ -192,7 +206,7 @@ class ScheduleDiff(object):
 
         def _encoder(obj):
             if isinstance(obj, Task):
-                return obj.dump_as_dict(recursive=False)
+                return obj.dump_as_dict()
             return jsondate._datetime_encoder(obj)
 
         kwargs['default'] = _encoder
