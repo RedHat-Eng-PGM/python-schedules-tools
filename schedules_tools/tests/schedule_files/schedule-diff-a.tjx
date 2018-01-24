@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+<Project Id="rhel700" WeekStart="Mon">
+  <Name>Red Hat Enterprise Linux</Name>
+  <Version>7.0</Version>
+  <Priority>500</Priority>
+  <start humanReadable="2010-12-01">1291179600</start>
+  <end humanReadable="2018-04-01">1522555200</end>
+  <now humanReadable="2013-10-30">1383120000</now>
+  <changelog path="rhel/rhel-7-0-0">
+  </changelog>
+  <Task Id="rhel700">
+    <Index>1</Index>
+    <Name>Red Hat Enterprise Linux 7.0.0</Name>
+    <ProjectID>rhel700</ProjectID>
+    <Priority>500</Priority>
+    <complete>-1.0</complete>
+    <Type>Container</Type>
+    <actualStart humanReadable="2011-05-09 00:00:00 EDT">1304913600</actualStart>
+    <actualEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</actualEnd>
+    <planStart humanReadable="2011-05-09 00:00:00 EDT">1304913600</planStart>
+    <planEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</planEnd>
+    <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+    <SubTasks>
+      <Task Id="rhel700.planning">
+        <Index>2</Index>
+        <Name>Planning Phase</Name>
+        <ProjectID>rhel700</ProjectID>
+        <Priority>500</Priority>
+        <complete>100.0</complete>
+        <Type>Container</Type>
+        <ParentTask>rhel700</ParentTask>
+        <actualStart humanReadable="2011-05-09 00:00:00 EDT">1304913600</actualStart>
+        <actualEnd humanReadable="2012-02-01 18:00:00 EST">1328137200</actualEnd>
+        <planStart humanReadable="2011-05-09 00:00:00 EDT">1304913600</planStart>
+        <planEnd humanReadable="2012-02-01 18:00:00 EST">1328137200</planEnd>
+        <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+      </Task>
+      <Task Id="rhel700.development">
+        <Index>23</Index>
+        <Name>Development Phase</Name>
+        <ProjectID>rhel700</ProjectID>
+        <Priority>500</Priority>
+        <complete>100.0</complete>
+        <Type>Container</Type>
+        <ParentTask>rhel700</ParentTask>
+        <actualStart humanReadable="2011-11-08 00:00:00 EST">1320728400</actualStart>
+        <actualEnd humanReadable="2013-08-14 18:00:00 EDT">1376517600</actualEnd>
+        <planStart humanReadable="2011-11-08 00:00:00 EST">1320728400</planStart>
+        <planEnd humanReadable="2013-08-14 18:00:00 EDT">1376517600</planEnd>
+        <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+        <Follower>rhel700.testing</Follower>
+        <SubTasks>
+          <Task Id="rhel700.development.f17_feature">
+            <Index>33</Index>
+            <Name>Fedora 17: Feature Submission Deadline</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>100.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>rhel700.development</ParentTask>
+            <Flag>devel</Flag>
+            <Flag>partner</Flag>
+            <actualStart humanReadable="2012-01-24 00:00:00 EST">1327381200</actualStart>
+            <actualEnd humanReadable="2012-01-24 00:00:00 EST">1327381200</actualEnd>
+            <planStart humanReadable="2012-01-24 00:00:00 EST">1327381200</planStart>
+            <planEnd humanReadable="2012-01-24 00:00:00 EST">1327381200</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+          </Task>
+        </SubTasks>
+      </Task>
+      <Task Id="rhel700.testing">
+        <Index>121</Index>
+        <Name>Testing Phase</Name>
+        <ProjectID>rhel700</ProjectID>
+        <Priority>500</Priority>
+        <complete>-1.0</complete>
+        <Type>Container</Type>
+        <ParentTask>rhel700</ParentTask>
+        <actualStart humanReadable="2013-08-14 18:00:00 EDT">1376517600</actualStart>
+        <actualEnd humanReadable="2014-05-15 18:00:00 EDT">1400191200</actualEnd>
+        <planStart humanReadable="2013-08-14 18:00:00 EDT">1376517600</planStart>
+        <planEnd humanReadable="2014-05-15 18:00:00 EDT">1400191200</planEnd>
+        <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+        <Previous>rhel700.development</Previous>
+        <Follower>rhel700.launch</Follower>
+      </Task>
+      <Task Id="rhel700.launch">
+        <Index>273</Index>
+        <Name>Launch Phase</Name>
+        <ProjectID>rhel700</ProjectID>
+        <Priority>500</Priority>
+        <complete>0.0</complete>
+        <Type>Container</Type>
+        <ParentTask>rhel700</ParentTask>
+        <actualStart humanReadable="2014-05-15 18:00:00 EDT">1400191200</actualStart>
+        <actualEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</actualEnd>
+        <planStart humanReadable="2014-05-15 18:00:00 EDT">1400191200</planStart>
+        <planEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</planEnd>
+        <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+        <Previous>rhel700.testing</Previous>
+        <SubTasks>
+          <Task Id="rhel700.launch.preparation">
+            <Index>274</Index>
+            <Name>Launch preparation (10d)</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>0.0</complete>
+            <Type>Task</Type>
+            <ParentTask>rhel700.launch</ParentTask>
+            <actualStart humanReadable="2014-05-15 18:00:00 EDT">1400191200</actualStart>
+            <actualEnd humanReadable="2014-05-30 18:00:00 EDT">1401487200</actualEnd>
+            <planStart humanReadable="2014-05-15 18:00:00 EDT">1400191200</planStart>
+            <planEnd humanReadable="2014-05-30 18:00:00 EDT">1401487200</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+            <Follower>rhel700.launch.eng_complete</Follower>
+          </Task>
+          <Task Id="rhel700.launch.partners_rc">
+            <Index>275</Index>
+            <Name>Post Final Release Candidate to partners.redhat.com</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>0.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>rhel700.launch</ParentTask>
+            <Flag>partner</Flag>
+            <Flag>qe</Flag>
+            <Flag>support</Flag>
+            <Flag>training</Flag>
+            <Flag>docs</Flag>
+            <Flag>security</Flag>
+            <actualStart humanReadable="2014-05-23 09:00:00 EDT">1400850000</actualStart>
+            <actualEnd humanReadable="2014-05-23 09:00:00 EDT">1400850000</actualEnd>
+            <planStart humanReadable="2014-05-23 09:00:00 EDT">1400850000</planStart>
+            <planEnd humanReadable="2014-05-23 09:00:00 EDT">1400850000</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+          </Task>
+          <Task Id="rhel700.launch.partners">
+            <Index>276</Index>
+            <Name>Post GA to partners.redhat.com - only if needed</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>0.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>rhel700.launch</ParentTask>
+            <Flag>partner</Flag>
+            <Flag>qe</Flag>
+            <Flag>support</Flag>
+            <Flag>training</Flag>
+            <Flag>docs</Flag>
+            <Flag>security</Flag>
+            <actualStart humanReadable="2014-05-29 09:00:00 EDT">1401368400</actualStart>
+            <actualEnd humanReadable="2014-05-29 09:00:00 EDT">1401368400</actualEnd>
+            <planStart humanReadable="2014-05-29 09:00:00 EDT">1401368400</planStart>
+            <planEnd humanReadable="2014-05-29 09:00:00 EDT">1401368400</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+          </Task>
+          <Task Id="rhel700.launch.release_notes">
+            <Index>277</Index>
+            <Name>ECS: Online English-Only Release Notes: Content Submission Deadline</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>0.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>rhel700.launch</ParentTask>
+            <Flag>docs</Flag>
+            <Flag>devel</Flag>
+            <Flag>pm</Flag>
+            <Flag>qe</Flag>
+            <Flag>support</Flag>
+            <actualStart humanReadable="2014-05-30 18:00:00 EDT">1401487200</actualStart>
+            <actualEnd humanReadable="2014-05-30 18:00:00 EDT">1401487200</actualEnd>
+            <planStart humanReadable="2014-05-30 18:00:00 EDT">1401487200</planStart>
+            <planEnd humanReadable="2014-05-30 18:00:00 EDT">1401487200</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+          </Task>
+          <Task Id="rhel700.launch.eng_complete">
+            <Index>278</Index>
+            <Name>Engineering Complete</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>0.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>rhel700.launch</ParentTask>
+            <Flag>devel</Flag>
+            <Flag>pm</Flag>
+            <Flag>marketing</Flag>
+            <Flag>qe</Flag>
+            <Flag>security</Flag>
+            <Flag>docs</Flag>
+            <Flag>support</Flag>
+            <Flag>training</Flag>
+            <Flag>partner</Flag>
+            <Flag>it</Flag>
+            <Flag>interface</Flag>
+            <Flag>rhn_interface</Flag>
+            <Flag>roadmap</Flag>
+            <actualStart humanReadable="2014-05-30 18:00:00 EDT">1401487200</actualStart>
+            <actualEnd humanReadable="2014-05-30 18:00:00 EDT">1401487200</actualEnd>
+            <planStart humanReadable="2014-05-30 18:00:00 EDT">1401487200</planStart>
+            <planEnd humanReadable="2014-05-30 18:00:00 EDT">1401487200</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+            <Previous>rhel700.launch.preparation</Previous>
+            <Follower>rhel700.launch.public_release</Follower>
+          </Task>
+          <Task Id="rhel700.launch.post_notes">
+            <Index>279</Index>
+            <Name>ECS: Post Final Documentation to Customer Portal</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>0.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>rhel700.launch</ParentTask>
+            <Flag>docs</Flag>
+            <actualStart humanReadable="2014-06-10 18:00:00 EDT">1402437600</actualStart>
+            <actualEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</actualEnd>
+            <planStart humanReadable="2014-06-10 18:00:00 EDT">1402437600</planStart>
+            <planEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+          </Task>
+          <Task Id="rhel700.launch.public_release">
+            <Index>280</Index>
+            <Name>GA</Name>
+            <ProjectID>rhel700</ProjectID>
+            <Priority>500</Priority>
+            <complete>0.0</complete>
+            <Type>Milestone</Type>
+            <ParentTask>rhel700.launch</ParentTask>
+            <Flag>devel</Flag>
+            <Flag>pm</Flag>
+            <Flag>marketing</Flag>
+            <Flag>qe</Flag>
+            <Flag>security</Flag>
+            <Flag>docs</Flag>
+            <Flag>support</Flag>
+            <Flag>training</Flag>
+            <Flag>partner</Flag>
+            <Flag>it</Flag>
+            <Flag>interface</Flag>
+            <Flag>rhn_interface</Flag>
+            <Flag>roadmap</Flag>
+            <actualStart humanReadable="2014-06-10 18:00:00 EDT">1402437600</actualStart>
+            <actualEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</actualEnd>
+            <planStart humanReadable="2014-06-10 18:00:00 EDT">1402437600</planStart>
+            <planEnd humanReadable="2014-06-10 18:00:00 EDT">1402437600</planEnd>
+            <custom id="Info" url="https://engineering.redhat.com/pp/product/rhel-7-.0/"/>
+            <Previous>rhel700.launch.eng_complete</Previous>
+          </Task>
+        </SubTasks>
+      </Task>
+    </SubTasks>
+  </Task>
+</Project>
