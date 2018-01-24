@@ -17,7 +17,7 @@ import sys
 import argparse
 import logging
 from schedules_tools import discovery
-from schedules_tools.diff import ScheduleDiff
+from schedules_tools.diff_v2 import ScheduleDiff
 
 
 def setup_logging(level):
@@ -75,8 +75,7 @@ if __name__ == '__main__':
         whole_days = False
         diff_res = left.schedule.diff(right.schedule, whole_days=args.whole_days)
     else:
-        sched_diff = ScheduleDiff(left.schedule, right.schedule)
-        diff_res = sched_diff.tasks() if sched_diff.diff else ''
+        diff_res = ScheduleDiff(left.schedule, right.schedule)
 
     if diff_res:
         print diff_res
