@@ -233,6 +233,9 @@ class ScheduleConverter(object):
 def convert(args):
     opt_args = vars(args)
     
+    # set timezone - it's desirable that all calculations are made in same TZ
+    os.environ['TZ'] = opt_args['tz']
+    
     for path in opt_args.pop('handlers_path'):
         search_paths.append(path)
 
@@ -401,6 +404,10 @@ def get_handlers_args_parser(add_help=False):
                         metavar='TARGET_FORMAT',
                         help='Target format to convert',
                         default='html')
+    
+    parser.add_argument('--tz',
+                        help='Timezone used for schedule conversions (default "America/New_York")',
+                        default='America/New_York')
     
     return parser
     
