@@ -80,7 +80,7 @@ class ScheduleDiff(object):
             res += '{} {}{}\n'.format(REPORT_PREFIX_MAP[report_type], level * ' ', str(task))
 
             if child_tasks:
-                res += self.result_to_str(child_tasks, level + 1, report_type)
+                res += self.result_to_str(child_tasks, level + 2, report_type)
 
         return res
 
