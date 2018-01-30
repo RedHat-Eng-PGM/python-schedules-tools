@@ -7,9 +7,7 @@ from schedules_tools.tests import create_test_schedule
 from schedules_tools.converter import ScheduleConverter
 from schedules_tools.diff_v2 import ScheduleDiff
 
-SCHEDS_DIRNAME = 'schedule_files'
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-SCHEDS_DIR = os.path.join(BASE_DIR, SCHEDS_DIRNAME)
 
 
 class TestDiff(object):
@@ -76,39 +74,45 @@ class TestDiff(object):
 
 
 class TestScheduleDiff(object):
-    sched_files = ['schedule-diff-a.tjx', 'schedule-diff-b.tjx']
+    ref_sched = 'sched_diff_reference.xml'
 
-    test_data = [
-        pytest.param(('diff_output.json', sched_files), id='json'),
-        pytest.param(('diff_output.txt', sched_files), id='text')
-    ]
+    SCHEDS_DIR = os.path.join(BASE_DIR, 'schedule_files/schedule_diff')
+    OUTPUT_FILES_DIR = os.path.join(BASE_DIR, 'fixtures/schedule_diff')
+
+    @pytest.fixture(scope="class")
+    def scheds_list(scheds_dir=SCHEDS_DIR, ref_sched=ref_sched):
+        return [f for f in os.listdir(scheds_dir) if f != ref_sched]
 
     def import_schedule(self, filename):
-        path = os.path.join(SCHEDS_DIR, filename)
+        path = os.path.join(self.SCHEDS_DIR, filename)
         conv = ScheduleConverter()
         return conv.import_schedule(path)
 
-    def diff(self, sched_a_file, sched_b_file):
-        sched_a = self.import_schedule(sched_a_file)
-        sched_b = self.import_schedule(sched_b_file)
-        return ScheduleDiff(sched_a, sched_b)
+    @pytest.fixture(params=scheds_list(), scope='class')
+    def diff_res(self, request):
+        filename = request.param
+
+        left = self.import_schedule(self.ref_sched)
+        right = self.import_schedule(filename)
+
+        return ScheduleDiff(left, right), filename
 
     @pytest.fixture
-    def diff_results(self, request):
-        file, scheds_list = request.param
-        diff = self.diff(*scheds_list)
+    def expected(self, request, diff_res):
+        name = os.path.splitext(diff_res[1])[0]
+        ext = request.param
 
-        with open(os.path.join(BASE_DIR, 'fixtures', file)) as fd:
-            f_ext = os.path.splitext(file)[1]
-            if f_ext == '.json':
-                yield jsondate.loads(diff.dump_json()), jsondate.load(fd)
-            else:
-                yield str(diff), fd.read()
+        with open(os.path.join(self.OUTPUT_FILES_DIR, '.'.join([name, ext]))) as f:
+            yield f
 
-    @pytest.mark.parametrize('diff_results', test_data, indirect=True)
-    def test_equal_results(self, diff_results):
-        actual, expected = diff_results
-        assert actual == expected
+    @pytest.mark.parametrize('expected', ['txt'], indirect=True)
+    def test_txt_output(self, diff_res, expected):
+        assert str(diff_res[0]) == expected.read()
+
+    @pytest.mark.parametrize('expected', ['json'], indirect=True)
+    def test_json_output(self, diff_res, expected):
+        diff_json = diff_res[0].dump_json()
+        assert jsondate.loads(diff_json) == jsondate.load(expected)
 
 
 class TestDiffCLI(object):
