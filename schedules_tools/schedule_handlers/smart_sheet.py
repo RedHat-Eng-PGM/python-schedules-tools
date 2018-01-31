@@ -1,8 +1,9 @@
 from schedules_tools.schedule_handlers import ScheduleHandlerBase
-from schedules_tools import models
+from schedules_tools import models, SchedulesToolsException
 import logging
 import datetime
 import re
+import traceback
 
 
 COLUMN_TASK_NAME = 'name'
@@ -19,8 +20,14 @@ COLUMN_PRIORITY = 'priority'
 
 log = logging.getLogger(__name__)
 
-smartsheet_logger = logging.getLogger('smartsheet.smartsheet')
-smartsheet_logger.setLevel(logging.INFO)
+
+class SmartSheetImportException(SchedulesToolsException):
+    pass
+
+
+class SmartSheetExportException(SchedulesToolsException):
+    pass
+
 
 try:
     from smartsheet import Smartsheet
@@ -37,6 +44,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     _client_instance = None
     _sheet_instance = None
     _re_number = re.compile('[0-9]+')
+    _re_url = re.compile('^https?://.*?smartsheet.com')
     columns_mapping_name = {
         'Task Name': COLUMN_TASK_NAME,
         'Duration': COLUMN_DURATION,
@@ -53,19 +61,25 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     columns_mapping_id = {}
 
-    def __init__(self, *args, **kwargs):
-        super(ScheduleHandler_smartsheet, self).__init__(*args, **kwargs)
-
     @classmethod
     def is_valid_source(cls, handle=None):
+        is_valid = False
+
         if not handle:
             handle = cls.handle
-        try:
-            int(handle)
-        except ValueError:
-            return False
 
-        return True
+        try:
+            # looks like a sheet ID (number)
+            int(handle)
+            is_valid = True
+        except ValueError:
+            pass
+
+        # https://app.smartsheet.com/b/home?lx=0HHzeGnfHik-N13ZT8pU7g
+        if cls._re_url.match(str(handle)):
+            is_valid = True
+
+        return is_valid
 
     @property
     def client(self):
@@ -90,21 +104,27 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         self.schedule.mtime = self.get_handle_mtime()
         parents_stack = []
 
-        # populate columns dict/map
-        for column in self.sheet.columns:
-            index = self.columns_mapping_name.get(column.title, None)
-            if index is None:
-                log.debug('Unknown column %s, skipping.' % column.title)
-                continue
-            self.columns_mapping_id[column.id] = index
+        try:
+            # populate columns dict/map
+            for column in self.sheet.columns:
+                index = self.columns_mapping_name.get(column.title, None)
+                if index is None:
+                    log.debug('Unknown column %s, skipping.' % column.title)
+                    continue
+                self.columns_mapping_id[column.id] = index
 
-        for row in self.sheet.rows:
-            self._load_task(row, parents_stack)
+            for row in self.sheet.rows:
+                self._load_task(row, parents_stack)
 
-        self.schedule.check_top_task()
-        self.schedule.dStart = self.schedule.tasks[0].dStart
-        self.schedule.dFinish = self.schedule.tasks[0].dFinish
-        self.schedule.generate_slugs()
+            self.schedule.check_top_task()
+            self.schedule.dStart = self.schedule.tasks[0].dStart
+            self.schedule.dFinish = self.schedule.tasks[0].dFinish
+            self.schedule.generate_slugs()
+        except (KeyError, IndexError):
+            # We can get all exception details via traceback
+            # instead of 'except' statement
+            msg = traceback.format_exc()
+            raise SmartSheetImportException(msg, source=self)
         return self.schedule
 
     def _parse_date(self, string):
@@ -115,7 +135,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     def _load_task(self, row, parents_stack):
         task = models.Task(self.schedule)
-        cells = self._load_task_cells(row)
+        cells, unknown_cells = self._load_task_cells(row)
 
         task.index = row.row_number
         # task.slug is generated at the end of importing whole schedule
@@ -166,6 +186,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             if not task.link:
                 task.parse_extended_attr(cells[COLUMN_LINK],
                                          key=models.ATTR_PREFIX_LINK)
+        # Try to guess column/purpose of unknown cell values
+        for cell in unknown_cells:
+            task.parse_extended_attr(cell)
 
         curr_stack_item = {
             'rowid': row.id,
@@ -190,18 +213,32 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         task.level = len(parents_stack)
 
     def _load_task_cells(self, row):
+        """
+        Method tries to combine expected column name together with cell value.
+        Cell those don't match are returned back as list of values.
+
+        Args:
+            row: smartsheet Row instance
+
+        Returns: tuple (mapped, unknown) cells, resp. unknown values
+
+        """
         mapped_cells = {}
+        unknown_values = []
 
         for cell in row.cells:
             cell_name = self.columns_mapping_id.get(cell.column_id, None)
             if not cell_name:
+                if cell.value is not None:
+                    unknown_values.append(cell.value)
                 continue
 
             mapped_cells[cell_name] = cell.value
 
-        return mapped_cells
+        return mapped_cells, unknown_values
 
     def export_schedule(self, output=None):
+        # Project sheet from API (Templates.list_public_templates)
         sheet_spec = self.client.models.Sheet({
             'name': self.schedule.name,
             'from_id': 5066554783098756,
@@ -222,7 +259,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             self.handle,
             [column_spec_flags, column_spec_link]
         )
-        assert resp.message == 'SUCCESS'
+
+        if resp.message != 'SUCCESS':
+            msg = 'Adding column failed: {}'.format(resp)
+            raise SmartSheetExportException(msg, source=self)
 
         for task in self.schedule.tasks:
             self.export_task(task, parent_id=None)
@@ -301,8 +341,14 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 'value': task.note
             })
         resp = self.client.Sheets.add_rows(self.handle, [row])
-        assert resp.message == 'SUCCESS', resp.result.message
-        assert 1 == len(resp.result)
+
+        if resp.message != 'SUCCESS':
+            raise SmartSheetExportException(resp.result.message, source=self)
+        len_result = len(resp.result)
+        if 1 != len_result:
+            msg = ('Just one row was expected to be added, instead '
+                   'of {}'.format(len_result))
+            raise SmartSheetExportException(msg, source=self)
 
         row_id = resp.result[0].id
 
