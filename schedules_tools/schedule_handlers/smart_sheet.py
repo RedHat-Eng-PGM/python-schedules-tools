@@ -30,7 +30,7 @@ class SmartSheetExportException(SchedulesToolsException):
 
 
 try:
-    from smartsheet import Smartsheet
+    import smartsheet
     additional_deps_satistifed = True
 except ImportError:
     additional_deps_satistifed = False
@@ -60,31 +60,58 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     }
 
     columns_mapping_id = {}
+    
+    
+    def get_info_dict(self, value):
+        '''Return dicionary with both smarsheet id and permalink - get the missing one'''
+        
+        info_dict = None
+        
+        if ScheduleHandler_smartsheet.value_is_ss_id(value):
+            try:
+                sheet = self.client.Sheets.get_sheet(value)
+                info_dict = dict(id=value, permalink=sheet.permalink)
+            except smartsheet.exceptions.ApiError as e:
+                log.warn(e)
+        
+        elif ScheduleHandler_smartsheet.value_is_ss_permalink(value):
+            sheets = self.client.Sheets.list_sheets(include_all=True)
+        
+            for sheet in sheets.data:
+                if sheet.permalink == value:
+                    info_dict = info_dict = dict(id=sheet.id, permalink=value)
+        
+        return info_dict
+    
 
     @classmethod
-    def is_valid_source(cls, handle=None):
-        is_valid = False
-
-        if not handle:
-            handle = cls.handle
-
+    def value_is_ss_id(cls, value):
         try:
-            # looks like a sheet ID (number)
-            int(handle)
-            is_valid = True
+            # looks like a sheet ID (number) - might be string
+            int(value)
+            return True
         except ValueError:
             pass
 
+    @classmethod
+    def value_is_ss_permalink(cls, value):
         # https://app.smartsheet.com/b/home?lx=0HHzeGnfHik-N13ZT8pU7g
-        if cls._re_url.match(str(handle)):
-            is_valid = True
+        if cls._re_url.match(str(value)):
+            return True
+        
 
-        return is_valid
+    @classmethod
+    def is_valid_source(cls, handle=None):
+        if not handle:
+            handle = cls.handle
+
+        return cls.value_is_ss_permalink(handle) or cls.value_is_ss_id(handle)
+
 
     @property
     def client(self):
         if not self._client_instance:
-            self._client_instance = Smartsheet(self.options['smartsheet_token'])
+            self._client_instance = smartsheet.Smartsheet(self.options['smartsheet_token'])
             self._client_instance.errors_as_exceptions(True)
         return self._client_instance
 
