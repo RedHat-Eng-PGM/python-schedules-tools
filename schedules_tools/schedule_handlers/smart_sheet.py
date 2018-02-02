@@ -70,7 +70,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         if ScheduleHandler_smartsheet.value_is_ss_id(value):
             try:
                 sheet = self.client.Sheets.get_sheet(value)
-                info_dict = dict(id=value, permalink=sheet.permalink)
+                info_dict = dict(id=int(value), permalink=sheet.permalink)
             except smartsheet.exceptions.ApiError as e:
                 log.warn(e)
         
@@ -79,7 +79,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         
             for sheet in sheets.data:
                 if sheet.permalink == value:
-                    info_dict = info_dict = dict(id=sheet.id, permalink=value)
+                    info_dict = info_dict = dict(id=int(sheet.id), permalink=value)
                     break
         
         return info_dict
