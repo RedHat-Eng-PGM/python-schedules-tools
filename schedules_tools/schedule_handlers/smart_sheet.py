@@ -1,9 +1,10 @@
-from schedules_tools.schedule_handlers import ScheduleHandlerBase
-from schedules_tools import models, SchedulesToolsException
-import logging
 import datetime
+import logging
 import re
 import traceback
+
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
+from schedules_tools import models, SchedulesToolsException
 
 
 COLUMN_TASK_NAME = 'name'
