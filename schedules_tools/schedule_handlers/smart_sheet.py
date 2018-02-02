@@ -80,6 +80,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             for sheet in sheets.data:
                 if sheet.permalink == value:
                     info_dict = info_dict = dict(id=sheet.id, permalink=value)
+                    break
         
         return info_dict
     
