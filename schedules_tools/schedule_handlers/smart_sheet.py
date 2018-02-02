@@ -62,10 +62,28 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     columns_mapping_id = {}
     
     
+    # getter/setter to convert handle to Smartsheet id
+    @property
+    def handle(self):
+        return self._handle
+    
+    @handle.setter
+    def handle(self, value):
+        self._handle = value
+        
+        # try to get id if not passed
+        if value is not None and not ScheduleHandler_smartsheet.value_is_ss_id(value):
+            info_dict = self.get_info_dict(value)
+            
+            if 'id' in info_dict:
+                self._handle = info_dict['id']
+                
+    
+    
     def get_info_dict(self, value):
         '''Return dicionary with both smarsheet id and permalink - get the missing one'''
         
-        info_dict = None
+        info_dict = {}
         
         if ScheduleHandler_smartsheet.value_is_ss_id(value):
             try:

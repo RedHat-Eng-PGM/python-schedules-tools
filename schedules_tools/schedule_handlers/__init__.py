@@ -32,9 +32,11 @@ class ScheduleHandlerBase(object):
     handle_deps_satisfied = False
 
     def __init__(self, handle=None, schedule=None, options=dict()):
-        self.handle = handle  # 'handle' is source/target of schedule in general
         self.schedule = schedule
         self.options = options
+        
+        # set handle last - there might be custom processing that requires options to already be set
+        self.handle = handle  # 'handle' is source/target of schedule in general
 
     def _write_to_file(self, content, filename):
         with open(filename, 'wb') as fp:
