@@ -1,5 +1,7 @@
 from datetime import datetime
 import logging
+import pytz
+
 from lxml import etree
 
 log = logging.getLogger(__name__)
@@ -56,8 +58,13 @@ class ScheduleHandlerBase(object):
             except NotImplementedError:
                 return True
 
-            if handle_mtime and handle_mtime <= mtime:
-                return False
+            # we're working with TZ naive dates (but in UTC)
+            if handle_mtime: 
+                if handle_mtime.tzinfo is not None:
+                    handle_mtime = handle_mtime.astimezone(pytz.utc).replace(tzinfo=None)
+                
+                if handle_mtime <= mtime:
+                    return False
 
         return True
 

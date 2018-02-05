@@ -160,6 +160,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         self.schedule.name = str(self.sheet.name)
         self.schedule.slug = str(self.schedule.unique_id_re.sub('_', self.schedule.name))
         self.schedule.mtime = self.get_handle_mtime()
+        self.schedule.changelog = self.get_handle_changelog()
+        
         parents_stack = []
 
         try:
