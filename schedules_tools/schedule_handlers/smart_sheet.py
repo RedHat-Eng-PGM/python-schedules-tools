@@ -144,6 +144,17 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     def get_handle_mtime(self):
         return self.sheet.modified_at
 
+    def get_handle_changelog(self):
+        changelog = dict()
+
+        changelog[self.sheet.version] = {
+            'date': self.sheet.modified_at,
+            'user': None,
+            'msg': None,
+        }
+
+        return changelog
+
     def import_schedule(self):
         self.schedule = models.Schedule()
         self.schedule.name = str(self.sheet.name)
