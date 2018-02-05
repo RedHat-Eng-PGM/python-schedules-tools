@@ -65,7 +65,9 @@ class TestHandlers(object):
         """Removes keys that is not needed for comparison,
         unify time-part of dates"""
         keys_to_remove = ['unique_id_re', 'id_reg', 'ext_attr', 'flags_attr_id',
-                          'resources', 'mtime']
+                          'resources', 'mtime',
+                          'changelog', # TODO: We need a way to test changelog
+                          ]
 
         # remove schedule attrs
         for key in keys_to_remove:
@@ -183,8 +185,8 @@ class TestHandlers(object):
         else:
             callback_name = 'import_setup_handle_' + handler_name
             if hasattr(self, callback_name):
-                fixture_fn = getattr(self, callback_name)
-                handle, converter_options = fixture_fn()
+                import_setup_fn = getattr(self, callback_name)
+                handle, converter_options = import_setup_fn()
 
         try:
             conv = ScheduleConverter()
@@ -217,8 +219,8 @@ class TestHandlers(object):
         finally:
             callback_name = 'import_teardown_handle_' + handler_name
             if not import_schedule_file and hasattr(self, callback_name):
-                fixture_fn = getattr(self, callback_name)
-                fixture_fn(handle, converter_options)
+                import_setup_fn = getattr(self, callback_name)
+                import_setup_fn(handle, converter_options)
 
     def test_export(self, handler_name, export_schedule_file, 
                     flat, flag_show, flag_hide, options,
