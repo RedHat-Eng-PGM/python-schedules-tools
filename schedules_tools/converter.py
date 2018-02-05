@@ -121,7 +121,7 @@ class ScheduleConverter(object):
                               options=dict()
                               ):
         """ Return boolean (call schedule_handler specific method) to be able to bypass processing """
-
+        errors = []
         handle_modified = True
 
         self._init_storage_handler(handle, storage_src_format, options)
@@ -145,14 +145,18 @@ class ScheduleConverter(object):
                        'can\'t get modified time.'.format(schedule_handler_cls))
                 raise HandlerMissingDeps(msg)
     
-            handle_modified = schedule_handler_cls(
-                                            handle=local_handle, 
-                                            options=options
-                                            ).handle_modified_since(mtime)
+            try:
+                handle_modified = schedule_handler_cls(handle=local_handle, 
+                                                       options=options
+                                                       ).handle_modified_since(mtime)
+            except SchedulesToolsException as e:
+                error_item = e.__class__.__name__, str(e).split('\n'), e.source
+                errors.append(error_item)
+            
             if cleanup:
                 self.cleanup_local_handle()
             
-        return handle_modified
+        return handle_modified, errors
 
     def import_schedule(self,
                         handle, 

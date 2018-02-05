@@ -52,11 +52,14 @@ class ScheduleHandlerBase(object):
     def handle_modified_since(self, mtime):
         """ Return boolean to be able to bypass processing """
         # Return False only when able to tell otherwise return True
+        
+        modified = True
+        
         if isinstance(mtime, datetime):
             try:
                 handle_mtime = self.get_handle_mtime()
             except NotImplementedError:
-                return True
+                pass
 
             # we're working with TZ naive dates (but in UTC)
             if handle_mtime: 
@@ -64,9 +67,9 @@ class ScheduleHandlerBase(object):
                     handle_mtime = handle_mtime.astimezone(pytz.utc).replace(tzinfo=None)
                 
                 if handle_mtime <= mtime:
-                    return False
+                    modified = False
 
-        return True
+        return modified
 
     def get_handle_changelog(self):
         raise NotImplementedError

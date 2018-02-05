@@ -50,7 +50,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         'Task Name': COLUMN_TASK_NAME,
         'Duration': COLUMN_DURATION,
         'Start': COLUMN_START,
+        'Start Date': COLUMN_START,
         'Finish': COLUMN_FINISH,
+        'End Date': COLUMN_FINISH,
         '% Complete': COLUMN_P_COMPLETE,
         'Comments': COLUMN_NOTE,
         'Flags': COLUMN_FLAGS,
@@ -138,7 +140,12 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     @property
     def sheet(self):
         if not self._sheet_instance:
-            self._sheet_instance = self.client.Sheets.get_sheet(self.handle)
+            try:
+                self._sheet_instance = self.client.Sheets.get_sheet(self.handle)
+            
+            except smartsheet.exceptions.ApiError as e:
+                raise SmartSheetImportException(e.message, source=self.handle)
+            
         return self._sheet_instance
 
     def get_handle_mtime(self):
@@ -156,15 +163,15 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         return changelog
 
     def import_schedule(self):
-        self.schedule = models.Schedule()
-        self.schedule.name = str(self.sheet.name)
-        self.schedule.slug = str(self.schedule.unique_id_re.sub('_', self.schedule.name))
-        self.schedule.mtime = self.get_handle_mtime()
-        self.schedule.changelog = self.get_handle_changelog()
-        
-        parents_stack = []
-
         try:
+            self.schedule = models.Schedule()
+            self.schedule.name = str(self.sheet.name)
+            self.schedule.slug = str(self.schedule.unique_id_re.sub('_', self.schedule.name))
+            self.schedule.mtime = self.get_handle_mtime()
+            self.schedule.changelog = self.get_handle_changelog()
+            
+            parents_stack = []
+
             # populate columns dict/map
             for column in self.sheet.columns:
                 index = self.columns_mapping_name.get(column.title, None)
@@ -180,11 +187,16 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             self.schedule.dStart = self.schedule.tasks[0].dStart
             self.schedule.dFinish = self.schedule.tasks[0].dFinish
             self.schedule.generate_slugs()
+
         except (KeyError, IndexError):
             # We can get all exception details via traceback
             # instead of 'except' statement
             msg = traceback.format_exc()
-            raise SmartSheetImportException(msg, source=self)
+            raise SmartSheetImportException(msg, source=self.handle)
+        
+        except smartsheet.exceptions.ApiError as e:
+            raise SmartSheetImportException(e.message, source=self.handle)
+        
         return self.schedule
 
     def _parse_date(self, string):
@@ -203,10 +215,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # skip empty rows
         if not cells[COLUMN_TASK_NAME]:
             return
-        task.name = str(cells[COLUMN_TASK_NAME])
+        task.name = unicode(cells[COLUMN_TASK_NAME])
 
         if cells[COLUMN_NOTE]:
-            task.note = str(cells[COLUMN_NOTE])
+            task.note = unicode(cells[COLUMN_NOTE])
         if COLUMN_PRIORITY in cells:
             task.priority = cells[COLUMN_PRIORITY]
 
@@ -285,7 +297,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         """
         mapped_cells = {}
         unknown_values = []
-
+        
         for cell in row.cells:
             cell_name = self.columns_mapping_id.get(cell.column_id, None)
             if not cell_name:
@@ -322,7 +334,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         if resp.message != 'SUCCESS':
             msg = 'Adding column failed: {}'.format(resp)
-            raise SmartSheetExportException(msg, source=self)
+            raise SmartSheetExportException(msg, source=self.handle)
 
         for task in self.schedule.tasks:
             self.export_task(task, parent_id=None)
@@ -403,12 +415,12 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         resp = self.client.Sheets.add_rows(self.handle, [row])
 
         if resp.message != 'SUCCESS':
-            raise SmartSheetExportException(resp.result.message, source=self)
+            raise SmartSheetExportException(resp.result.message, source=self.handle)
         len_result = len(resp.result)
         if 1 != len_result:
             msg = ('Just one row was expected to be added, instead '
                    'of {}'.format(len_result))
-            raise SmartSheetExportException(msg, source=self)
+            raise SmartSheetExportException(msg, source=self.handle)
 
         row_id = resp.result[0].id
 
