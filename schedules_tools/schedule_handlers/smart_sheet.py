@@ -331,6 +331,20 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         })
         resp = self.client.Home.create_sheet_from_template(sheet_spec)
         self.handle = resp.result.id
+
+        # mark whole week as working days to avoid 'rounding' duration
+        # over weekends
+        self.client.Sheets.update_sheet(
+            self.handle,
+            self.client.models.Sheet({
+                'project_settings': self.client.models.ProjectSettings({
+                    'working_days': [
+                        'SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY',
+                        'FRIDAY', 'SATURDAY']
+                })
+            })
+        )
+
         column_spec_flags = self.client.models.Column({
             'title': 'Flags',
             'type': 'TEXT_NUMBER',
@@ -356,27 +370,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # sheet ID
         return self.handle
 
-    @staticmethod
-    def calculate_working_days_duration(dstart, dfinish):
-        """
-        Calculate number of days in starting and ending week.
-        https://gist.github.com/archugs/bfbee2b8d210ca07c424#file-workingdaysusingloop-py
-
-        Args:
-            dstart: later date
-            dfinish: sooner date
-
-        Returns:
-            number of working days between dstart and dfinish
-        """
-        all_days = [dstart + datetime.timedelta(days=x) for x in
-                    range((dfinish - dstart).days + 1)]
-        working_days = sum(1 for d in all_days if d.weekday() < 5)
-        log.debug('duration: {} working days ({} - {})'.format(working_days,
-                                                                  dstart,
-                                                                  dfinish))
-        return working_days
-
     def export_task(self, task, parent_id=None):
         row = self.client.models.Row()
         row.parent_id = parent_id
@@ -400,8 +393,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         elif task.dFinish:
             # finish date can be set only as (start, duration) tuple,
             # put direct value for Finish column is not allowed.
-            duration = self.calculate_working_days_duration(task.dStart,
-                                                            task.dFinish)
+            # Even if start and finish date are the same, duration equals 1.
+            duration = (task.dFinish - task.dStart).days + 1
             row.cells.append({
                 'column_id': self.sheet.columns[1].id,  # finish #3
                 'value': '{}d'.format(duration)
