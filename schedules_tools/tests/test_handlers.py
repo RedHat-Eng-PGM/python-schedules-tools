@@ -216,6 +216,7 @@ class TestHandlers(object):
                 reference_dict = json.load(fd, object_hook=self._convert_struct_unicode_to_str)
             self._clean_interm_struct(reference_dict)
             assert reference_dict == imported_schedule_dict
+            
         finally:
             callback_name = 'import_teardown_handle_' + handler_name
             if not import_schedule_file and hasattr(self, callback_name):

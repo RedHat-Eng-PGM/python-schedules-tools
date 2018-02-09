@@ -213,17 +213,20 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # task.slug is generated at the end of importing whole schedule
 
         # skip empty rows
-        if not cells[COLUMN_TASK_NAME]:
+        if COLUMN_TASK_NAME not in cells or not cells[COLUMN_TASK_NAME]:
             return
+        
         task.name = unicode(cells[COLUMN_TASK_NAME])
 
-        if cells[COLUMN_NOTE]:
+        if COLUMN_NOTE in cells and cells[COLUMN_NOTE]:
             task.note = unicode(cells[COLUMN_NOTE])
+            
         if COLUMN_PRIORITY in cells:
             task.priority = cells[COLUMN_PRIORITY]
 
         task.dStart = self._parse_date(cells[COLUMN_START])
         task.dFinish = self._parse_date(cells[COLUMN_FINISH])
+        
         if COLUMN_ACSTART in cells:
             task.dAcStart = cells[COLUMN_ACSTART]
         else:
@@ -239,9 +242,12 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             match = re.findall(self._re_number, cells[COLUMN_DURATION])
             if match:
                 task.milestone = int(match[0]) == 0
+        
         complete = cells[COLUMN_P_COMPLETE]
+        
         if complete is not None:
             task.p_complete = round(complete * 100, 1)
+        
         if COLUMN_FLAGS in cells and cells[COLUMN_FLAGS]:
             # try first to parse workaround format 'Flags: qe, dev'
             task.parse_extended_attr(cells[COLUMN_FLAGS])
@@ -266,19 +272,27 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             'rowid': row.id,
             'task': task
         }
+        
         if not parents_stack:
             # Current task is the topmost (root)
             self.schedule.tasks = [task]
             parents_stack.insert(0, curr_stack_item)
+            
         elif row.parent_id == parents_stack[0]['rowid']:
             # Current task is direct descendant of latest task
             parents_stack[0]['task'].tasks.append(task)
             parents_stack.insert(0, curr_stack_item)
+            
         elif row.parent_id != parents_stack[0]['rowid']:
             # We are currently in the same, or upper, level of tree
-            while row.parent_id != parents_stack[0]['rowid']:
+            while parents_stack and row.parent_id != parents_stack[0]['rowid']:
                 parents_stack.pop(0)
-            parents_stack[0]['task'].tasks.append(task)
+            
+            if parents_stack:
+                parents_stack[0]['task'].tasks.append(task)
+            else:
+                self.schedule.tasks.append(task)
+                                
             parents_stack.insert(0, curr_stack_item)
 
         task.check_for_phase()
