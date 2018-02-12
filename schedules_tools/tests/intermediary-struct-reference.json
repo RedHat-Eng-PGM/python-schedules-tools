@@ -1,14 +1,13 @@
 {
-    "changelog": {},
-    "dFinish": "2000-02-11T00:00:00Z",
-    "dStart": "2000-01-03T00:00:00Z",
+    "dFinish": "2000-02-05T00:00:00Z",
+    "dStart": "2000-01-01T00:00:00Z",
     "errors_import": [],
     "name": "Test project 10",
     "phases": [
         {
-            "dAcFinish": "2000-02-09T00:00:00Z",
+            "dAcFinish": "2000-02-03T00:00:00Z",
             "dAcStart": "2000-01-21T00:00:00Z",
-            "dFinish": "2000-02-09T00:00:00Z",
+            "dFinish": "2000-02-03T00:00:00Z",
             "dStart": "2000-01-21T00:00:00Z",
             "flags": [
                 "flag1"
@@ -25,24 +24,24 @@
     "slug": "Test_project_10",
     "tasks": [
         {
-            "dAcFinish": "2000-02-11T00:00:00Z",
-            "dAcStart": "2000-01-03T00:00:00Z",
-            "dFinish": "2000-02-11T00:00:00Z",
-            "dStart": "2000-01-03T00:00:00Z",
+            "dAcFinish": "2000-02-05T00:00:00Z",
+            "dAcStart": "2000-01-01T00:00:00Z",
+            "dFinish": "2000-02-05T00:00:00Z",
+            "dStart": "2000-01-01T00:00:00Z",
             "flags": [],
             "index": 1,
             "level": 1,
             "milestone": false,
             "name": "Test project 10",
-            "p_complete": 48.0,
+            "p_complete": 53.0,
             "priority": 500,
             "slug": "Test_project_10",
             "tasks": [
                 {
-                    "dAcFinish": "2000-02-09T00:00:00Z",
-                    "dAcStart": "2000-01-03T00:00:00Z",
-                    "dFinish": "2000-02-09T00:00:00Z",
-                    "dStart": "2000-01-03T00:00:00Z",
+                    "dAcFinish": "2000-02-03T00:00:00Z",
+                    "dAcStart": "2000-01-01T00:00:00Z",
+                    "dFinish": "2000-02-03T00:00:00Z",
+                    "dStart": "2000-01-01T00:00:00Z",
                     "flags": [],
                     "index": 2,
                     "level": 2,
@@ -53,10 +52,10 @@
                     "slug": "Test_project_10.test",
                     "tasks": [
                         {
-                            "dAcFinish": "2000-01-28T00:00:00Z",
-                            "dAcStart": "2000-01-03T00:00:00Z",
-                            "dFinish": "2000-01-28T00:00:00Z",
-                            "dStart": "2000-01-03T00:00:00Z",
+                            "dAcFinish": "2000-01-21T00:00:00Z",
+                            "dAcStart": "2000-01-01T00:00:00Z",
+                            "dFinish": "2000-01-21T00:00:00Z",
+                            "dStart": "2000-01-01T00:00:00Z",
                             "flags": [],
                             "index": 3,
                             "level": 3,
@@ -84,9 +83,9 @@
                             "tasks": []
                         },
                         {
-                            "dAcFinish": "2000-02-09T00:00:00Z",
+                            "dAcFinish": "2000-02-03T00:00:00Z",
                             "dAcStart": "2000-01-21T00:00:00Z",
-                            "dFinish": "2000-02-09T00:00:00Z",
+                            "dFinish": "2000-02-03T00:00:00Z",
                             "dStart": "2000-01-21T00:00:00Z",
                             "flags": [
                                 "flag1"
@@ -121,10 +120,10 @@
                     ]
                 },
                 {
-                    "dAcFinish": "2000-02-11T00:00:00Z",
-                    "dAcStart": "2000-02-05T00:00:00Z",
-                    "dFinish": "2000-02-11T00:00:00Z",
-                    "dStart": "2000-02-05T00:00:00Z",
+                    "dAcFinish": "2000-02-05T00:00:00Z",
+                    "dAcStart": "2000-02-03T00:00:00Z",
+                    "dFinish": "2000-02-05T00:00:00Z",
+                    "dStart": "2000-02-03T00:00:00Z",
                     "flags": [],
                     "index": 7,
                     "level": 2,
@@ -135,10 +134,10 @@
                     "slug": "Test_project_10.test_2",
                     "tasks": [
                         {
-                            "dAcFinish": "2000-02-11T00:00:00Z",
-                            "dAcStart": "2000-02-09T00:00:00Z",
-                            "dFinish": "2000-02-11T00:00:00Z",
-                            "dStart": "2000-02-09T00:00:00Z",
+                            "dAcFinish": "2000-02-05T00:00:00Z",
+                            "dAcStart": "2000-02-03T00:00:00Z",
+                            "dFinish": "2000-02-05T00:00:00Z",
+                            "dStart": "2000-02-03T00:00:00Z",
                             "flags": [],
                             "index": 8,
                             "level": 3,

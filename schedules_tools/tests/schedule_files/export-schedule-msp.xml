@@ -155,8 +155,8 @@
   <Tasks>
     <Task>
       <Name>Test project 10</Name>
-      <Start>2000-01-03T00:00:00</Start>
-      <Finish>2000-02-11T00:00:00</Finish>
+      <Start>2000-01-01T00:00:00</Start>
+      <Finish>2000-02-05T00:00:00</Finish>
       <Priority>500</Priority>
       <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
@@ -168,8 +168,8 @@
     </Task>
     <Task>
       <Name>Test 1</Name>
-      <Start>2000-01-03T00:00:00</Start>
-      <Finish>2000-02-09T00:00:00</Finish>
+      <Start>2000-01-01T00:00:00</Start>
+      <Finish>2000-02-03T00:00:00</Finish>
       <Priority>500</Priority>
       <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
@@ -181,8 +181,8 @@
     </Task>
     <Task>
       <Name>Development</Name>
-      <Start>2000-01-03T00:00:00</Start>
-      <Finish>2000-01-28T00:00:00</Finish>
+      <Start>2000-01-01T00:00:00</Start>
+      <Finish>2000-01-21T00:00:00</Finish>
       <Priority>500</Priority>
       <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
@@ -212,7 +212,7 @@
     <Task>
       <Name>Testing Phase</Name>
       <Start>2000-01-21T00:00:00</Start>
-      <Finish>2000-02-09T00:00:00</Finish>
+      <Finish>2000-02-03T00:00:00</Finish>
       <Priority>500</Priority>
       <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
@@ -249,8 +249,8 @@
     </Task>
     <Task>
       <Name>Test 2</Name>
-      <Start>2000-02-05T00:00:00</Start>
-      <Finish>2000-02-11T00:00:00</Finish>
+      <Start>2000-02-03T00:00:00</Start>
+      <Finish>2000-02-05T00:00:00</Finish>
       <Priority>500</Priority>
       <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>
@@ -262,8 +262,8 @@
     </Task>
     <Task>
       <Name>First task</Name>
-      <Start>2000-02-09T00:00:00</Start>
-      <Finish>2000-02-11T00:00:00</Finish>
+      <Start>2000-02-03T00:00:00</Start>
+      <Finish>2000-02-05T00:00:00</Finish>
       <Priority>500</Priority>
       <Milestone>False</Milestone>
       <Duration>PT0H0M0S</Duration>

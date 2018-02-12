@@ -1,49 +1,49 @@
 {
     "changelog": {},
-    "end": "950223600",
+    "end": "949705200",
     "ext_attr": {},
     "flags_attr_id": null,
     "name": "Test project 10",
     "phases": [
         {
             "complete": 90.0,
-            "end": "950050800",
+            "end": "949532400",
             "name": "Testing Phase",
             "start": "948409200"
         }
     ],
     "resources": {},
     "slug": "Test_project_10",
-    "start": "946854000",
+    "start": "946681200",
     "tasks": [
         {
             "_level": 1,
-            "complete": 48.0,
-            "end": "950223600",
+            "complete": 53.0,
+            "end": "949705200",
             "flags": [],
             "index": 1,
             "name": "Test project 10",
             "parentTask": "",
             "priority": 500,
             "slug": "Test_project_10",
-            "start": "946854000",
+            "start": "946681200",
             "tasks": [
                 {
                     "_level": 2,
                     "complete": 58.0,
-                    "end": "950050800",
+                    "end": "949532400",
                     "flags": [],
                     "index": 2,
                     "name": "Test 1",
                     "parentTask": "Test_project_10",
                     "priority": 500,
                     "slug": "Test_project_10.test",
-                    "start": "946854000",
+                    "start": "946681200",
                     "tasks": [
                         {
                             "_level": 3,
                             "complete": 90.0,
-                            "end": "950050800",
+                            "end": "949532400",
                             "flags": [
                                 "flag1"
                             ],
