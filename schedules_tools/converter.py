@@ -196,8 +196,8 @@ class ScheduleConverter(object):
                     schedule.changelog = self.storage_handler.get_handle_changelog()
 
                 if self.storage_handler.provide_mtime:
-                    schedule.mtime = self.storage_handler.get_handle_mtime()                
-            
+                    schedule.mtime = self.storage_handler.get_handle_mtime()
+
         except SchedulesToolsException as e:
             error_item = e.__class__.__name__, str(e).split('\n'), e.source
             schedule.errors_import.append(error_item)

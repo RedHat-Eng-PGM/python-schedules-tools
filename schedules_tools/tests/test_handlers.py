@@ -49,8 +49,8 @@ class TestHandlers(object):
         ('json', 'export-schedule-json-flat-flags.json', True, ['flag1'], ['flag2'], {}),
         ('ics', 'export-schedule-ics.ics', False, [], [], {}),
         ('html', 'export-schedule-html.html', False, [], [], {}),
-        ('html', 'export-schedule-html-options.html', False, [], [], dict(html_title='Test title',
-                                                                          html_table_header='<p>Test header</p>')),
+        ('html', 'export-schedule-html-options.html', False, [], [],
+         dict(html_title='Test title', html_table_header='<p>Test header</p>')),
     ]
 
     smartsheet_columns_ids = ()
@@ -198,12 +198,12 @@ class TestHandlers(object):
             imported_schedule_dict = schedule.dump_as_dict()
             self._clean_interm_struct(imported_schedule_dict)
 
-            interm_reference_file = os.path.join(self.basedir,
-                                                 self.intermediary_reference_file)
+            interm_reference_file = os.path.join(
+                self.basedir, self.intermediary_reference_file)
             regenerate = os.environ.get('REGENERATE', False) == 'true'
             if regenerate:
                 log.info('test_import: Regenerating interm. reference file'
-                            'from imported schedule.')
+                         'from imported schedule.')
 
                 with open(interm_reference_file, 'w+') as fd:
                     jsondate.dump(imported_schedule_dict,
@@ -213,7 +213,8 @@ class TestHandlers(object):
                                   separators=(',', ': '))
 
             with open(interm_reference_file) as fd:
-                reference_dict = json.load(fd, object_hook=self._convert_struct_unicode_to_str)
+                reference_dict = json.load(
+                    fd, object_hook=self._convert_struct_unicode_to_str)
             self._clean_interm_struct(reference_dict)
             assert reference_dict == imported_schedule_dict
             
@@ -226,7 +227,8 @@ class TestHandlers(object):
     def test_export(self, handler_name, export_schedule_file, 
                     flat, flag_show, flag_hide, options,
                     tmpdir):
-        full_export_schedule_file = os.path.join(self.basedir, self.schedule_files_dir,
+        full_export_schedule_file = os.path.join(self.basedir,
+                                                 self.schedule_files_dir,
                                                  export_schedule_file)
         intermediary_input = self.get_intermediary_reference_schedule()
         export_output_file = tmpdir.join('exported_file')
@@ -239,13 +241,15 @@ class TestHandlers(object):
         
         conv.schedule.filter_flags(flag_show, flag_hide)
         
-        conv.export_schedule(export_output_filename, handler_name, options=options)
+        conv.export_schedule(export_output_filename, handler_name,
+                             options=options)
         actual_output = export_output_file.read()
 
         regenerate = os.environ.get('REGENERATE', False) == 'true'
 
         if regenerate:
-            log.info('test_export: Regenerating exported file from reference schedule.')
+            log.info('test_export: Regenerating exported file from '
+                     'reference schedule.')
             shutil.copy(export_output_filename, full_export_schedule_file)
 
         with open(full_export_schedule_file) as fd:
