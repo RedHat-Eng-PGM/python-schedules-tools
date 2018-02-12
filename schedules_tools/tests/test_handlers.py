@@ -1,3 +1,4 @@
+from dateutil.tz import tzutc
 import datetime
 import json
 import logging
@@ -5,8 +6,8 @@ import os
 import pytest
 import re
 import shutil
-# TODO(mpavlase): don't fail if the module is not installed
 from smartsheet import Smartsheet
+
 
 from schedules_tools.converter import ScheduleConverter
 from schedules_tools.tests import jsondate
@@ -34,6 +35,7 @@ class TestHandlers(object):
     intermediary_reference_file = 'intermediary-struct-reference.json'
     schedule_files_dir = 'schedule_files'
     basedir = os.path.dirname(os.path.realpath(__file__))
+    test_import_start_timestamp = None
 
     scenarios_import_combinations = [
         ('msp', 'import-schedule-msp.xml'),
@@ -65,9 +67,7 @@ class TestHandlers(object):
         """Removes keys that is not needed for comparison,
         unify time-part of dates"""
         keys_to_remove = ['unique_id_re', 'id_reg', 'ext_attr', 'flags_attr_id',
-                          'resources', 'mtime',
-                          'changelog', # TODO: We need a way to test changelog
-                          ]
+                          'resources', 'mtime']
 
         # remove schedule attrs
         for key in keys_to_remove:
@@ -163,6 +163,17 @@ class TestHandlers(object):
         client = Smartsheet(converter_options['smartsheet_token'])
         client.Sheets.delete_sheet(handle)
 
+    def import_assert_changelog_smartsheet(self,
+                                           reference_schedule_dict,
+                                           imported_schedule_dict):
+        changelog = imported_schedule_dict['changelog']
+        assert len(changelog.keys()) == 1
+        assert isinstance(changelog.keys()[0], int)
+
+        record = changelog.values()[0]
+        date_now = datetime.datetime.now(tz=tzutc())
+        assert self.test_import_start_timestamp < record['date'] < date_now
+
     def test_import(self, handler_name, import_schedule_file):
         """
         Generic pytest fixture that provides arguments for import_schedule meth.
@@ -175,6 +186,7 @@ class TestHandlers(object):
         """
         handle = None
         converter_options = dict()
+        self.test_import_start_timestamp = datetime.datetime.now(tz=tzutc())
 
         if import_schedule_file:
             handle = os.path.join(self.basedir, self.schedule_files_dir,
@@ -216,6 +228,18 @@ class TestHandlers(object):
                 reference_dict = json.load(
                     fd, object_hook=self._convert_struct_unicode_to_str)
             self._clean_interm_struct(reference_dict)
+
+            # test/assert changelog separately, if there exists a hook
+            callback_name = 'import_assert_changelog_' + handler_name
+            if hasattr(self, callback_name):
+                assert_changelog_fn = getattr(self, callback_name)
+                assert_changelog_fn(reference_dict, imported_schedule_dict)
+
+                # If asserting of changelog went well,
+                # drop it from schedules dicts
+                imported_schedule_dict.pop('changelog', None)
+                reference_dict.pop('changelog', None)
+
             assert reference_dict == imported_schedule_dict
             
         finally:
