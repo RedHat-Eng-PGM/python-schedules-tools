@@ -13,6 +13,9 @@ from schedules_tools.converter import ScheduleConverter
 from schedules_tools.tests import jsondate
 from schedules_tools.models import Schedule
 
+# smartsheet log
+logging.basicConfig(level=logging.INFO)
+
 log = logging.getLogger(__name__)
 
 

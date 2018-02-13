@@ -47,64 +47,62 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     _re_number = re.compile('[0-9]+')
     _re_url = re.compile('^https?://.*?smartsheet.com')
     columns_mapping_name = {
+        'Task': COLUMN_TASK_NAME,
         'Task Name': COLUMN_TASK_NAME,
         'Duration': COLUMN_DURATION,
         'Start': COLUMN_START,
         'Start Date': COLUMN_START,
+        'Due': COLUMN_FINISH,
         'Finish': COLUMN_FINISH,
         'End Date': COLUMN_FINISH,
         '% Complete': COLUMN_P_COMPLETE,
         'Comments': COLUMN_NOTE,
         'Flags': COLUMN_FLAGS,
         'Link': COLUMN_LINK,
-        'Actual Start': COLUMN_ACSTART,
-        'Actual Finish': COLUMN_ACFINISH,
         'Priority': COLUMN_PRIORITY,
     }
 
     columns_mapping_id = {}
-    
-    
+
     # getter/setter to convert handle to Smartsheet id
     @property
     def handle(self):
         return self._handle
-    
+
     @handle.setter
     def handle(self, value):
         self._handle = value
-        
+
         # try to get id if not passed
-        if value is not None and not ScheduleHandler_smartsheet.value_is_ss_id(value):
+        if value is not None and not ScheduleHandler_smartsheet.value_is_ss_id(
+                                                                    value):
             info_dict = self.get_info_dict(value)
-            
+
             if 'id' in info_dict:
                 self._handle = info_dict['id']
-                
-    
-    
+
     def get_info_dict(self, value):
-        '''Return dicionary with both smarsheet id and permalink - get the missing one'''
-        
+        """Return dict with smarsheet id and permalink - get missing one"""
+
         info_dict = {}
-        
+
         if ScheduleHandler_smartsheet.value_is_ss_id(value):
             try:
                 sheet = self.client.Sheets.get_sheet(value)
                 info_dict = dict(id=int(value), permalink=sheet.permalink)
             except smartsheet.exceptions.ApiError as e:
                 log.warn(e)
-        
+
         elif ScheduleHandler_smartsheet.value_is_ss_permalink(value):
             sheets = self.client.Sheets.list_sheets(include_all=True)
-        
+
             for sheet in sheets.data:
                 if sheet.permalink == value:
-                    info_dict = info_dict = dict(id=int(sheet.id), permalink=value)
+                    info_dict = info_dict = dict(id=int(sheet.id),
+                                                 permalink=value)
                     break
-        
+
         return info_dict
-    
 
     @classmethod
     def value_is_ss_id(cls, value):
@@ -120,7 +118,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # https://app.smartsheet.com/b/home?lx=0HHzeGnfHik-N13ZT8pU7g
         if cls._re_url.match(str(value)):
             return True
-        
 
     @classmethod
     def is_valid_source(cls, handle=None):
@@ -129,11 +126,11 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         return cls.value_is_ss_permalink(handle) or cls.value_is_ss_id(handle)
 
-
     @property
     def client(self):
         if not self._client_instance:
-            self._client_instance = smartsheet.Smartsheet(self.options['smartsheet_token'])
+            self._client_instance = smartsheet.Smartsheet(
+                self.options['smartsheet_token'])
             self._client_instance.errors_as_exceptions(True)
         return self._client_instance
 
@@ -141,11 +138,12 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     def sheet(self):
         if not self._sheet_instance:
             try:
-                self._sheet_instance = self.client.Sheets.get_sheet(self.handle)
-            
+                self._sheet_instance = self.client.Sheets.get_sheet(
+                    self.handle)
+
             except smartsheet.exceptions.ApiError as e:
                 raise SmartSheetImportException(e.message, source=self.handle)
-            
+
         return self._sheet_instance
 
     def get_handle_mtime(self):
@@ -166,10 +164,11 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         try:
             self.schedule = models.Schedule()
             self.schedule.name = str(self.sheet.name)
-            self.schedule.slug = str(self.schedule.unique_id_re.sub('_', self.schedule.name))
+            self.schedule.slug = str(
+                self.schedule.unique_id_re.sub('_', self.schedule.name))
             self.schedule.mtime = self.get_handle_mtime()
             self.schedule.changelog = self.get_handle_changelog()
-            
+
             parents_stack = []
 
             # populate columns dict/map
@@ -193,10 +192,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             # instead of 'except' statement
             msg = traceback.format_exc()
             raise SmartSheetImportException(msg, source=self.handle)
-        
+
         except smartsheet.exceptions.ApiError as e:
             raise SmartSheetImportException(e.message, source=self.handle)
-        
+
         return self.schedule
 
     def _parse_date(self, string):
@@ -213,41 +212,37 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # task.slug is generated at the end of importing whole schedule
 
         # skip empty rows
-        if COLUMN_TASK_NAME not in cells or not cells[COLUMN_TASK_NAME]:
+        if not all([c in cells and cells[c]
+                    for c in COLUMN_TASK_NAME, COLUMN_START, COLUMN_FINISH]):
+            # skip load, task doesn't contain all needed info
             return
-        
+
         task.name = unicode(cells[COLUMN_TASK_NAME])
+
+        # dates
+        task.dStart = self._parse_date(cells[COLUMN_START])
+        task.dAcStart = task.dStart
+
+        task.dFinish = self._parse_date(cells[COLUMN_FINISH])
+        task.dAcFinish = task.dFinish
 
         if COLUMN_NOTE in cells and cells[COLUMN_NOTE]:
             task.note = unicode(cells[COLUMN_NOTE])
-            
+
         if COLUMN_PRIORITY in cells:
             task.priority = cells[COLUMN_PRIORITY]
-
-        task.dStart = self._parse_date(cells[COLUMN_START])
-        task.dFinish = self._parse_date(cells[COLUMN_FINISH])
-        
-        if COLUMN_ACSTART in cells:
-            task.dAcStart = cells[COLUMN_ACSTART]
-        else:
-            task.dAcStart = task.dStart
-
-        if COLUMN_ACFINISH in cells:
-            task.dAcFinish = cells[COLUMN_ACFINISH]
-        else:
-            task.dAcFinish = task.dFinish
 
         if COLUMN_DURATION in cells:
             # duration cell contains values like '14d', '~0'
             match = re.findall(self._re_number, cells[COLUMN_DURATION])
             if match:
                 task.milestone = int(match[0]) == 0
-        
+
         complete = cells[COLUMN_P_COMPLETE]
-        
+
         if complete is not None:
             task.p_complete = round(complete * 100, 1)
-        
+
         if COLUMN_FLAGS in cells and cells[COLUMN_FLAGS]:
             # try first to parse workaround format 'Flags: qe, dev'
             task.parse_extended_attr(cells[COLUMN_FLAGS])
@@ -272,27 +267,27 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             'rowid': row.id,
             'task': task
         }
-        
+
         if not parents_stack:
             # Current task is the topmost (root)
             self.schedule.tasks = [task]
             parents_stack.insert(0, curr_stack_item)
-            
+
         elif row.parent_id == parents_stack[0]['rowid']:
             # Current task is direct descendant of latest task
             parents_stack[0]['task'].tasks.append(task)
             parents_stack.insert(0, curr_stack_item)
-            
+
         elif row.parent_id != parents_stack[0]['rowid']:
             # We are currently in the same, or upper, level of tree
             while parents_stack and row.parent_id != parents_stack[0]['rowid']:
                 parents_stack.pop(0)
-            
+
             if parents_stack:
                 parents_stack[0]['task'].tasks.append(task)
             else:
                 self.schedule.tasks.append(task)
-                                
+
             parents_stack.insert(0, curr_stack_item)
 
         task.check_for_phase()
@@ -311,7 +306,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         """
         mapped_cells = {}
         unknown_values = []
-        
+
         for cell in row.cells:
             cell_name = self.columns_mapping_id.get(cell.column_id, None)
             if not cell_name:
@@ -422,7 +417,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         resp = self.client.Sheets.add_rows(self.handle, [row])
 
         if resp.message != 'SUCCESS':
-            raise SmartSheetExportException(resp.result.message, source=self.handle)
+            raise SmartSheetExportException(resp.result.message,
+                                            source=self.handle)
         len_result = len(resp.result)
         if 1 != len_result:
             msg = ('Just one row was expected to be added, instead '
