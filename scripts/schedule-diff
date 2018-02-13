@@ -62,8 +62,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     for path in args.handlers_path:
-        discovery.schedule_handlers.add_discover_path(path)
-        discovery.storage_handlers.add_discover_path(path)
+        discovery.search_paths.append(path)
 
     left = conv.ScheduleConverter()
     left.import_schedule(args.left)
