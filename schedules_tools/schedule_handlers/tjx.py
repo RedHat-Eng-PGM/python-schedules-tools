@@ -1,18 +1,26 @@
-from schedules_tools.schedule_handlers import ScheduleHandlerBase, TJXCommonMixin
-from schedules_tools import models
 import datetime
 import logging
 import os
+
 from lxml import etree
 
+from schedules_tools import models, SchedulesToolsException
+from schedules_tools.schedule_handlers import (ScheduleHandlerBase,
+                                               TJXCommonMixin,
+                                               )
+
 log = logging.getLogger(__name__)
+
+
+class TJXImportException(SchedulesToolsException):
+    pass
 
 
 class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
     provide_changelog = True
 
     handle_deps_satisfied = True
-    
+
     @classmethod
     def is_valid_source(cls, handle=None):
         if not handle:
@@ -28,8 +36,11 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
             if tree.xpath('//Project[@Id and @WeekStart]'):
                 return True
         return False
-    
+
     def import_schedule(self):
+        if not self.__class__.is_valid_source(self.handle):
+            raise TJXImportException('Invalid TJX source', source=self.handle)
+
         self.schedule = models.Schedule()
 
         tree = self._get_parsed_tree()
@@ -41,7 +52,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
         if slug:
             self.schedule.slug = slug
 
-        # look for same id as project, 'cos there might be more included root tasks
+        # look for same id as project, there might be more included root tasks
         eRoot_task = None
         eRoot_tasks = tree.xpath('Task[@Id = /Project/@Id]')
         if not len(eRoot_tasks):  # try whatever single root task
@@ -60,7 +71,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
                 self.schedule.name = root_task_name[0].text
         else:
             log.info('Can\'t find single root task in {} (found {} root '
-                        'tasks)'.format(self.handle, len(eRoot_tasks)))
+                     'tasks)'.format(self.handle, len(eRoot_tasks)))
 
         self.schedule.name = self.schedule.name.strip()
 
@@ -144,7 +155,8 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
         for eSubTask in eTask.xpath('./SubTasks/Task'):
             task_item = models.Task(task._schedule, task.level + 1)
-            t_min_date, t_max_date = self.task_load_tjx_node(task_item, eSubTask)
+            t_min_date, t_max_date = self.task_load_tjx_node(task_item,
+                                                             eSubTask)
             min_date = min(min_date, t_min_date)
             max_date = max(max_date, t_max_date)
 
