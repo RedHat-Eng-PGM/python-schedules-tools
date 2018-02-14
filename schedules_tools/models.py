@@ -88,11 +88,14 @@ class Task(object):
                 if flag:
                     self.flags.append(flag)
             self._schedule.used_flags |= set(self.flags)
+
         elif key.lower() == ATTR_PREFIX_LINK.lower():
             self.link = str(val)
+
         elif key.lower() == ATTR_PREFIX_NOTE.lower():
             # in case of multiple notes - concatenate
             self.note = ' '.join([self.note, val]).lstrip()
+
         else:
             log.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
 
