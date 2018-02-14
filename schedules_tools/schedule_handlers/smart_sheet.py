@@ -238,10 +238,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             if match:
                 task.milestone = int(match[0]) == 0
 
-        complete = cells[COLUMN_P_COMPLETE]
-
-        if complete is not None:
-            task.p_complete = round(complete * 100, 1)
+        if COLUMN_P_COMPLETE in cells and cells[COLUMN_P_COMPLETE] is not None:
+            task.p_complete = round(cells[COLUMN_P_COMPLETE] * 100, 1)
 
         if COLUMN_FLAGS in cells and cells[COLUMN_FLAGS]:
             # try first to parse workaround format 'Flags: qe, dev'
