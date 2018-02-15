@@ -26,6 +26,9 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
     
     default_export_ext = 'xml'
 
+    # amount of working hours per day
+    working_hours = 8
+
     @classmethod
     def is_valid_source(cls, handle=None):
         if not handle:
@@ -91,9 +94,11 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         eTitle = etree.SubElement(eProject, 'Title')
         eTitle.text = self.schedule.name
         eMinutesPerDay = etree.SubElement(eProject, 'MinutesPerDay')
-        eMinutesPerDay.text = '300'
+        working_minutes_per_day = self.working_hours * 60
+        eMinutesPerDay.text = str(working_minutes_per_day)
         eMinutesPerWeek = etree.SubElement(eProject, 'MinutesPerWeek')
-        eMinutesPerWeek.text = '1500'
+        # 7 working days
+        eMinutesPerWeek.text = str(working_minutes_per_day * 7)
 
         calendar_UID = '1'
         # add ext condition
@@ -104,7 +109,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         eUID = etree.SubElement(eCalendar, 'UID')
         eUID.text = calendar_UID
         eName = etree.SubElement(eCalendar, 'Name')
-        eName.text = '5h a day'
+        eName.text = 'Standard'
         eIsBaseCalendar = etree.SubElement(eCalendar, 'IsBaseCalendar')
         eIsBaseCalendar.text = '1'
         eWeekDays = etree.SubElement(eCalendar, 'WeekDays')
@@ -113,17 +118,19 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             eDayType = etree.SubElement(eWeekDay, 'DayType')
             eDayType.text = str(day_type)
             eDayWorking = etree.SubElement(eWeekDay, 'DayWorking')
-            if day_type in (1, 7):
-                eDayWorking.text = '0'
-            else:
-                eDayWorking.text = '1'
-                eWorkingTimes = etree.SubElement(eWeekDay, 'WorkingTimes')
-                for from_time in range(8, 17, 2):
-                    eWorkingTime = etree.SubElement(eWorkingTimes, 'WorkingTime')
-                    eFromTime = etree.SubElement(eWorkingTime, 'FromTime')
-                    eFromTime.text = '%02d:00:00' % int(from_time)
-                    eToTime = etree.SubElement(eWorkingTime, 'ToTime')
-                    eToTime.text = '%02d:00:00' % (from_time + 1,)
+            eDayWorking.text = '1'
+            eWorkingTimes = etree.SubElement(eWeekDay, 'WorkingTimes')
+
+            # Sunday and Saturday don't have specified working hours
+            if day_type in [1, 7]:
+                continue
+
+            for from_time in [8, 13]:
+                eWorkingTime = etree.SubElement(eWorkingTimes, 'WorkingTime')
+                eFromTime = etree.SubElement(eWorkingTime, 'FromTime')
+                eFromTime.text = '%02d:00:00' % int(from_time)
+                eToTime = etree.SubElement(eWorkingTime, 'ToTime')
+                eToTime.text = '%02d:00:00' % (from_time + 4,)
 
         for r_id, resource in self.schedule.resources.items():
             eCalendar = etree.SubElement(eCalendars, 'Calendar')
