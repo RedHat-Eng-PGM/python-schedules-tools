@@ -332,8 +332,9 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         ePriority = etree.SubElement(eTask, 'Priority')
         ePriority.text = str(task.priority)
 
+        # valid content is 0 or 1, not 'True', 'False'
         eMilestone = etree.SubElement(eTask, 'Milestone')
-        eMilestone.text = str(task.milestone)
+        eMilestone.text = str(int(task.milestone))
 
         duration = task.dFinish - task.dStart
         eDuration = etree.SubElement(eTask, 'Duration')
