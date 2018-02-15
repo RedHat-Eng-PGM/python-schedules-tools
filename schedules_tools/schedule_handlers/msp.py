@@ -3,6 +3,7 @@ import tempfile
 import logging
 
 from datetime import datetime
+from datetime import timedelta
 from lxml import etree
 
 from schedules_tools import models, SchedulesToolsException
@@ -142,6 +143,23 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             eIsBaseCalendar.text = '0'
             eBaseCalendarUID = etree.SubElement(eCalendar, 'BaseCalendarUID')
             eBaseCalendarUID.text = calendar_UID
+
+        # SmartSheet workaround:
+        # It's necessary to define at least one non-working days, due bug
+        # in SmartSheet import, otherwise whole calendar is ignored..
+        eExceptions = etree.SubElement(eCalendar, 'Exceptions')
+        eException = etree.SubElement(eExceptions, 'Exception')
+        eTimePeriod = etree.SubElement(eException, 'TimePeriod')
+        eFromDate = etree.SubElement(eTimePeriod, 'FromDate')
+        eToDate = etree.SubElement(eTimePeriod, 'ToDate')
+        # use date 5y before whole schedule beginning
+        exception_from_date = self.schedule.dStart.replace(
+            year=self.schedule.dStart.year - 5)
+        exception_to_date = exception_from_date + timedelta(days=1)
+        eFromDate.text = exception_from_date.strftime(datetime_format)
+        eToDate.text = exception_to_date.strftime(datetime_format)
+        eType = etree.SubElement(eException, 'Type')
+        eType.text = '1'
 
         eTasks = etree.SubElement(eProject, 'Tasks')
         self.export_msp_tasks(self.schedule.tasks, eTasks, '')
@@ -337,8 +355,13 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         eMilestone.text = str(int(task.milestone))
 
         duration = task.dFinish - task.dStart
+        # Workaround for SmartSheet import:
+        # They consider duration always +1 greater, than is difference between
+        # finish and start date in whole days, Finish element is ignored by them
+        duration += timedelta(days=1)
         eDuration = etree.SubElement(eTask, 'Duration')
         h, rem = divmod(duration.seconds, 3600)
+        h += duration.days * self.working_hours
         m, s = divmod(rem, 60)
         eDuration.text = 'PT%sH%sM%sS' % (h, m, s)
         eDurationFormat = etree.SubElement(eTask, 'DurationFormat')
