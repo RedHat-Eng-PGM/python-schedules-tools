@@ -2,18 +2,19 @@
 <Project xmlns="http://schemas.microsoft.com/project">
   <Name>Test project 10</Name>
   <Title>Test project 10</Title>
-  <MinutesPerDay>300</MinutesPerDay>
-  <MinutesPerWeek>1500</MinutesPerWeek>
+  <MinutesPerDay>480</MinutesPerDay>
+  <MinutesPerWeek>3360</MinutesPerWeek>
   <CalendarUID>1</CalendarUID>
   <Calendars>
     <Calendar>
       <UID>1</UID>
-      <Name>5h a day</Name>
+      <Name>Standard</Name>
       <IsBaseCalendar>1</IsBaseCalendar>
       <WeekDays>
         <WeekDay>
           <DayType>1</DayType>
-          <DayWorking>0</DayWorking>
+          <DayWorking>1</DayWorking>
+          <WorkingTimes/>
         </WeekDay>
         <WeekDay>
           <DayType>2</DayType>
@@ -21,22 +22,10 @@
           <WorkingTimes>
             <WorkingTime>
               <FromTime>08:00:00</FromTime>
-              <ToTime>09:00:00</ToTime>
+              <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
-              <FromTime>10:00:00</FromTime>
-              <ToTime>11:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>12:00:00</FromTime>
-              <ToTime>13:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>14:00:00</FromTime>
-              <ToTime>15:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>16:00:00</FromTime>
+              <FromTime>13:00:00</FromTime>
               <ToTime>17:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
@@ -47,22 +36,10 @@
           <WorkingTimes>
             <WorkingTime>
               <FromTime>08:00:00</FromTime>
-              <ToTime>09:00:00</ToTime>
+              <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
-              <FromTime>10:00:00</FromTime>
-              <ToTime>11:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>12:00:00</FromTime>
-              <ToTime>13:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>14:00:00</FromTime>
-              <ToTime>15:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>16:00:00</FromTime>
+              <FromTime>13:00:00</FromTime>
               <ToTime>17:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
@@ -73,22 +50,10 @@
           <WorkingTimes>
             <WorkingTime>
               <FromTime>08:00:00</FromTime>
-              <ToTime>09:00:00</ToTime>
+              <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
-              <FromTime>10:00:00</FromTime>
-              <ToTime>11:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>12:00:00</FromTime>
-              <ToTime>13:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>14:00:00</FromTime>
-              <ToTime>15:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>16:00:00</FromTime>
+              <FromTime>13:00:00</FromTime>
               <ToTime>17:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
@@ -99,22 +64,10 @@
           <WorkingTimes>
             <WorkingTime>
               <FromTime>08:00:00</FromTime>
-              <ToTime>09:00:00</ToTime>
+              <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
-              <FromTime>10:00:00</FromTime>
-              <ToTime>11:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>12:00:00</FromTime>
-              <ToTime>13:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>14:00:00</FromTime>
-              <ToTime>15:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>16:00:00</FromTime>
+              <FromTime>13:00:00</FromTime>
               <ToTime>17:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
@@ -125,31 +78,29 @@
           <WorkingTimes>
             <WorkingTime>
               <FromTime>08:00:00</FromTime>
-              <ToTime>09:00:00</ToTime>
+              <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
-              <FromTime>10:00:00</FromTime>
-              <ToTime>11:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>12:00:00</FromTime>
-              <ToTime>13:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>14:00:00</FromTime>
-              <ToTime>15:00:00</ToTime>
-            </WorkingTime>
-            <WorkingTime>
-              <FromTime>16:00:00</FromTime>
+              <FromTime>13:00:00</FromTime>
               <ToTime>17:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
         </WeekDay>
         <WeekDay>
           <DayType>7</DayType>
-          <DayWorking>0</DayWorking>
+          <DayWorking>1</DayWorking>
+          <WorkingTimes/>
         </WeekDay>
       </WeekDays>
+      <Exceptions>
+        <Exception>
+          <TimePeriod>
+            <FromDate>1995-01-01T00:00:00</FromDate>
+            <ToDate>1995-01-02T00:00:00</ToDate>
+          </TimePeriod>
+          <Type>1</Type>
+        </Exception>
+      </Exceptions>
     </Calendar>
   </Calendars>
   <Tasks>
@@ -158,8 +109,8 @@
       <Start>2000-01-01T00:00:00</Start>
       <Finish>2000-02-05T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>False</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>0</Milestone>
+      <Duration>PT288H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <UID>1</UID>
       <ID>1</ID>
@@ -171,8 +122,8 @@
       <Start>2000-01-01T00:00:00</Start>
       <Finish>2000-02-03T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>False</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>0</Milestone>
+      <Duration>PT272H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <UID>2</UID>
       <ID>2</ID>
@@ -184,8 +135,8 @@
       <Start>2000-01-01T00:00:00</Start>
       <Finish>2000-01-21T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>False</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>0</Milestone>
+      <Duration>PT168H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <ExtendedAttribute>
         <Value>Link: https://github.com/1</Value>
@@ -201,8 +152,8 @@
       <Start>2000-01-21T00:00:00</Start>
       <Finish>2000-01-21T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>True</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>1</Milestone>
+      <Duration>PT8H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <UID>4</UID>
       <ID>4</ID>
@@ -214,8 +165,8 @@
       <Start>2000-01-21T00:00:00</Start>
       <Finish>2000-02-03T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>False</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>0</Milestone>
+      <Duration>PT112H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <ExtendedAttribute>
         <Value>Flags: flag1</Value>
@@ -231,8 +182,8 @@
       <Start>2000-01-21T00:00:00</Start>
       <Finish>2000-01-21T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>True</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>1</Milestone>
+      <Duration>PT8H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <ExtendedAttribute>
         <Value>Flags: flag2</Value>
@@ -252,8 +203,8 @@
       <Start>2000-02-03T00:00:00</Start>
       <Finish>2000-02-05T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>False</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>0</Milestone>
+      <Duration>PT24H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <UID>7</UID>
       <ID>7</ID>
@@ -265,8 +216,8 @@
       <Start>2000-02-03T00:00:00</Start>
       <Finish>2000-02-05T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>False</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>0</Milestone>
+      <Duration>PT24H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <UID>8</UID>
       <ID>8</ID>
@@ -278,8 +229,8 @@
       <Start>2000-02-05T00:00:00</Start>
       <Finish>2000-02-05T00:00:00</Finish>
       <Priority>500</Priority>
-      <Milestone>True</Milestone>
-      <Duration>PT0H0M0S</Duration>
+      <Milestone>1</Milestone>
+      <Duration>PT8H0M0S</Duration>
       <DurationFormat>39</DurationFormat>
       <Notes>test2 note</Notes>
       <ExtendedAttribute>
