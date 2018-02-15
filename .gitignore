@@ -20,8 +20,10 @@ devel-tools/*.pp
 /selinux/tmp
 /*egg-info
 
-/.buildpath
-/.refactorings
+.buildpath
 .cache
 .eggs
+.project
+.pydevproject
+.refactorings
 .settings
