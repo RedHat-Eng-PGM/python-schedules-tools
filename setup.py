@@ -56,6 +56,9 @@ if os.path.exists(spec_in):
         f.write(orig_content)
         f.write(get_rpm_log())
 
+with open('requirements.txt') as fd:
+    requirements = fd.read().split()
+
 
 setup(
     name=package_name,
@@ -69,6 +72,7 @@ setup(
     include_package_data=True,
     test_suite='tests',
     tests_require=['testtools'],
+    install_requires=requirements,
     scripts=[
         'scripts/schedule-convert',
         'scripts/schedule-diff'],
