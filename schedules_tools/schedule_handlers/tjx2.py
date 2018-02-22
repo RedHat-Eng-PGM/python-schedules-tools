@@ -62,21 +62,20 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
 
         task.dStart = self._load_tjx_date(eTask, 'plan', 'start')
         task.dAcStart = self._load_tjx_date(eTask, 'actual', 'start')
+
+        task.dFinish = self._load_tjx_date(eTask, 'plan', 'end')
+        task.dAcFinish = self._load_tjx_date(eTask, 'actual', 'end')
+
+        if not task.dStart:
+            task.dStart = task.dAcStart
+
+        if not task.dFinish:
+            task.dFinish = task.dAcFinish
+
         if task.milestone:
             task.dFinish = task.dStart
             task.dAcFinish = task.dAcStart
-        else:
-            task.dFinish = self._load_tjx_date(eTask, 'plan', 'end')
-            task.dAcFinish = self._load_tjx_date(eTask, 'actual', 'end')
 
-        # TODO: ask, if it's still needed
-        # copy & pasted from .tjx
-        #acStart = self._load_tjx_date(eTask, 'actual', 'start')
-        #if acStart:
-        #    task.dAcStart = acStart
-        #acFinish = self._load_tjx_date(eTask, 'actual', 'end')
-        #if acFinish:
-        #    task.dAcFinish = acFinish
         for eFlag in eTask.xpath('./flag'):
             task.flags.append(eFlag.text)
 
