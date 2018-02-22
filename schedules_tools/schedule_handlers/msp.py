@@ -126,12 +126,12 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             if day_type in [1, 7]:
                 continue
 
-            for from_time in [8, 13]:
+            for from_time in [(9, 3), (13, 5)]:
                 eWorkingTime = etree.SubElement(eWorkingTimes, 'WorkingTime')
                 eFromTime = etree.SubElement(eWorkingTime, 'FromTime')
-                eFromTime.text = '%02d:00:00' % int(from_time)
+                eFromTime.text = '%02d:00:00' % int(from_time[0])
                 eToTime = etree.SubElement(eWorkingTime, 'ToTime')
-                eToTime.text = '%02d:00:00' % (from_time + 4,)
+                eToTime.text = '%02d:00:00' % (from_time[0] + from_time[1],)
 
         for r_id, resource in self.schedule.resources.items():
             eCalendar = etree.SubElement(eCalendars, 'Calendar')

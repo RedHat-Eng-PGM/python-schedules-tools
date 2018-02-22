@@ -21,12 +21,12 @@
           <DayWorking>1</DayWorking>
           <WorkingTimes>
             <WorkingTime>
-              <FromTime>08:00:00</FromTime>
+              <FromTime>09:00:00</FromTime>
               <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
               <FromTime>13:00:00</FromTime>
-              <ToTime>17:00:00</ToTime>
+              <ToTime>18:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
         </WeekDay>
@@ -35,12 +35,12 @@
           <DayWorking>1</DayWorking>
           <WorkingTimes>
             <WorkingTime>
-              <FromTime>08:00:00</FromTime>
+              <FromTime>09:00:00</FromTime>
               <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
               <FromTime>13:00:00</FromTime>
-              <ToTime>17:00:00</ToTime>
+              <ToTime>18:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
         </WeekDay>
@@ -49,12 +49,12 @@
           <DayWorking>1</DayWorking>
           <WorkingTimes>
             <WorkingTime>
-              <FromTime>08:00:00</FromTime>
+              <FromTime>09:00:00</FromTime>
               <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
               <FromTime>13:00:00</FromTime>
-              <ToTime>17:00:00</ToTime>
+              <ToTime>18:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
         </WeekDay>
@@ -63,12 +63,12 @@
           <DayWorking>1</DayWorking>
           <WorkingTimes>
             <WorkingTime>
-              <FromTime>08:00:00</FromTime>
+              <FromTime>09:00:00</FromTime>
               <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
               <FromTime>13:00:00</FromTime>
-              <ToTime>17:00:00</ToTime>
+              <ToTime>18:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
         </WeekDay>
@@ -77,12 +77,12 @@
           <DayWorking>1</DayWorking>
           <WorkingTimes>
             <WorkingTime>
-              <FromTime>08:00:00</FromTime>
+              <FromTime>09:00:00</FromTime>
               <ToTime>12:00:00</ToTime>
             </WorkingTime>
             <WorkingTime>
               <FromTime>13:00:00</FromTime>
-              <ToTime>17:00:00</ToTime>
+              <ToTime>18:00:00</ToTime>
             </WorkingTime>
           </WorkingTimes>
         </WeekDay>
