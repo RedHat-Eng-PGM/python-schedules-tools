@@ -136,8 +136,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     def sheet(self):
         if not self._sheet_instance:
             try:
+                # get sheet and turn off rows pagination to get all rows
                 self._sheet_instance = self.client.Sheets.get_sheet(
-                    self.handle)
+                    self.handle, page_size=None, page=None)
 
             except smartsheet.exceptions.ApiError as e:
                 raise SmartSheetImportException(e.message, source=self.handle)
