@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 from lxml import etree
+from pytz import timezone
 
 log = logging.getLogger(__name__)
 
@@ -14,6 +15,8 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
     handle_deps_satisfied = True
 
     task_index = 1
+
+    tz = timezone('America/New_York')
 
     @classmethod
     def is_valid_source(cls, handle=None):
@@ -31,13 +34,17 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
                 return True
         return False
 
-    @staticmethod
-    def _load_tjx_date(eTask, datetype, what=''):
-        """Returns datetime with datetype = plan|actual what = start|end"""
+    def _load_tjx_date(self, eTask, datetype, what=''):
+        """Returns datetime with datetype = plan|actual what = start|end as
+        offset-naive datetime (without specified timezone)"""
         xpath = './taskScenario[@scenarioId=\'{}\']/{}'.format(datetype, what)
         tag = eTask.xpath(xpath)
         if tag:
-            return datetime.datetime.fromtimestamp(float(tag[0].text))
+            date = datetime.datetime.fromtimestamp(float(tag[0].text),
+                                                   tz=self.tz)
+            # Parsed timestamps are timesone-aware, but we don't want to store
+            # this awareness.
+            return date.replace(tzinfo=None)
         else:
             return None
 
