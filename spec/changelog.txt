@@ -1,3 +1,159 @@
+* Fri Mar 02 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-23.git20180302.8e8bed5
+- tjx2 handler: drop timezone awareness produced by TaskJuggler
+
+* Wed Feb 28 2018 Pavel Slama <pslama@redhat.com> 7.12-22.git20180302.c087c25
+- turn off default sheet rows pagination
+
+* Thu Feb 22 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-21.git20180302.f25ed30
+- tjx2 import: fill dStart/dFinish from dAcStart/dAcFinish if missing
+
+* Thu Feb 22 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-20.git20180302.436e8a0
+- msp: update working hours, regenerate tests
+
+* Thu Feb 22 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-19.git20180302.d6f5ad2
+- specify pkg dependencies into setup.py
+
+* Thu Feb 22 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-18.git20180302.58759c6
+- update requirements.txt
+
+* Thu Feb 15 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-15.git20180302.0f4307b
+- update tests due changes in MSP export
+
+* Thu Feb 15 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-14.git20180302.ac86a2e
+- msp: use correct value (0/1) for tagging Milestones
+
+* Thu Feb 15 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-13.git20180302.13cca45
+- msp: fix export of calendar, take Sun+Sat as working days
+
+* Thu Feb 15 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-12.git20180302.95ccdb9
+- fix passing handlers-path values into discovery
+
+* Thu Feb 15 2018 Pavel Slama <pslama@redhat.com> 7.12-11.git20180302.0d58e3c
+- remove and ignore eclipse settings
+
+* Wed Feb 14 2018 Pavel Slama <pslama@redhat.com> 7.12-10.git20180302.54b850d
+- add tjx source check and exception
+
+* Wed Feb 14 2018 Pavel Slama <pslama@redhat.com> 7.12-9.git20180302.dfc0ba0
+- better formatting
+
+* Wed Feb 14 2018 Pavel Slama <pslama@redhat.com> 7.12-8.git20180302.80ae626
+- check if complete column exists before referencing
+
+* Tue Feb 13 2018 Pavel Slama <pslama@redhat.com> 7.12-7.git20180302.5e1c2d9
+- handle empty rows (no task or dates), pep8
+
+* Mon Feb 12 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-6.git20180302.7cf4cd9
+- test import changelog separately, if needed
+
+* Mon Feb 12 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-5.git20180302.de621d0
+- remove extra whitespaces, indentation, line breaks
+
+* Mon Feb 12 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-4.git20180302.71180bb
+- update test schedule data to include weekends in dates
+
+* Mon Feb 12 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-3.git20180302.a2f0cb6
+- smartsheet: consider whole week (Mon-Sun) as working days
+
+* Fri Feb 09 2018 Pavel Slama <pslama@redhat.com> 7.12-2.git20180302.b53b2b2
+- fix wrong task import when several root tasks
+
+* Mon Feb 05 2018 Pavel Slama <pslama@redhat.com> 7.12-1.git20180302.eec1540
+- dirty - remove changelog from comparing, will have to find a way to test ad-hoc schedules
+
+* Mon Feb 05 2018 Pavel Slama <pslama@redhat.com> 7.11-15.git20180302.90e4612
+- fix unicode, add alternate column names, better exception raising
+
+* Mon Feb 05 2018 Pavel Slama <pslama@redhat.com> 7.11-14.git20180302.65857dc
+- process changelog for smartsheet, handle TZ naive/aware mtimes
+
+* Mon Feb 05 2018 Martin Pavlasek <mpavlase@redhat.com> 7.11-13.git20180302.3eba69e
+- smartsheet: implement get_handle_changelog
+
+* Fri Feb 02 2018 Pavel Slama <pslama@redhat.com> 7.11-12.git20180302.d46956c
+- reorder imports
+
+* Fri Feb 02 2018 Pavel Slama <pslama@redhat.com> 7.11-11.git20180302.185d615
+- custom getter/setter for smartsheet handle which converts it to SS ID
+
+* Fri Feb 02 2018 Pavel Slama <pslama@redhat.com> 7.11-10.git20180302.bc1b4df
+- return id as int
+
+* Fri Feb 02 2018 Pavel Slama <pslama@redhat.com> 7.11-9.git20180302.98aac55
+- break after it finds match
+
+* Thu Feb 01 2018 Pavel Slama <pslama@redhat.com> 7.11-8.git20180302.6893f72
+- ability to get missing sheet info (id/permalink)
+
+* Wed Jan 31 2018 Martin Pavlasek <mpavlase@redhat.com> 7.11-7.git20180302.6720fa7
+- smartsheet: update check to accept permalink URLs, improve exception msgs
+
+* Wed Jan 31 2018 Martin Pavlasek <mpavlase@redhat.com> 7.11-6.git20180302.829635a
+- use stderr stream (instead of stdout) for logging
+
+* Tue Jan 30 2018 Ivo Silva <ivfernan@redhat.com> 7.11-5.git20180302.376042f
+- remove old files used to test ScheduleDiff
+
+* Tue Jan 30 2018 Ivo Silva <ivfernan@redhat.com> 7.11-4.git20180302.d66bedd
+- add schedules and output files for testing ScheduleDiff
+
+* Tue Jan 30 2018 Ivo Silva <ivfernan@redhat.com> 7.11-3.git20180302.e5099f7
+- rewrite test for ScheduleDiff
+
+* Tue Jan 30 2018 Ivo Silva <ivfernan@redhat.com> 7.11-2.git20180302.921ce68
+- Increase indentation spaces of ScheduleDiff's textual output
+
+* Fri Jan 26 2018 Pavel Slama <pslama@redhat.com> 7.11-1.git20180302.1265989
+- set default timezone + cli parameter
+
+* Wed Jan 24 2018 Ivo Silva <ivfernan@redhat.com> 7.10-16.git20180302.4b1a390
+- update schedule-diff script to use diff_v2
+
+* Wed Jan 24 2018 Ivo Silva <ivfernan@redhat.com> 7.10-15.git20180302.611ae4b
+- add tests + test files for ScheduleDiff
+
+* Mon Jan 22 2018 Ivo Silva <ivfernan@redhat.com> 7.10-14.git20180302.4f3c24e
+- fix bug in textual representation of the diff result
+
+* Mon Jan 22 2018 Ivo Silva <ivfernan@redhat.com> 7.10-13.git20180302.777a12a
+- refactor structure of the schedule diff results
+
+* Mon Jan 22 2018 Ivo Silva <ivfernan@redhat.com> 7.10-12.git20180302.5f99981
+- correct wrong report_type printed by result_to_str()
+
+* Mon Jan 22 2018 Ivo Silva <ivfernan@redhat.com> 7.10-11.git20180302.3b907db
+- check if attribute exists before trying to exclude from the results of Task.dump_as_dict()
+
+* Fri Jan 19 2018 Ivo Silva <ivfernan@redhat.com> 7.10-10.git20180302.26d1a6e
+- implement textual representation of the diff
+
+* Fri Jan 19 2018 Ivo Silva <ivfernan@redhat.com> 7.10-9.git20180302.21f19ed
+- implement ScheduleDiff.dump_json()
+
+* Fri Jan 19 2018 Ivo Silva <ivfernan@redhat.com> 7.10-8.git20180302.4f3e1ee
+- include child tasks in report dicts, without further processing
+
+* Fri Jan 19 2018 Ivo Silva <ivfernan@redhat.com> 7.10-7.git20180302.f42f33f
+- exclude _subtree_hash from the results of Task.dump_as_dict()
+
+* Thu Jan 18 2018 Ivo Silva <ivfernan@redhat.com> 7.10-6.git20180302.8d92297
+- add correct report_type for tasks with structural changes
+
+* Thu Jan 18 2018 Ivo Silva <ivfernan@redhat.com> 7.10-5.git20180302.a1e5871
+- move implementation of subtree_hash to Task model
+
+* Thu Jan 18 2018 Ivo Silva <ivfernan@redhat.com> 7.10-4.git20180302.90baa2c
+- add correct report_type for tasks with structural changes
+
+* Thu Jan 18 2018 Pavel Slama <pslama@redhat.com> 7.10-3.git20180302.e1c3477
+- better tjp/msp import exception raising
+
+* Fri Jan 12 2018 Pavel Slama <pslama@redhat.com> 7.10-2.git20180302.d880dee
+- make redis optional - w/o no exclusive access to storage
+
+* Tue Jan 09 2018 Pavel Slama <pslama@redhat.com> 7.10-1.git20180302.c75ea45
+- update changelog
+
 * Mon Jan 08 2018 Pavel Slama <pslama@redhat.com> 7.8-49.git20180108.dc45709
 - update tests
 
