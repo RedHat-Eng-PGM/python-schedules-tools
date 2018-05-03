@@ -14,7 +14,7 @@ table.schedule {
 
 table.schedule th, table.schedule td {
     border: 2px solid black;
-    padding: 3px;
+    padding: 3px 5px;
 }
 
 table.schedule th {
@@ -26,6 +26,7 @@ table.schedule td {
 table.schedule td.date {
     font-size: 90%;
     white-space: nowrap;
+    text-align: right;
 }
 table.schedule td.duration {
     text-align: right;
