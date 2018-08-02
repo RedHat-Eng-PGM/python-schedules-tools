@@ -7,6 +7,8 @@ import pytest
 import re
 import shutil
 from smartsheet import Smartsheet
+from schedules_tools.schedule_handlers.smart_sheet import (
+    SmartSheetExportException)
 
 
 from schedules_tools.converter import ScheduleConverter
@@ -160,7 +162,62 @@ class TestHandlers(object):
                                         target_format='smartsheet',
                                         options=converter_options)
 
+        self._smartsheet_inject_extra_column(sheet_id, converter_options)
+
         return sheet_id, converter_options
+
+    def _smartsheet_inject_extra_column(self, sheet_id, converter_options):
+        """
+        Add extra column with duplicated name. For testing only.
+
+        Value of this extra column are shifted by 3 days into future from
+        original.
+        """
+        client = Smartsheet(converter_options['smartsheet_token'])
+        sheet = client.Sheets.get_sheet(sheet_id, page_size=None, page=None)
+
+        start_column_id = None
+
+        for column in sheet.columns:
+            if column.title in ['Start', 'Start Date']:
+                start_column_id = column.id
+                break
+
+        # Add intentionally another Start Date column - just for test purpose
+        column_startdate_dup = client.models.Column({
+            'title': 'Start Date',
+            'type': 'DATE',
+            'index': 11,
+        })
+        resp = client.Sheets.add_columns(sheet_id, column_startdate_dup)
+
+        duplicated_column_id = resp.result[0].id
+
+        if resp.message != 'SUCCESS':
+            msg = 'Adding column failed: {}'.format(resp)
+            raise SmartSheetExportException(msg, source=sheet_id)
+
+        datetime_format = '%Y-%m-%dT%H:%M:%S'
+        updated_rows = []
+        for row in sheet.rows:
+            original_cell_value = row.get_column(start_column_id).value
+            new_value = datetime.datetime.strptime(original_cell_value,
+                                                   datetime_format)
+            new_value += datetime.timedelta(days=3)
+
+            cell = client.models.Cell()
+            cell.column_id = duplicated_column_id
+            cell.value = new_value.strftime(datetime_format)
+
+            new_row = client.models.Row()
+            new_row.id = row.id
+            new_row.cells.append(cell)
+            updated_rows.append(new_row)
+
+        resp = client.Sheets.update_rows(sheet_id, updated_rows)
+        if resp.message != 'SUCCESS':
+            msg = 'Inserting duplicated cells failed: {}'.format(resp)
+            raise SmartSheetExportException(msg, source=sheet_id)
 
     def import_teardown_handle_smartsheet(self, handle, converter_options):
         client = Smartsheet(converter_options['smartsheet_token'])
@@ -175,7 +232,8 @@ class TestHandlers(object):
 
         record = changelog.values()[0]
         date_now = datetime.datetime.now(tz=tzutc())
-        assert self.test_import_start_timestamp < record['date'] < date_now
+        assert self.test_import_start_timestamp < record['date']
+        assert record['date'] < date_now
 
     def test_import(self, handler_name, import_schedule_file):
         """

@@ -39,7 +39,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     provide_export = True
     handle_deps_satisfied = additional_deps_satistifed
 
-    date_format = '%Y-%m-%dT%H:%M:%S'  # 2017-01-20T08:00:00
+    date_format = '%Y-%m-%d'  # 2017-01-20
+    datetime_format = '%Y-%m-%dT%H:%M:%S'  # 2017-01-20T08:00:00
     _client_instance = None
     _sheet_instance = None
     _re_number = re.compile('[0-9]+')
@@ -197,8 +198,25 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         return self.schedule
 
-    def _parse_date(self, string):
-        date = datetime.datetime.strptime(string, self.date_format)
+    def _parse_date(self, date_str):
+        """
+        Method tries to parse date_str into python-native datetime object.
+
+        Native smartsheet columns like 'Start' contains also time, but newly
+        added columns via API aren't allowed to store time part.
+
+        Args:
+            date_str: Examples of input: 2017-01-20 or 2017-01-20T08:00:00
+
+        Returns:
+            datetime instance
+        """
+        for format_str in [self.datetime_format, self.date_format]:
+            try:
+                date = datetime.datetime.strptime(date_str, format_str)
+                break
+            except ValueError:
+                pass
         # We don't require so precise timestamp, so ignore seconds
         date = date.replace(second=0)
         return date
@@ -303,6 +321,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         """
         mapped_cells = {}
         unknown_values = []
+        used_cells = set()
 
         for cell in row.cells:
             cell_name = self.columns_mapping_id.get(cell.column_id, None)
@@ -310,8 +329,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 if cell.value is not None:
                     unknown_values.append(cell.value)
                 continue
-
-            mapped_cells[cell_name] = cell.value
+            # avoid to override existing values when column name is duplicated
+            if cell_name not in used_cells and cell.value:
+                mapped_cells[cell_name] = cell.value
+                used_cells.add(cell_name)
 
         return mapped_cells, unknown_values
 
