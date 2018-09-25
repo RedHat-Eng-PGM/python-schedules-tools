@@ -35,6 +35,7 @@ class StorageHandler_cvs(StorageBase):
   
     refresh_validity = 5 # seconds
     _last_refresh_local = None
+    block_refresh = False  # allows to skip refresh
 
     local_handle = None
     
@@ -44,7 +45,8 @@ class StorageHandler_cvs(StorageBase):
     def __init__(self, handle=None, options=dict(), **kwargs):
         self.checkout_dir = options.get('cvs_checkout_path')
         self.repo_name = options.get('cvs_repo_name')
-        self.repo_root = options.get('cvs_root')      
+        self.repo_root = options.get('cvs_root')    
+        self.block_refresh = options.get('cvs_block_refresh', False)  
 
         super(StorageHandler_cvs, self).__init__(handle, options, **kwargs)
 
@@ -110,10 +112,14 @@ class StorageHandler_cvs(StorageBase):
             return os.path.join(path, *subpath)
 
         def cvs_root_parser(string):
-            # :gserver:$USER@cvs.myserver.com:/cvs/reporoot
+            # :gserver:$USER@cvs.myserver.com:/cvs/reporoot or local /cvs/root
             chunks = string.split(':')
-            server_url = chunks[2].split('@')[1]
-            server_path = chunks[3]
+            if len(chunks) == 1:
+                server_url = ''
+                server_path = chunks[0]
+            else:
+                server_url = chunks[2].split('@')[1]
+                server_path = chunks[3]
             return server_url, server_path
 
         if not os.path.exists(path):
@@ -160,31 +166,33 @@ class StorageHandler_cvs(StorageBase):
             do a cvs update - handle conflicts,...
         """
         cvs_content_root_dir = os.path.join(self.checkout_dir, self.repo_name)
+
         if not self._is_valid_cvs_dir(cvs_content_root_dir):
             self._cvs_checkout()
-        else:
+
+        elif not self.block_refresh:
             # use redis key if possible to share value across workers
             datetime_format = '%Y-%m-%d %H:%M:%S'
             last_refresh_local_time_key = self.redis_key + '_last_refresh_local'
             last_refresh_expired = True  # init
-            
+
             if self.redis:
                 last_refresh_time = self.redis.get(last_refresh_local_time_key)
             else:
-                last_refresh_time = self._last_refresh_local           
-            
+                last_refresh_time = self._last_refresh_local
+
             if last_refresh_time:
-                last_refresh_time = datetime_mod.datetime.strptime(last_refresh_time, 
-                                                                   datetime_format)            
-                last_refresh_expired = (last_refresh_time < 
+                last_refresh_time = datetime_mod.datetime.strptime(last_refresh_time,
+                                                                   datetime_format)
+                last_refresh_expired = (last_refresh_time <
                                         datetime_mod.datetime.now() - datetime_mod.timedelta(seconds=self.refresh_validity))
-            
+
             if force or last_refresh_expired:
                 self._update_shared_repo()
-                
+
                 last_refresh_time = datetime_mod.datetime.now().strftime(datetime_format)
                 self._last_refresh_local = last_refresh_time
-                
+
                 if self.redis:
                     self.redis.set(last_refresh_local_time_key, last_refresh_time)
 
