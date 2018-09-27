@@ -11,14 +11,6 @@ REPORT_NO_CHANGE = ''
 REPORT_ADDED = '_added_'
 REPORT_REMOVED = '_removed_'
 REPORT_CHANGED = '_changed_'
-# REPORT_NEW_VALUE = 'new_value'
-# REPORT_OLD_VALUE = 'old_value'
-
-REPORT_KEYS = {
-    REPORT_ADDED,
-    REPORT_REMOVED,
-    REPORT_CHANGED,
-}
 
 REPORT_PREFIX_MAP = {
     REPORT_ADDED: '[+]',
@@ -32,6 +24,7 @@ class ScheduleDiff(object):
 
     result = []
 
+    hierarchy_attr = 'tasks'
     subtree_hash_attr_name = 'subtree_hash'
 
     """ List of attributes used to compare 2 tasks. """
@@ -49,7 +42,10 @@ class ScheduleDiff(object):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
-    def result_to_str(self, items=None, level=0, parent_report_type=REPORT_NO_CHANGE):
+    def _get_subtree(self, item):
+        return getattr(item, self.hierarchy_attr)
+
+    def result_to_str(self, items=None, level=0):
         """ Textual representation of the diff. """
         res = ''
 
@@ -57,68 +53,91 @@ class ScheduleDiff(object):
             items = self.result
 
         for item in items:
+            subtree = item['subtree']
+            state = item['item_state']
 
-            if isinstance(item, Task):
-                task = item
-                child_tasks = task.tasks
-
-                # apply parent_report_type only if NOT REPORT_CHANGED
-                if parent_report_type is REPORT_CHANGED:
-                    report_type = REPORT_NO_CHANGE
-                else:
-                    report_type = parent_report_type
-
+            if state in [REPORT_CHANGED, REPORT_ADDED]:
+                task = item['right']
+            elif state is REPORT_REMOVED:
+                task = item['left']
             else:
-                child_tasks = item['tasks']
-                report_type = item['report_type']
+                task = item['both']
 
-                if item['left'] is None or report_type is REPORT_CHANGED:
-                    task = item['right']
-                else:
-                    task = item['left']
+            res += '{} {}{}\n'.format(REPORT_PREFIX_MAP[state], level * ' ', str(task))
 
-            res += '{} {}{}\n'.format(REPORT_PREFIX_MAP[report_type], level * ' ', str(task))
-
-            if child_tasks:
-                res += self.result_to_str(child_tasks, level + 2, report_type)
+            if subtree:
+                res += self.result_to_str(subtree, level + 2)
 
         return res
 
-    def _create_report(self, report_type, left=None, right=None, tasks=[], changed_attrs=[]):
+    def _create_report(self,
+                       item_state,
+                       left=None,
+                       right=None,
+                       both=None,
+                       subtree=[],
+                       changed_attrs=[]):
         """
         Returns a dictionary representing a possible change.
 
             {
                 left: Task or None,
                 right: Task or None,
-                tasks: List of reports from the child Tasks,
+                both: used instead of left and right, when the task are equal,
+                subtree: List of reports from the child Tasks,
                 changed_attr: List of changed attributes,
-                report_type: Type of change
+                item_state: Type of change
             }
 
         """
 
-        if report_type is REPORT_NO_CHANGE and not tasks:
-            report = left
+        if both:
+            report = {
+                'both': both.dump_as_dict(recursive=False),
+                'subtree': subtree,
+                'changed_attrs': changed_attrs,
+                'item_state': item_state
+            }
 
         else:
             # No need to keep the whole structure,
             # child tasks will be placed in report['tasks']
             if left is not None:
-                left.tasks = []
+                left = left.dump_as_dict(recursive=False)
 
             if right is not None:
-                right.tasks = []
+                right = right.dump_as_dict(recursive=False)
 
             report = {
                 'left': left,
                 'right': right,
-                'tasks': tasks,
+                'subtree': subtree,
                 'changed_attrs': changed_attrs,
-                'report_type': report_type,
+                'item_state': item_state,
             }
 
         return report
+
+    def _set_subtree_items_state(self, items, state):
+        """
+        Set the given state recursively on the subtree items
+        """
+
+        def create_report(item):
+            if state == REPORT_NO_CHANGE:
+                kwargs = { 'both': item }
+
+            elif state == REPORT_ADDED:
+                kwargs = { 'right': item }
+
+            elif state == REPORT_REMOVED:
+                kwargs = { 'left': item }
+
+            kwargs['subtree'] = self._set_subtree_items_state(self._get_subtree(item), state)
+
+            return self._create_report(state, **kwargs)
+
+        return [create_report(item) for item in items]
 
     def task_diff(self, task_a, task_b):
         """
@@ -157,16 +176,22 @@ class ScheduleDiff(object):
         last_b_index = 0
 
         # shortcut to create a report for an added task
-        def report_task_added(index):
+        def report_task_added(index, recursive=True):
             task = tasks_b[index]
-            return self._create_report(REPORT_ADDED, right=task, tasks=task.tasks)
+            subtree = self._get_subtree(task)
+
+            if recursive:
+                subtree = self._set_subtree_items_state(subtree, REPORT_ADDED)
+
+            return self._create_report(REPORT_ADDED, right=task, subtree=subtree)
 
         for i, task in enumerate(tasks_a):
             match_index, diff_attrs = self.find_best_match_index(task, tasks_b, start_at_index=last_b_index)
             report = {}
 
             if match_index is None:
-                report = self._create_report(REPORT_REMOVED, left=tasks_a[i], tasks=tasks_a[i].tasks)
+                subtree = self._set_subtree_items_state(self._get_subtree(tasks_a[i]), REPORT_REMOVED)
+                report = self._create_report(REPORT_REMOVED, left=tasks_a[i], subtree=subtree)
 
             else:
                 # ALL elements between last_b_index and match_index => ADDED
@@ -174,29 +199,50 @@ class ScheduleDiff(object):
 
                 # exact match => NO CHANGE
                 if len(diff_attrs) == 0:
-                    report = self._create_report(REPORT_NO_CHANGE,
-                                                 left=task,
-                                                 right=tasks_b[match_index])
+                    report_type = REPORT_NO_CHANGE
+                    subtree = self._set_subtree_items_state(self._get_subtree(task), report_type)
+                    report_kwargs = { 'both': task, 'subtree': subtree }
 
                 # structural change => CHANGED / NO CHANGE
                 elif self.subtree_hash_attr_name in diff_attrs:
-                    # process child tasks
-                    tasks = self._diff(tasks_a[i].tasks, tasks_b[match_index].tasks)
 
-                    report_type = REPORT_CHANGED if len(diff_attrs) > 1 else REPORT_NO_CHANGE
-                    report = self._create_report(report_type,
-                                                 left=task,
-                                                 right=tasks_b[match_index],
-                                                 changed_attrs=diff_attrs,
-                                                 tasks=tasks)
+                    # process child tasks
+                    subtree = self._diff(
+                        self._get_subtree(tasks_a[i]),
+                        self._get_subtree(tasks_b[match_index])
+                    )
+
+                    if len(diff_attrs) > 1:
+                        report_type = REPORT_CHANGED
+                        report_kwargs = {
+                            'left': task,
+                            'right': tasks_b[match_index],
+                            'changed_attrs': diff_attrs,
+                            'subtree': subtree
+                        }
+
+                    else:
+                        report_type = REPORT_NO_CHANGE
+                        report_kwargs = {
+                            'both': task,
+                            'changed_attrs': diff_attrs,
+                            'subtree': subtree
+                        }
 
                 # no structural changes => CHANGED
                 else:
-                    report = self._create_report(REPORT_CHANGED,
-                                                 left=task,
-                                                 right=tasks_b[match_index],
-                                                 changed_attrs=diff_attrs,
-                                                 tasks=tasks_b[match_index].tasks)
+                    subtree = self._set_subtree_items_state(
+                        self._get_subtree(tasks_b[match_index]), REPORT_NO_CHANGE)
+
+                    report_type = REPORT_CHANGED
+                    report_kwargs = {
+                        'left': task,
+                        'right': tasks_b[match_index],
+                        'changed_attrs': diff_attrs,
+                        'subtree': subtree
+                    }
+
+                report = self._create_report(report_type, **report_kwargs)
 
                 last_b_index = match_index + 1
 
