@@ -20,6 +20,66 @@ REPORT_PREFIX_MAP = {
 }
 
 
+"""
+Find the Jaro-Winkler distance of 2 strings.
+https://en.wikipedia.org/wiki/Jaro-Winkler_distance
+
+:param winkler: add winkler adjustment to the Jaro distance
+:param scaling: constant scaling factor for how much the score is adjusted
+                upwards for having common prefixes. Should not exceed 0.25
+"""
+def strings_similarity(str1, str2, winkler=True, scaling=0.1):
+    if str1 == str2:
+        return 1.0
+
+    def num_of_char_matches(s1, len1, s2, len2):
+        count = 0
+        transpositions = 0 # number of matching chars w/ different sequence order
+        limit = max(len1, len2) / 2 - 1
+
+        for i in range(len1):
+            start = i - limit
+            if start < 0:
+                start = 0
+
+            end = i + limit + 1
+            if end > len2:
+                end = len2
+
+            index = s2.find(s1[i], start, end)
+
+            if index > -1: # found common char
+                count += 1
+
+                if index != i:
+                    transpositions += 1
+
+        return count, transpositions
+
+    len1 = len(str1)
+    len2 = len(str2)
+
+    num_of_matches, transpositions = num_of_char_matches(str1, len1, str2, len2)
+
+    if num_of_matches == 0:
+        return 0.0
+
+    m = float(num_of_matches)
+    t = transpositions / 2.0
+
+    dj = (m/float(len1) + m/float(len2) + (m-t)/m) / 3.0
+
+    if winkler:
+        # length of common prefix at the start of the string (max = 4)
+        l = 0
+        while l < 4 and str1[l] == str2[l]:
+            l += 1
+
+        return dj + (l * scaling * (1.0 - dj))
+
+    return dj
+
+
 class ScheduleDiff(object):
 
     result = []
