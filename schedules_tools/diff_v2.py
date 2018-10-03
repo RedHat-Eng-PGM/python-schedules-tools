@@ -20,6 +20,12 @@ REPORT_PREFIX_MAP = {
 }
 
 
+NAME_SIM_THRESHOLD = 0.8
+TASK_SCORE_THRESHOLD = 0.45
+NAME_SIM_WEIGHT = 0.5
+TASK_POS_WEIGHT = 0.5
+
+
 """
 Find the Jaro-Winkler distance of 2 strings.
 https://en.wikipedia.org/wiki/Jaro-Winkler_distance
@@ -199,30 +205,111 @@ class ScheduleDiff(object):
 
         return [create_report(item) for item in items]
 
-    def task_diff(self, task_a, task_b):
+    def get_changed_attrs(self, task_a, task_b):
         """
-        Uses attributes defined in `tasks_match_attrs` to compare 2 tasks and 
+        Uses attributes defined in `tasks_match_attrs` to compare 2 tasks and
         returns a list of atts that don't match.
         """
         return [attr for attr in self.tasks_match_attrs if getattr(task_a, attr) != getattr(task_b, attr)]
 
-    def find_best_match_index(self, task, in_tasks, start_at_index=0):
+    def find_best_match(self, t1, possible_matches, start_at_index=0):
         """
-        Finds the best match for the given `task` in the `in_tasks` and
-        returns the index for the best match and a list of the different attributes.
+        Finds the best match for the given task in the list of possible matches.
+        Returns the index of the best match and a dict with a state suggestion and list of changed attrs.
         """
         match_index = None
-        unmatched_attrs = self.tasks_match_attrs[:]
+        best_match = {
+            'state': REPORT_REMOVED,
+            'changes': [],
+            'name_score': 0,
+            'score': TASK_SCORE_THRESHOLD
+        }
 
-        for i in range(start_at_index, len(in_tasks)):
-            unmatched = self.task_diff(task, in_tasks[i])
+        if start_at_index > 0:
+            possible_matches = possible_matches[start_at_index:]
 
-            # NOTE: maybe 'name' should weight more than the other attrs
-            if len(unmatched) < len(unmatched_attrs):
+        for i, t2 in enumerate(possible_matches, start_at_index):
+            res = self.eval_tasks(t1, t2, i, name_threshold=best_match['name_score'])
+
+            if (res['state'] is REPORT_CHANGED
+                and res['score'] > best_match['score']):
+
                 match_index = i
-                unmatched_attrs = unmatched
+                best_match = res
 
-        return match_index, unmatched_attrs
+            if res['state'] is REPORT_NO_CHANGE:
+                match_index = i
+                best_match = res
+                break
+
+        return match_index, best_match
+
+    def _task_position_score(self, index):
+        return 1.0 / (2 * (index + 1))
+
+    def _task_score(self, name_score, position_score):
+        weight_sum = NAME_SIM_WEIGHT + TASK_POS_WEIGHT
+        name_score *= NAME_SIM_WEIGHT
+        position_score *= TASK_POS_WEIGHT
+
+        return (name_score + position_score) / weight_sum
+
+    def eval_tasks(self, t1, t2, t2_index, name_threshold=NAME_SIM_THRESHOLD):
+        name_score = 0.0
+        position_score = 0.0
+        changed_attrs = self.get_changed_attrs(t1, t2)
+
+        # different names
+        if 'name' in changed_attrs:
+            t1_subtree = getattr(t1, self.subtree_hash_attr_name)
+            t2_subtree = getattr(t2, self.subtree_hash_attr_name)
+
+            if t1_subtree and t2_subtree:
+                if t1_subtree == t2_subtree:
+                    state = REPORT_CHANGED
+                    position_score = 1.0
+
+                else:
+                    name_score = strings_similarity(t1.name, t2.name)
+
+                    if (name_score > name_threshold
+                        and len(changed_attrs) < len(self.tasks_match_attrs)):
+                        state = REPORT_CHANGED
+                        position_score = self._task_position_score(t2_index)
+                    else:
+                        state = REPORT_REMOVED
+
+            # no subtrees
+            else:
+                name_score = strings_similarity(t1.name, t2.name, winkler=False)
+
+                if name_score > name_threshold:
+                    state = REPORT_CHANGED
+                    position_score = self._task_position_score(t2_index)
+                else:
+                    state = REPORT_REMOVED
+
+        # names are equal
+        else:
+            name_score = 1.0
+
+            if (changed_attrs
+                and len(changed_attrs) > 1
+                and self.subtree_hash_attr_name not in changed_attrs):
+
+                state = REPORT_CHANGED
+                position_score = 1.0
+            else:
+                state = REPORT_NO_CHANGE
+
+
+        return {
+            'state': state,
+            'changes': changed_attrs,
+            'name_score': name_score,
+            'position_score': position_score,
+            'score': self._task_score(name_score, position_score)
+        }
 
     def _diff(self, tasks_a=None, tasks_b=None):
 
@@ -245,47 +332,42 @@ class ScheduleDiff(object):
 
             return self._create_report(REPORT_ADDED, right=task, subtree=subtree)
 
-        for i, task in enumerate(tasks_a):
-            match_index, diff_attrs = self.find_best_match_index(task, tasks_b, start_at_index=last_b_index)
+        for task in tasks_a:
+            match_index, match = self.find_best_match(task, tasks_b, start_at_index=last_b_index)
             report = {}
 
             if match_index is None:
-                subtree = self._set_subtree_items_state(self._get_subtree(tasks_a[i]), REPORT_REMOVED)
-                report = self._create_report(REPORT_REMOVED, left=tasks_a[i], subtree=subtree)
+                subtree = self._set_subtree_items_state(self._get_subtree(task), REPORT_REMOVED)
+                report = self._create_report(REPORT_REMOVED, left=task, subtree=subtree)
 
             else:
                 # ALL elements between last_b_index and match_index => ADDED
                 res.extend([report_task_added(k) for k in range(last_b_index, match_index)])
 
                 # exact match => NO CHANGE
-                if len(diff_attrs) == 0:
-                    report_type = REPORT_NO_CHANGE
-                    subtree = self._set_subtree_items_state(self._get_subtree(task), report_type)
+                if not match['changes']:
+                    subtree = self._set_subtree_items_state(self._get_subtree(task), match['state'])
                     report_kwargs = { 'both': task, 'subtree': subtree }
 
                 # structural change => CHANGED / NO CHANGE
-                elif self.subtree_hash_attr_name in diff_attrs:
+                elif self.subtree_hash_attr_name in match['changes']:
 
                     # process child tasks
                     subtree = self._diff(
-                        self._get_subtree(tasks_a[i]),
+                        self._get_subtree(task),
                         self._get_subtree(tasks_b[match_index])
                     )
 
-                    if len(diff_attrs) > 1:
-                        report_type = REPORT_CHANGED
+                    if len(match['changes']) > 1:
                         report_kwargs = {
                             'left': task,
                             'right': tasks_b[match_index],
-                            'changed_attrs': diff_attrs,
                             'subtree': subtree
                         }
 
                     else:
-                        report_type = REPORT_NO_CHANGE
                         report_kwargs = {
                             'both': task,
-                            'changed_attrs': diff_attrs,
                             'subtree': subtree
                         }
 
@@ -294,15 +376,13 @@ class ScheduleDiff(object):
                     subtree = self._set_subtree_items_state(
                         self._get_subtree(tasks_b[match_index]), REPORT_NO_CHANGE)
 
-                    report_type = REPORT_CHANGED
                     report_kwargs = {
                         'left': task,
                         'right': tasks_b[match_index],
-                        'changed_attrs': diff_attrs,
                         'subtree': subtree
                     }
 
-                report = self._create_report(report_type, **report_kwargs)
+                report = self._create_report(match['state'], changed_attrs=match['changes'], **report_kwargs)
 
                 last_b_index = match_index + 1
 
