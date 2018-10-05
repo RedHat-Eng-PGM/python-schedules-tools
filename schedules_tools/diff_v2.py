@@ -190,6 +190,10 @@ class ScheduleDiff(object):
         """
 
         def create_report(item):
+            kwargs = {
+                'subtree': self._set_subtree_items_state(self._get_subtree(item), state)
+            }
+
             if state == REPORT_NO_CHANGE:
                 kwargs = { 'both': item }
 
@@ -198,8 +202,6 @@ class ScheduleDiff(object):
 
             elif state == REPORT_REMOVED:
                 kwargs = { 'left': item }
-
-            kwargs['subtree'] = self._set_subtree_items_state(self._get_subtree(item), state)
 
             return self._create_report(state, **kwargs)
 
@@ -293,15 +295,14 @@ class ScheduleDiff(object):
         else:
             name_score = 1.0
 
-            if (changed_attrs
-                and len(changed_attrs) > 1
-                and self.subtree_hash_attr_name not in changed_attrs):
+            if (not changed_attrs
+                or (len(changed_attrs) == 1
+                and self.subtree_hash_attr_name in changed_attrs)):
 
+                state = REPORT_NO_CHANGE
+            else:
                 state = REPORT_CHANGED
                 position_score = 1.0
-            else:
-                state = REPORT_NO_CHANGE
-
 
         return {
             'state': state,
