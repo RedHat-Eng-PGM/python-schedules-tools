@@ -40,10 +40,11 @@ class StorageHandler_cvs(StorageBase):
     local_handle = None
     
     exclusive_access_option = 'exclusive_access'
-    
 
     def __init__(self, handle=None, options=dict(), **kwargs):
         self.checkout_dir = options.get('cvs_checkout_path')
+        self.checkout_dir_perm = options.get('cvs_checkout_dir_permission',
+                                             None)
         self.repo_name = options.get('cvs_repo_name')
         self.repo_root = options.get('cvs_root')    
         self.block_refresh = options.get('cvs_block_refresh', False)  
@@ -56,7 +57,6 @@ class StorageHandler_cvs(StorageBase):
                          self.repo_root,
                          self.repo_name,
                          self.checkout_dir])
-
 
     def _cvs_command(self, cmd,
                      stdout=subprocess.PIPE,
@@ -301,6 +301,9 @@ class StorageHandler_cvs(StorageBase):
         self._wipe_out_dir(self.checkout_dir)
         shutil.move(temp_checkout_dir, self.checkout_dir)
         # 'atomic' part end
+
+        if self.checkout_dir_perm:
+            os.chmod(self.checkout_dir, self.checkout_dir_perm)
 
         return self.checkout_dir
 
