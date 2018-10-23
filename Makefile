@@ -1,5 +1,12 @@
 all: help
 
+# optionally specify directory of created SRPM
+SRPM_OUTDIR ?= ""
+
+ifneq (${SRPM_OUTDIR}, "")
+	SRPM_OUTDIR_PARAM := --define "_srcrpmdir $(SRPM_OUTDIR)"
+endif
+
 
 help:
 	@echo "Usage: make <target>"
@@ -10,13 +17,19 @@ help:
 	@echo " install                 install program on current system"
 	@echo " log                     prepare changelog for spec file"
 	@echo " source                  create source tarball"
+	@echo " rpm                     create rpm"
+	@echo " srpm                    create srpm"
+	@echo ""
+	@echo "Optinal param:"
+	@echo " SRPM_OUTDIR             to specify non-default directory to place SRPM"
 
 
-rpm: source
-	mkdir -p ~/rpmbuild/SOURCES
-	cp dist/*.tar.gz ~/rpmbuild/SOURCES
+srpm: prepare_source
+	rpmbuild --define "dist .el7eso" ${SRPM_OUTDIR_PARAM} -bs dist/*.spec
 
-	rpmbuild --define "dist .el7eso" -ba dist/*.spec
+
+rpm: prepare_source
+	rpmbuild --define "dist .el7eso" -bb dist/*.spec
 
 
 pypi: source
@@ -40,3 +53,8 @@ log:
 
 source: clean
 	@python setup.py sdist
+
+prepare_source: source
+	mkdir -p ~/rpmbuild/SOURCES
+	cp dist/*.tar.gz ~/rpmbuild/SOURCES
+
