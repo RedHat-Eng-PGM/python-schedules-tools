@@ -195,13 +195,13 @@ class ScheduleDiff(object):
             }
 
             if state == REPORT_NO_CHANGE:
-                kwargs = { 'both': item }
+                kwargs['both'] = item
 
             elif state == REPORT_ADDED:
-                kwargs = { 'right': item }
+                kwargs['right'] = item
 
             elif state == REPORT_REMOVED:
-                kwargs = { 'left': item }
+                kwargs['left'] = item
 
             return self._create_report(state, **kwargs)
 
