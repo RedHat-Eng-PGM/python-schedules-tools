@@ -73,22 +73,23 @@ class TestDiff(object):
         assert diff == ''
 
 
+def scheds_list(scheds_dir, ref_sched):
+    return [f for f in os.listdir(scheds_dir) if f != ref_sched]
+
+
 class TestScheduleDiff(object):
     ref_sched = 'sched_diff_reference.xml'
 
     SCHEDS_DIR = os.path.join(BASE_DIR, 'schedule_files/schedule_diff')
     OUTPUT_FILES_DIR = os.path.join(BASE_DIR, 'fixtures/schedule_diff')
 
-    @pytest.fixture(scope="class")
-    def scheds_list(scheds_dir=SCHEDS_DIR, ref_sched=ref_sched):
-        return [f for f in os.listdir(scheds_dir) if f != ref_sched]
-
     def import_schedule(self, filename):
         path = os.path.join(self.SCHEDS_DIR, filename)
         conv = ScheduleConverter()
         return conv.import_schedule(path)
 
-    @pytest.fixture(params=scheds_list(), scope='class')
+    @pytest.fixture(params=scheds_list(scheds_dir=SCHEDS_DIR, 
+                                       ref_sched=ref_sched), scope='class')
     def diff_res(self, request):
         filename = request.param
 
