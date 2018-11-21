@@ -187,7 +187,7 @@ class Task(object):
             self._subtree_hash = ''
 
             for child_task in self.tasks:
-                values_list = [str(getattr(child_task, attr)) for attr in attrs]
+                values_list = [unicode(getattr(child_task, attr)) for attr in attrs]
                 self._subtree_hash += ''.join(values_list) + child_task.subtree_hash
 
         return self._subtree_hash
