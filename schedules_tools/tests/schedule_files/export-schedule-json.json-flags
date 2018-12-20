@@ -4,14 +4,6 @@
     "ext_attr": {},
     "flags_attr_id": null,
     "name": "Test project 10",
-    "phases": [
-        {
-            "complete": 90.0,
-            "end": "949532400",
-            "name": "Testing Phase",
-            "start": "948409200"
-        }
-    ],
     "resources": {},
     "slug": "Test_project_10",
     "start": "946681200",

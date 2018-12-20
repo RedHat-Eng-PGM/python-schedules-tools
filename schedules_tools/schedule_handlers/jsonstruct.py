@@ -103,17 +103,12 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         task.dStart = self._parse_timestamp(jsonobj['start'])
         task.dFinish = self._parse_timestamp(jsonobj['end'])
 
-        task.dAcStart = task.dStart
-        task.dAcFinish = task.dFinish
-
         schedule.used_flags |= set(task.flags)
 
         if 'tasks' in jsonobj:
             for subtaskobj in jsonobj['tasks']:
                 subtask = self.import_task_from_json(schedule, subtaskobj, task)
                 task.tasks.append(subtask)
-
-        task.check_for_phase()
 
         return task
 
@@ -138,10 +133,6 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         if self.schedule.mtime:
             schedule_dict['mtime'] = self.schedule.mtime.strftime('%s')
 
-        schedule_dict['phases'] = []
-        for phase in self.schedule.phases:
-            schedule_dict['phases'].append(self.export_phase_as_dict(phase))
-
         schedule_dict['resources'] = self.schedule.resources
         schedule_dict['used_flags'] = sorted(list(self.schedule.used_flags))
         schedule_dict['ext_attr'] = self.schedule.ext_attr
@@ -159,10 +150,6 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         for task in self.schedule.tasks:
             schedule_dict['tasks'].append(self.export_task_as_dict(task))
-
-        schedule_dict['phases'] = []
-        for phase in self.schedule.phases:
-            schedule_dict['phases'].append(self.export_phase_as_dict(phase))
 
         return schedule_dict
 
@@ -185,8 +172,8 @@ class ScheduleHandler_json(ScheduleHandlerBase):
 
         task_export['parentTask'] = parent_slug
 
-        task_export['start'] = task.dAcStart.strftime('%s')
-        task_export['end'] = task.dAcFinish.strftime('%s')
+        task_export['start'] = task.dStart.strftime('%s')
+        task_export['end'] = task.dFinish.strftime('%s')
 
         if task.tasks:  # task has subtasks
             # prepare tasklist
@@ -196,12 +183,3 @@ class ScheduleHandler_json(ScheduleHandlerBase):
                 task_export['tasks'].append(self.export_task_as_dict(subtask, task.slug))
 
         return task_export
-
-    def export_phase_as_dict(self, phase):
-        phase_export = dict()
-        phase_export['name'] = phase.name
-        phase_export['complete'] = phase.p_complete
-        phase_export['start'] = phase.dAcStart.strftime('%s')
-        phase_export['end'] = phase.dAcFinish.strftime('%s')
-
-        return phase_export

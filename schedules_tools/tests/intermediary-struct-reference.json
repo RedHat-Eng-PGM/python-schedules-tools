@@ -4,29 +4,9 @@
     "dStart": "2000-01-01T00:00:00Z",
     "errors_import": [],
     "name": "Test project 10",
-    "phases": [
-        {
-            "dAcFinish": "2000-02-03T00:00:00Z",
-            "dAcStart": "2000-01-21T00:00:00Z",
-            "dFinish": "2000-02-03T00:00:00Z",
-            "dStart": "2000-01-21T00:00:00Z",
-            "flags": [
-                "flag1"
-            ],
-            "index": 5,
-            "level": 3,
-            "milestone": false,
-            "name": "Testing Phase",
-            "p_complete": 90.0,
-            "priority": 500,
-            "slug": "Test_project_10.test.testing"
-        }
-    ],
     "slug": "Test_project_10",
     "tasks": [
         {
-            "dAcFinish": "2000-02-05T00:00:00Z",
-            "dAcStart": "2000-01-01T00:00:00Z",
             "dFinish": "2000-02-05T00:00:00Z",
             "dStart": "2000-01-01T00:00:00Z",
             "flags": [],
@@ -39,8 +19,6 @@
             "slug": "Test_project_10",
             "tasks": [
                 {
-                    "dAcFinish": "2000-02-03T00:00:00Z",
-                    "dAcStart": "2000-01-01T00:00:00Z",
                     "dFinish": "2000-02-03T00:00:00Z",
                     "dStart": "2000-01-01T00:00:00Z",
                     "flags": [],
@@ -53,8 +31,6 @@
                     "slug": "Test_project_10.test",
                     "tasks": [
                         {
-                            "dAcFinish": "2000-01-21T00:00:00Z",
-                            "dAcStart": "2000-01-01T00:00:00Z",
                             "dFinish": "2000-01-21T00:00:00Z",
                             "dStart": "2000-01-01T00:00:00Z",
                             "flags": [],
@@ -69,8 +45,6 @@
                             "tasks": []
                         },
                         {
-                            "dAcFinish": "2000-01-21T00:00:00Z",
-                            "dAcStart": "2000-01-21T00:00:00Z",
                             "dFinish": "2000-01-21T00:00:00Z",
                             "dStart": "2000-01-21T00:00:00Z",
                             "flags": [],
@@ -84,8 +58,6 @@
                             "tasks": []
                         },
                         {
-                            "dAcFinish": "2000-02-03T00:00:00Z",
-                            "dAcStart": "2000-01-21T00:00:00Z",
                             "dFinish": "2000-02-03T00:00:00Z",
                             "dStart": "2000-01-21T00:00:00Z",
                             "flags": [
@@ -101,8 +73,6 @@
                             "tasks": []
                         },
                         {
-                            "dAcFinish": "2000-01-21T00:00:00Z",
-                            "dAcStart": "2000-01-21T00:00:00Z",
                             "dFinish": "2000-01-21T00:00:00Z",
                             "dStart": "2000-01-21T00:00:00Z",
                             "flags": [
@@ -121,8 +91,6 @@
                     ]
                 },
                 {
-                    "dAcFinish": "2000-02-05T00:00:00Z",
-                    "dAcStart": "2000-02-03T00:00:00Z",
                     "dFinish": "2000-02-05T00:00:00Z",
                     "dStart": "2000-02-03T00:00:00Z",
                     "flags": [],
@@ -135,8 +103,6 @@
                     "slug": "Test_project_10.test_2",
                     "tasks": [
                         {
-                            "dAcFinish": "2000-02-05T00:00:00Z",
-                            "dAcStart": "2000-02-03T00:00:00Z",
                             "dFinish": "2000-02-05T00:00:00Z",
                             "dStart": "2000-02-03T00:00:00Z",
                             "flags": [],
@@ -150,8 +116,6 @@
                             "tasks": []
                         },
                         {
-                            "dAcFinish": "2000-02-05T00:00:00Z",
-                            "dAcStart": "2000-02-05T00:00:00Z",
                             "dFinish": "2000-02-05T00:00:00Z",
                             "dStart": "2000-02-05T00:00:00Z",
                             "flags": [

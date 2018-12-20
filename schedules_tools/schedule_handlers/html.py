@@ -83,13 +83,13 @@ class ScheduleHandler_html(ScheduleHandlerBase):
 
         e_td = etree.SubElement(e_tr, 'td')
         e_td.attrib['class'] = 'date'
-        e_td.text = str(task.dAcStart.strftime(self.options['date_format']))
+        e_td.text = str(task.dStart.strftime(self.options['date_format']))
 
         e_td = etree.SubElement(e_tr, 'td')
         e_td.attrib['class'] = 'date'
-        e_td.text = str(task.dAcFinish.strftime(self.options['date_format']))
+        e_td.text = str(task.dFinish.strftime(self.options['date_format']))
 
-        duration = task.dAcFinish - task.dAcStart
+        duration = task.dFinish - task.dStart
         e_td = etree.SubElement(e_tr, 'td')
         e_td.attrib['class'] = 'duration'
         e_td.text = str(duration.days)

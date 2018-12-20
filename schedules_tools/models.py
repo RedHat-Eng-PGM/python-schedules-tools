@@ -22,8 +22,6 @@ class Task(object):
     priority = 500
     dStart = datetime.datetime.max
     dFinish = datetime.datetime.min
-    dAcStart = datetime.datetime.max
-    dAcFinish = datetime.datetime.min
     milestone = False
     p_complete = 0.0
     flags = []
@@ -49,9 +47,9 @@ class Task(object):
         self.level = level
 
     def __unicode__(self):
-        return '%s %s MS:%s  (%s - %s) ac(%s - %s)  F%s  [%s]' % (
+        return '%s %s MS:%s  (%s - %s)  F%s  [%s]' % (
             self.slug, self.name, self.milestone, self.dStart, self.dFinish,
-            self.dAcStart, self.dAcFinish, self.flags, len(self.tasks))
+            self.flags, len(self.tasks))
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -128,13 +126,6 @@ class Task(object):
             return name
         return ''
 
-    def check_for_phase(self):
-        PHASE_NAMES = ('planning phase', 'development phase', 'testing phase',
-                       'launch phase', 'maintenance phase')
-        if self.name.lower() in PHASE_NAMES:
-            self.name = self.name.title()
-            self._schedule.phases.append(self)
-
     @property
     def desc_tasks_count(self):
         count = len(self.tasks)
@@ -145,7 +136,7 @@ class Task(object):
     def get_type(self, check_same_start_finish=False):
         if self.tasks:
             return 'Container'
-        elif self.milestone and (not check_same_start_finish or self.dAcStart == self.dAcFinish):
+        elif self.milestone and (not check_same_start_finish or self.dStart == self.dFinish):
             return 'Milestone'
         else:
             return 'Task'
@@ -181,7 +172,7 @@ class Task(object):
 
     @property
     def subtree_hash(self):
-        attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish']
+        attrs = ['name', 'dStart', 'dFinish']
 
         if self._subtree_hash is None:
             self._subtree_hash = ''
@@ -202,7 +193,6 @@ class Schedule(object):
     changelog = {}
     mtime = None
 
-    phases = []
     resources = {}
     assignments = []
     used_flags = None
@@ -218,7 +208,6 @@ class Schedule(object):
 
     def __init__(self):
         self.tasks = []
-        self.phases = []
         self.used_flags = set()
         self.changelog = {}
         self.ext_attr = {}
@@ -328,21 +317,15 @@ class Schedule(object):
         for task in self.tasks:
             if top_task.dStart:
                 top_task.dStart = min(top_task.dStart,
-                                      task.dStart,
-                                      task.dAcStart)
+                                      task.dStart)
             else:
                 top_task.dStart = task.dStart
 
-            top_task.dAcStart = top_task.dStart
-
             if top_task.dFinish:
                 top_task.dFinish = max(top_task.dFinish,
-                                       task.dAcFinish,
                                        task.dFinish)
             else:
                 top_task.dFinish = task.dFinish
-
-            top_task.dAcFinish = top_task.dFinish
 
             _raise_index(task)
             top_task.tasks.append(task)
@@ -391,8 +374,7 @@ class Schedule(object):
         return diff
 
     def _diff_tasks(self, left, right, attrs=None, whole_days=False):
-        default_attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish',
-                         'link', 'note']
+        default_attrs = ['name', 'dStart', 'dFinish', 'link', 'note']
         if not attrs:
             attrs = default_attrs
         ret = ''
@@ -536,10 +518,6 @@ class Schedule(object):
         for task in self.tasks:
             schedule['tasks'].append(task.dump_as_dict())
 
-        schedule['phases'] = []
-        for phase in self.phases:
-            schedule['phases'].append(phase.dump_as_dict(recursive=False))
-
         # set() is not serializable into json
         schedule['used_flags'] = sorted(list(self.used_flags))
         return schedule
@@ -554,10 +532,6 @@ class Schedule(object):
         schedule.tasks = []
         for task in input_dict['tasks']:
             schedule.tasks.append(Task.load_from_dict(task, schedule))
-
-        schedule.phases = []
-        for phase in input_dict['phases']:
-            schedule.phases.append(Task.load_from_dict(phase, schedule))
 
         schedule.used_flags = set(input_dict['used_flags'])
 

@@ -23,10 +23,8 @@ def create_test_schedule():
     task2 = models.Task(sch, level=task1.level + 1)
     task2.name = 'Planning'
     task2.slug = 'scht.plan'
-    task2.dStart = datetime.datetime(2016, 12, 1, 8, 0)
-    task2.dFinish = datetime.datetime(2016, 12, 5, 8, 0)
-    task2.dAcStart = datetime.datetime(2016, 12, 2, 8, 0)
-    task2.dAcFinish = datetime.datetime(2016, 12, 4, 8, 0)
+    task2.dStart = datetime.datetime(2016, 12, 2, 8, 0)
+    task2.dFinish = datetime.datetime(2016, 12, 4, 8, 0)
     task2.note = 'plan task'
     task2.priority = 34
     task2.p_complete = 10

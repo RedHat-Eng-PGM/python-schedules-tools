@@ -94,7 +94,7 @@ class ScheduleDiff(object):
     subtree_hash_attr_name = 'subtree_hash'
 
     """ List of attributes used to compare 2 tasks. """
-    tasks_match_attrs = ['name', 'dStart', 'dFinish', 'dAcStart', 'dAcFinish', subtree_hash_attr_name]
+    tasks_match_attrs = ['name', 'dStart', 'dFinish', subtree_hash_attr_name]
 
     def __init__(self, schedule_a, schedule_b):
         self.schedule_a = schedule_a

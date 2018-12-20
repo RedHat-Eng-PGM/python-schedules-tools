@@ -83,13 +83,6 @@ class TestHandlers(object):
         input_dict['dStart'] = input_dict['dStart'].replace(**self.replace_time_opts)
         input_dict['dFinish'] = input_dict['dFinish'].replace(**self.replace_time_opts)
 
-        # phases cleanup
-        for phase in input_dict['phases']:
-            phase['dStart'] = phase['dStart'].replace(**self.replace_time_opts)
-            phase['dFinish'] = phase['dFinish'].replace(**self.replace_time_opts)
-            phase['dAcStart'] = phase['dAcStart'].replace(**self.replace_time_opts)
-            phase['dAcFinish'] = phase['dAcFinish'].replace(**self.replace_time_opts)
-
         # Task(s) attrs
         for task in input_dict['tasks']:
             self._clear_task_time(task)
@@ -97,9 +90,7 @@ class TestHandlers(object):
     def _clear_task_time(self, task):
         """For comparison purpose we ignore hours and minutes of task."""
         task['dStart'] = task['dStart'].replace(**self.replace_time_opts)
-        task['dAcStart'] = task['dAcStart'].replace(**self.replace_time_opts)
         task['dFinish'] = task['dFinish'].replace(**self.replace_time_opts)
-        task['dAcFinish'] = task['dAcFinish'].replace(**self.replace_time_opts)
 
         for inner_task in task['tasks']:
             self._clear_task_time(inner_task)
