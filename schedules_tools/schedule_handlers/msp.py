@@ -259,9 +259,9 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
                     self.schedule.dStart = task.dStart
 
                 if self.schedule.dFinish:
-                    self.schedule.dFinish = max(self.schedule.dFinish, task.dAcFinish)
+                    self.schedule.dFinish = max(self.schedule.dFinish, task.dFinish)
                 else:
-                    self.schedule.dFinish = task.dAcFinish
+                    self.schedule.dFinish = task.dFinish
                     
                 return_tasks.append(task)
             # remove task from list
@@ -281,29 +281,31 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         nlStart = eTask.xpath('Start')
 
         if nlStart:
-            task.dStart = task.dAcStart = datetime.strptime(nlStart[0].text,
-                                                   task._date_format)
-            task.dFinish = task.dAcFinish = task.dStart
+            task.dStart = datetime.strptime(nlStart[0].text,
+                                            task._date_format)
+            task.dFinish = task.dStart
         else:
             return False
 
         nlFinish = eTask.xpath('Finish')
         if nlFinish:
-            task.dFinish = task.dAcFinish = datetime.strptime(
-                nlFinish[0].text, task._date_format)
+            task.dFinish = datetime.strptime(
+                nlFinish[0].text,
+                task._date_format
+            )
 
         nlAcStart = eTask.xpath('ActualStart')
         if nlAcStart:
-            task.dAcStart = datetime.strptime(nlAcStart[0].text,
-                                              task._date_format)
+            task.dStart = datetime.strptime(nlAcStart[0].text,
+                                            task._date_format)
 
         nlAcFinish = eTask.xpath('ActualFinish')
         if nlAcFinish:
-            task.dAcFinish = datetime.strptime(nlAcFinish[0].text,
-                                               task._date_format)
+            task.dFinish = datetime.strptime(nlAcFinish[0].text,
+                                             task._date_format)
 
-        # sanity check - if only ac start defined and beyond plan finish
-        task.dAcFinish = max(task.dAcFinish, task.dAcStart)
+        # sanity check - if only start defined and beyond plan finish
+        task.dFinish = max(task.dFinish, task.dStart)
 
         task.milestone = eTask.xpath('Milestone')[0].text == '1'
 
@@ -331,8 +333,6 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         ext_attr_elements = eTask.xpath('ExtendedAttribute/Value')
         for ext_attr in ext_attr_elements:
             task.parse_extended_attr(ext_attr.text)
-
-        task.check_for_phase()
         return True
 
     # Task

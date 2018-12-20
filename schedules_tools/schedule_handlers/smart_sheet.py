@@ -238,10 +238,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         # dates
         task.dStart = self._parse_date(cells[COLUMN_START])
-        task.dAcStart = task.dStart
 
         task.dFinish = self._parse_date(cells[COLUMN_FINISH])
-        task.dAcFinish = task.dFinish
 
         if COLUMN_NOTE in cells and cells[COLUMN_NOTE]:
             task.note = unicode(cells[COLUMN_NOTE])
@@ -304,8 +302,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 self.schedule.tasks.append(task)
 
             parents_stack.insert(0, curr_stack_item)
-
-        task.check_for_phase()
         task.level = len(parents_stack)
 
     def _load_task_cells(self, row):

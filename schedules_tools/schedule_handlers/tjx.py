@@ -123,20 +123,11 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
         task.priority = int(eTask.xpath('Priority')[0].text)
         task.p_complete = float(eTask.xpath('complete')[0].text)
-        task.dStart = task.dAcStart = self._load_tjx_date(eTask, 'plan',
-                                                          'start')
-        task.dFinish = task.dAcFinish = self._load_tjx_date(eTask, 'plan',
-                                                            'end')
+        task.dStart = self._load_tjx_date(eTask, 'actual', 'start') or self._load_tjx_date(eTask, 'plan', 'start')
+        task.dFinish = self._load_tjx_date(eTask, 'actual', 'end') or self._load_tjx_date(eTask, 'plan', 'end')
 
-        acStart = self._load_tjx_date(eTask, 'actual', 'start')
-        if acStart:
-            task.dAcStart = acStart
-        acFinish = self._load_tjx_date(eTask, 'actual', 'end')
-        if acFinish:
-            task.dAcFinish = acFinish
-
-        # sanity check - if only ac start defined and beyond plan finish
-        task.dAcFinish = max(task.dAcFinish, task.dAcStart)
+        # sanity check - if only tart defined and beyond plan finish
+        task.dFinish = max(task.dFinish, task.dStart)
         task.milestone = eTask.xpath('Type')[0].text == 'Milestone'
 
         for eFlag in eTask.xpath('./Flag'):
@@ -149,9 +140,7 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
             task.link = ptask_el[0].get('url')
 
         min_date = task.dStart
-        max_date = task.dAcFinish
-
-        task.check_for_phase()
+        max_date = task.dFinish
 
         for eSubTask in eTask.xpath('./SubTasks/Task'):
             task_item = models.Task(task._schedule, task.level + 1)

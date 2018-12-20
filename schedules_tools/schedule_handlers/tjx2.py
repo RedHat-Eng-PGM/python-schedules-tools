@@ -67,21 +67,11 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
             p_complete = 0.0
         task.p_complete = p_complete
 
-        task.dStart = self._load_tjx_date(eTask, 'plan', 'start')
-        task.dAcStart = self._load_tjx_date(eTask, 'actual', 'start')
-
-        task.dFinish = self._load_tjx_date(eTask, 'plan', 'end')
-        task.dAcFinish = self._load_tjx_date(eTask, 'actual', 'end')
-
-        if not task.dStart:
-            task.dStart = task.dAcStart
-
-        if not task.dFinish:
-            task.dFinish = task.dAcFinish
+        task.dStart = self._load_tjx_date(eTask, 'actual', 'start') or self._load_tjx_date(eTask, 'plan', 'start')
+        task.dFinish = self._load_tjx_date(eTask, 'actual', 'end') or self._load_tjx_date(eTask, 'plan', 'end')
 
         if task.milestone:
             task.dFinish = task.dStart
-            task.dAcFinish = task.dAcStart
 
         for eFlag in eTask.xpath('./flag'):
             task.flags.append(eFlag.text)
@@ -94,9 +84,7 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
         task._schedule.used_flags |= set(task.flags)
 
         min_date = task.dStart
-        max_date = task.dAcFinish
-
-        task.check_for_phase()
+        max_date = task.dFinish
 
         for eSubTask in eTask.xpath('./task'):
             item_task = models.Task(self.schedule, task.level + 1)

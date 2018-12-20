@@ -50,8 +50,8 @@ class ScheduleHandler_ics(ScheduleHandlerBase):
         event = Event()
         event['uid'] = '{}-{}'.format(task.index, task.slug)
         event['summary'] = task.name
-        event['dtstart'] = task.dAcStart.strftime(self._datetime_format)
-        event['dtend'] = task.dAcFinish.strftime(self._datetime_format)
+        event['dtstart'] = task.dStart.strftime(self._datetime_format)
+        event['dtend'] = task.dFinish.strftime(self._datetime_format)
         event['dtstamp'] = self._now.strftime(self._datetime_format)
         event['transp'] = 'TRANSPARENT'  # invisible to free/busy searches      
         event['description'] = task.note
