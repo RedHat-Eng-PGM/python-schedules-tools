@@ -76,9 +76,14 @@ def strings_similarity(str1, str2, winkler=True, scaling=0.1):
     dj = (m/float(len1) + m/float(len2) + (m-t)/m) / 3.0
 
     if winkler:
-        # length of common prefix at the start of the string (max = 4)
         l = 0
-        while l < 4 and str1[l] == str2[l]:
+        # length of common prefix at the start of the string (max = 4)
+        max_length = min(
+            len1,
+            len2,
+            4
+        )
+        while l < max_length and str1[l] == str2[l]:
             l += 1
 
         return dj + (l * scaling * (1.0 - dj))
