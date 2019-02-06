@@ -68,7 +68,8 @@ class Task(object):
 
         if key:
             val = value
-        else:
+        elif hasattr(value, 'split'):
+            # test value for flag / note / link
             pieces = value.split(':', 1)
             if len(pieces) != 2:
                 # it's not a string in format 'Flag: qe, dev' - don't process
@@ -77,6 +78,9 @@ class Task(object):
             key, val = pieces
             key = key.strip().lower()
             val = val.strip()
+
+        else:
+            return
 
         if key.lower() == ATTR_PREFIX_FLAG.lower():
             val = val.lower()
