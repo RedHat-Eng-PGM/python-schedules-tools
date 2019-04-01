@@ -183,8 +183,14 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 self._load_task(row, parents_stack)
 
             self.schedule.check_top_task()
-            self.schedule.dStart = self.schedule.tasks[0].dStart
-            self.schedule.dFinish = self.schedule.tasks[0].dFinish
+
+            if self.schedule.tasks:
+                self.schedule.dStart = self.schedule.tasks[0].dStart
+                self.schedule.dFinish = self.schedule.tasks[0].dFinish
+            else:
+                log.warning('Empty schedule (no valid tasks) %s'
+                            % self.get_info_dict(self.handle)['permalink'])
+
             self.schedule.generate_slugs()
 
         except (KeyError, IndexError):
