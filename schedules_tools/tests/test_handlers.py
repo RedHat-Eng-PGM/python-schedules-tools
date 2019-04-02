@@ -293,7 +293,7 @@ class TestHandlers(object):
                 reference_dict.pop('changelog', None)
 
             assert reference_dict == imported_schedule_dict
-            
+
         finally:
             callback_name = 'import_teardown_handle_' + handler_name
             if not import_schedule_file and hasattr(self, callback_name):
@@ -311,12 +311,12 @@ class TestHandlers(object):
         export_output_filename = str(export_output_file)
 
         conv = ScheduleConverter(intermediary_input)
-        
+
         if flat:
             conv.schedule.make_flat()
-        
+
         conv.schedule.filter_flags(flag_show, flag_hide)
-        
+
         conv.export_schedule(export_output_filename, handler_name,
                              options=options)
         actual_output = export_output_file.read()
@@ -330,7 +330,7 @@ class TestHandlers(object):
 
         with open(full_export_schedule_file) as fd:
             expected_output = fd.read()
-        
+
         # sanitize if needed
         sanitize_fn_name = '_sanitize_export_test_{}'.format(handler_name)
         if hasattr(self, sanitize_fn_name):
