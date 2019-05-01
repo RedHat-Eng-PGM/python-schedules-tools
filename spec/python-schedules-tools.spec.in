@@ -47,7 +47,7 @@ Contains tools to manipulate with schledules.
 
 %install
 rm -rf %{buildroot}
-python setup.py install --root=%{buildroot} --record=INSTALLED_FILES
+python2 setup.py install --root=%{buildroot} --record=INSTALLED_FILES
 
 # create log dir
 mkdir -m 755 -p %{buildroot}%{log_dir}
