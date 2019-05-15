@@ -5,6 +5,7 @@ import re
 import logging
 
 from copy import copy
+from .utils import sort_tasks
 
 log = logging.getLogger(__name__)
 re_flags_separator = re.compile('[, ]+')
@@ -300,6 +301,8 @@ class Schedule(object):
 
             self.tasks = filter_tasks(self.tasks)
 
+    def sort_tasks(self, field):
+        self.tasks = sort_tasks(self.tasks, field)
 
     def check_top_task(self):
         def _raise_index(task):
