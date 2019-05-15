@@ -11,6 +11,14 @@ from schedules_tools.storage_handlers import AcquireLockException
 log = logging.getLogger(__name__)
 
 
+SORT_FIELDS = {
+    'name': 'name',
+    'date_start': 'dStart',
+    'date_finish': 'dFinish',
+    'source': None,
+}
+
+
 class ScheduleFormatNotSupported(Exception):
     pass
 
@@ -231,7 +239,7 @@ class ScheduleConverter(object):
                                schedule_handler.default_export_ext])
 
         return schedule_handler.export_schedule(output)
-        
+
         
 
 def convert(args):
@@ -278,6 +286,9 @@ def convert(args):
         
     if args.milestones:
         converter.schedule.filter_milestones()
+
+    if args.sort:
+        converter.schedule.sort_tasks(args.sort)
         
     flag_show = args.flag_show.split(',')
     if flag_show == ['']:
@@ -303,7 +314,7 @@ def convert(args):
 
 
 def get_handlers_args_parser(add_help=False):
-    '''Return parent parser for schedules tools scripts with handler arguments'''
+    """Return parent parser for schedules tools scripts with handler arguments"""
     import argparse 
     
     parser = argparse.ArgumentParser(add_help=add_help)
@@ -412,6 +423,17 @@ def get_handlers_args_parser(add_help=False):
     parser.add_argument('--tz',
                         help='Timezone used for schedule conversions (default "America/New_York")',
                         default='America/New_York')
+
+    def sorting_field(value):
+        try:
+            field = SORT_FIELDS[value]
+        except KeyError:
+            raise argparse.ArgumentTypeError('"%s" is not a valid sorting value' % value)
+
+        return field
+
+    parser.add_argument('--sort',
+                        help='Sort by: %s' % ', '.join(SORT_FIELDS.keys()),
+                        type=sorting_field)
     
     return parser
-    

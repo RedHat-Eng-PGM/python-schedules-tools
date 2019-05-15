@@ -31,7 +31,7 @@ def pytest_generate_tests(metafunc):
     elif source_function == 'test_export':
         argnames = ['handler_name', 'export_schedule_file', 'flat', 
                     'flag_show', 'flag_hide', 
-                    'options']
+                    'options', 'sort']
         argvalues = metafunc.cls.scenarios_export_combinations
         metafunc.parametrize(argnames, argvalues)
 
@@ -49,15 +49,19 @@ class TestHandlers(object):
         ('tjx2', 'import-schedule-tjx2.tjx'),
     ]
     scenarios_export_combinations = [
-        ('msp', 'export-schedule-msp.xml', False, [], [], {}),
-        ('json', 'export-schedule-json.json', False, [], [], {}),
-        ('json', 'export-schedule-json.json-flags', False, ['flag1'], ['flag2'], {}),
-        ('json', 'export-schedule-json-flat.json', True, [], [], {}),
-        ('json', 'export-schedule-json-flat-flags.json', True, ['flag1'], ['flag2'], {}),
-        ('ics', 'export-schedule-ics.ics', False, [], [], {}),
-        ('html', 'export-schedule-html.html', False, [], [], {}),
+        ('msp', 'export-schedule-msp.xml', False, [], [], {}, None),
+        ('json', 'export-schedule-json.json', False, [], [], {}, None),
+        ('json', 'export-schedule-json-sort-name.json', False, [], [], {}, 'name'),
+        ('json', 'export-schedule-json-sort-date.json', False, [], [], {}, 'dStart'),
+        ('json', 'export-schedule-json.json-flags', False, ['flag1'], ['flag2'], {}, None),
+        ('json', 'export-schedule-json-flat.json', True, [], [], {}, None),
+        ('json', 'export-schedule-json-flat-sort-date.json', True, [], [], {}, 'dStart'),
+        ('json', 'export-schedule-json-flat-flags.json', True, ['flag1'], ['flag2'], {}, None),
+        ('ics', 'export-schedule-ics.ics', False, [], [], {}, None),
+        ('html', 'export-schedule-html.html', False, [], [], {}, None),
+        ('html', 'export-schedule-html-sort-date.html', False, [], [], {}, 'dStart'),
         ('html', 'export-schedule-html-options.html', False, [], [],
-         dict(html_title='Test title', html_table_header='<p>Test header</p>')),
+         dict(html_title='Test title', html_table_header='<p>Test header</p>'), None),
     ]
 
     smartsheet_columns_ids = ()
@@ -302,7 +306,7 @@ class TestHandlers(object):
 
     def test_export(self, handler_name, export_schedule_file, 
                     flat, flag_show, flag_hide, options,
-                    tmpdir):
+                    tmpdir, sort):
         full_export_schedule_file = os.path.join(self.basedir,
                                                  self.schedule_files_dir,
                                                  export_schedule_file)
@@ -314,6 +318,9 @@ class TestHandlers(object):
 
         if flat:
             conv.schedule.make_flat()
+
+        if sort:
+            conv.schedule.sort_tasks(sort)
 
         conv.schedule.filter_flags(flag_show, flag_hide)
 
