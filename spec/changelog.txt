@@ -1,3 +1,66 @@
+* Wed May 01 2019 Pavel Slama <pslama@redhat.com> 7.37-2.git20190501.193fbd0
+- use python2 explicitly for rpm build
+
+* Tue Apr 02 2019 Martin Pavlasek <mpavlase@redhat.com> 7.37-1.git20190501.fee06d5
+- remove extra spaces at EOL
+
+* Mon Apr 01 2019 Pavel Slama <pslama@redhat.com> 7.33-2.git20190501.a03cce0
+- only get schedule master dates if there are some tasks
+
+* Wed Feb 06 2019 Pavel Slama <pslama@redhat.com> 7.33-1.git20190501.273e292
+- look for ext attributes values only where applicable
+
+* Wed Jan 09 2019 Aleksandr Sterkhov <i@likeon.name> 7.31-1.git20190501.76711b3
+- Fixed schedule diff error that sometimes appeared when task name had less than 4 symbols
+
+* Thu Dec 20 2018 Aleksandr Sterkhov <i@likeon.name> 7.30-1.git20190501.3701b35
+- Start and finish dates replaced with ac dates Removed Schedule.phases
+
+* Thu Nov 22 2018 Aleksandr Sterkhov <i@likeon.name> 7.29-1.git20190501.2ccbd50
+- Quick fix for unicode decode error
+
+* Wed Nov 14 2018 Pavel Slama <pslama@redhat.com> 7.28-1.git20190501.58838a0
+- replace fixture by regular function that is used to produce params for other fixture
+
+* Tue Nov 13 2018 Ivo Silva <ivfernan@redhat.com> 7.16-3.git20190501.575a116
+- Correctly create subtree's report structure on ScheduleDiff
+
+* Tue Oct 23 2018 Martin Pavlasek <mpavlase@redhat.com> 7.16-2.git20190501.65e023a
+- Makefile: allow to specify target dir of SRPM
+
+* Tue Oct 09 2018 Martin Pavlasek <mpavlase@redhat.com> 7.16-1.git20190501.a0ed090
+- CVS storage handler: optionally update local checkout dir
+
+* Fri Oct 05 2018 Ivo Silva <ivfernan@redhat.com> 7.15-7.git20190501.202e83f
+- Regenerate data for diff tests
+
+* Fri Oct 05 2018 Ivo Silva <ivfernan@redhat.com> 7.15-6.git20190501.4f541b3
+- Set 'no change' state on tasks that only have different subtree
+
+* Wed Oct 03 2018 Ivo Silva <ivfernan@redhat.com> 7.15-5.git20190501.02ea343
+- Tune up diff algorithm (name distance, position preference)
+
+* Mon Oct 01 2018 Ivo Silva <ivfernan@redhat.com> 7.15-4.git20190501.11e2b02
+- Add a function which calculates the similarity score of two strings
+
+* Thu Sep 27 2018 Ivo Silva <ivfernan@redhat.com> 7.15-3.git20190501.7c01067
+- Adjust structure of the diff results
+
+* Tue Sep 25 2018 Pavel Slama <pslama@redhat.com> 7.15-2.git20190501.0b3369d
+- cvs: add local refresh blocking, allow local roots
+
+* Thu Aug 02 2018 Martin Pavlasek <mpavlase@redhat.com> 7.15-1.git20190501.6af1658
+- smartsheet: store only first successful parsed value, if the column is duplicated
+
+* Mon Jun 04 2018 Martin Pavlasek <mpavlase@redhat.com> 7.14-1.git20190501.23ace2f
+- update tests
+
+* Thu May 03 2018 Pavel Slama <pslama@redhat.com> 7.13-2.git20190501.012d26b
+- html styling adjustment
+
+* Tue Mar 13 2018 Pavel Slama <pslama@redhat.com> 7.13-1.git20190501.ee90032
+- add requirements files
+
 * Fri Mar 02 2018 Martin Pavlasek <mpavlase@redhat.com> 7.12-23.git20180302.8e8bed5
 - tjx2 handler: drop timezone awareness produced by TaskJuggler
 
