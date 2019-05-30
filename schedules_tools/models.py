@@ -84,7 +84,7 @@ class Task(object):
             return
 
         if key.lower() == ATTR_PREFIX_FLAG.lower():
-            val = val.lower()
+            val = str(val).lower()
             flags = re_flags_separator.split(val)
             for flag in flags:
                 flag = str(flag.strip())
