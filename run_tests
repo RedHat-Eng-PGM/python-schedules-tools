@@ -18,10 +18,14 @@ VERBOSE=false
 LASTFAILED=false
 REST="schedules_tools/tests"
 COVERAGE_OUTPUT="coverage_html"
+REGENERATE=false
 
 while [[ $# > 0 ]]; do
     key="$1"
     case $key in
+        -r|--regenerate)
+        REGENERATE=true
+        ;;
         -c|--coverage)
         COVERAGE=true
         ;;
@@ -45,11 +49,14 @@ if [ $HELP = true ]; then
     echo "Product Pages tests runner.
 ===========================
 -h|--help                       Display this help
+-r|--regenerate                 Regenerate diff tests
 -c|--coverage                   Produce coverage report
 -v|--verbose                    Use more verbose output
 -l|--last-failed                Run only tests, those failed last time"
     exit 0;
 fi
+
+export REGENERATE=$REGENERATE
 
 verbosity_str=""
 if [ "$VERBOSE" == "true" ]; then

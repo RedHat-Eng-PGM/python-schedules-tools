@@ -17,7 +17,7 @@
             "name": "Test project 10",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10",
+            "slug": "test",
             "start": "946681200",
             "type": "Task"
         },
@@ -30,7 +30,7 @@
             "name": "Test 1",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test",
+            "slug": "test.1",
             "start": "946681200",
             "type": "Task"
         },
@@ -44,7 +44,7 @@
             "name": "Development",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test.development",
+            "slug": "test.1.development",
             "start": "946681200",
             "type": "Task"
         },
@@ -57,7 +57,7 @@
             "name": "Dev",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test.dev",
+            "slug": "test.1.dev",
             "start": "948409200",
             "type": "Milestone"
         },
@@ -72,7 +72,7 @@
             "name": "Testing Phase",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test.testing",
+            "slug": "test.1.testing",
             "start": "948409200",
             "type": "Task"
         },
@@ -88,7 +88,7 @@
             "name": "Release",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test.release",
+            "slug": "test.1.release",
             "start": "948409200",
             "type": "Milestone"
         },
@@ -101,7 +101,7 @@
             "name": "Test 2",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test_2",
+            "slug": "test.2",
             "start": "949532400",
             "type": "Task"
         },
@@ -114,7 +114,7 @@
             "name": "First task",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test_2.first",
+            "slug": "test.2.first",
             "start": "949532400",
             "type": "Task"
         },
@@ -132,7 +132,7 @@
             "note": "test2 note",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test_2.another",
+            "slug": "test.2.another",
             "start": "949705200",
             "type": "Milestone"
         }

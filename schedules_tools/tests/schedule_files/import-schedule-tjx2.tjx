@@ -72,9 +72,9 @@
  <resourceList/>
  <accountList/>
  <taskList>
-  <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="Test_project_10" name="Test project 10" >
-   <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="Test_project_10.test" name="Test 1" >
-    <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="Test_project_10.test.development" name="Development" >
+  <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="test" name="Test project 10" >
+   <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="test.1" name="Test 1" >
+    <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="test.1.development" name="Development" >
      <customAttribute id="PTask" >
       <referenceAttribute url="https://github.com/1" label="https://github.com/1" />
      </customAttribute>
@@ -87,7 +87,7 @@
       <end humanReadable="2000-01-21" >948430800</end>
      </taskScenario>
     </task>
-    <task projectId="Test_project_10" milestone="1" asapScheduling="1" priority="500" id="Test_project_10.test.dev" name="Dev" >
+    <task projectId="Test_project_10" milestone="1" asapScheduling="1" priority="500" id="test.1.dev" name="Dev" >
      <depends task="Test_project_10.test.development" >Test_project_10.test.development</depends>
      <taskScenario status="7" complete="40" criticalpath="1" scheduled="1" scenarioId="actual" >
       <start humanReadable="2000-01-21" >948430800</start>
@@ -96,7 +96,7 @@
       <start humanReadable="2000-01-21" >948430800</start>
      </taskScenario>
     </task>
-    <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="Test_project_10.test.testing" name="Testing Phase" >
+    <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="test.1.testing" name="Testing Phase" >
      <depends task="Test_project_10.test.dev" >Test_project_10.test.dev</depends>
      <flag>flag1</flag>
      <taskScenario status="7" complete="90" criticalpath="1" scheduled="1" scenarioId="actual" >
@@ -108,7 +108,7 @@
       <end humanReadable="2000-02-03" >949554000</end>
      </taskScenario>
     </task>
-    <task projectId="Test_project_10" milestone="1" asapScheduling="1" priority="500" id="Test_project_10.test.release" name="Release" >
+    <task projectId="Test_project_10" milestone="1" asapScheduling="1" priority="500" id="test.1.release" name="Release" >
      <depends task="Test_project_10.test.dev" >Test_project_10.test.dev</depends>
      <flag>flag2</flag>
      <customAttribute id="PTask" >
@@ -130,8 +130,8 @@
      <end humanReadable="2000-02-03" >949554000</end>
     </taskScenario>
    </task>
-   <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="Test_project_10.test_2" name="Test 2" >
-    <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="Test_project_10.test_2.first" name="First task" >
+   <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="test.2" name="Test 2" >
+    <task projectId="Test_project_10" milestone="0" asapScheduling="1" priority="500" id="test.2.first" name="First task" >
      <depends task="Test_project_10.test" >Test_project_10.test</depends>
      <taskScenario status="6" complete="-1" criticalpath="1" scheduled="1" scenarioId="actual" >
       <start humanReadable="2000-02-03" >949554000</start>
@@ -142,7 +142,7 @@
       <end humanReadable="2000-02-05" >949726800</end>
      </taskScenario>
     </task>
-    <task projectId="Test_project_10" milestone="1" asapScheduling="1" priority="500" id="Test_project_10.test_2.another" name="Another task" >
+    <task projectId="Test_project_10" milestone="1" asapScheduling="1" priority="500" id="test.2.another" name="Another task" >
      <depends task="Test_project_10.test_2.first" >Test_project_10.test_2.first</depends>
      <flag>flag1</flag>
      <flag>flag2</flag>

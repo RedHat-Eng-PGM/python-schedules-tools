@@ -19,7 +19,7 @@
             "name": "Testing Phase",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10.test.testing",
+            "slug": "test.1.testing",
             "start": "948409200",
             "type": "Task"
         }

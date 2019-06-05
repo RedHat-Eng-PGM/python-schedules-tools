@@ -103,16 +103,30 @@ class TestScheduleDiff(object):
         name = os.path.splitext(diff_res[1])[0]
         ext = request.param
 
-        with open(os.path.join(self.OUTPUT_FILES_DIR, '.'.join([name, ext]))) as f:
+        mode = 'r'
+        if os.environ.get('REGENERATE', 'false') == 'true':
+            mode = 'w'
+
+        with open(os.path.join(self.OUTPUT_FILES_DIR, '.'.join([name, ext])),
+                  mode) as f:
             yield f
 
     @pytest.mark.parametrize('expected', ['txt'], indirect=True)
     def test_txt_output(self, diff_res, expected):
+        if os.environ.get('REGENERATE', 'false') == 'true':
+            expected.write(str(diff_res[0]))
+            return
+
         assert str(diff_res[0]) == expected.read()
 
     @pytest.mark.parametrize('expected', ['json'], indirect=True)
     def test_json_output(self, diff_res, expected):
-        diff_json = diff_res[0].dump_json()
+        diff_json = diff_res[0].dump_json(indent=4)
+
+        if os.environ.get('REGENERATE', 'false') == 'true':
+            expected.write(diff_json)
+            return
+
         assert jsondate.loads(diff_json) == jsondate.load(expected)
 
 

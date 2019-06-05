@@ -17,7 +17,7 @@
             "name": "Test project 10",
             "parentTask": "",
             "priority": 500,
-            "slug": "Test_project_10",
+            "slug": "test",
             "start": "946681200",
             "tasks": [
                 {
@@ -27,9 +27,9 @@
                     "flags": [],
                     "index": 2,
                     "name": "Test 1",
-                    "parentTask": "Test_project_10",
+                    "parentTask": "test",
                     "priority": 500,
-                    "slug": "Test_project_10.test",
+                    "slug": "test.1",
                     "start": "946681200",
                     "tasks": [
                         {
@@ -40,9 +40,9 @@
                             "index": 3,
                             "link": "https://github.com/1",
                             "name": "Development",
-                            "parentTask": "Test_project_10.test",
+                            "parentTask": "test.1",
                             "priority": 500,
-                            "slug": "Test_project_10.test.development",
+                            "slug": "test.1.development",
                             "start": "946681200",
                             "type": "Task"
                         },
@@ -53,9 +53,9 @@
                             "flags": [],
                             "index": 4,
                             "name": "Dev",
-                            "parentTask": "Test_project_10.test",
+                            "parentTask": "test.1",
                             "priority": 500,
-                            "slug": "Test_project_10.test.dev",
+                            "slug": "test.1.dev",
                             "start": "948409200",
                             "type": "Milestone"
                         },
@@ -68,9 +68,9 @@
                             ],
                             "index": 5,
                             "name": "Testing Phase",
-                            "parentTask": "Test_project_10.test",
+                            "parentTask": "test.1",
                             "priority": 500,
-                            "slug": "Test_project_10.test.testing",
+                            "slug": "test.1.testing",
                             "start": "948409200",
                             "type": "Task"
                         },
@@ -84,9 +84,9 @@
                             "index": 6,
                             "link": "https://github.com/2",
                             "name": "Release",
-                            "parentTask": "Test_project_10.test",
+                            "parentTask": "test.1",
                             "priority": 500,
-                            "slug": "Test_project_10.test.release",
+                            "slug": "test.1.release",
                             "start": "948409200",
                             "type": "Milestone"
                         }
@@ -100,9 +100,9 @@
                     "flags": [],
                     "index": 7,
                     "name": "Test 2",
-                    "parentTask": "Test_project_10",
+                    "parentTask": "test",
                     "priority": 500,
-                    "slug": "Test_project_10.test_2",
+                    "slug": "test.2",
                     "start": "949532400",
                     "tasks": [
                         {
@@ -112,9 +112,9 @@
                             "flags": [],
                             "index": 8,
                             "name": "First task",
-                            "parentTask": "Test_project_10.test_2",
+                            "parentTask": "test.2",
                             "priority": 500,
-                            "slug": "Test_project_10.test_2.first",
+                            "slug": "test.2.first",
                             "start": "949532400",
                             "type": "Task"
                         },
@@ -130,9 +130,9 @@
                             "index": 9,
                             "name": "Another task",
                             "note": "test2 note",
-                            "parentTask": "Test_project_10.test_2",
+                            "parentTask": "test.2",
                             "priority": 500,
-                            "slug": "Test_project_10.test_2.another",
+                            "slug": "test.2.another",
                             "start": "949705200",
                             "type": "Milestone"
                         }
