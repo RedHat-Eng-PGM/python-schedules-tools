@@ -123,7 +123,6 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
         if self.schedule.tasks:
             self.schedule.dStart = min_date
             self.schedule.dFinish = max_date
-            self.schedule.check_top_task()
             self.schedule.name = self.schedule.tasks[0].name
         else:
             # try to load dates from project level

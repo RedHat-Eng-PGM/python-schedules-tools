@@ -273,30 +273,29 @@ class Schedule(object):
 
                 # Add to result if not hidden and (has subtasks or fits show)
                 logmsg_fmt = 'REMOVE: {} {}'
-                if (not (set(task.flags) & set(hide)) 
-                    and (filtered_subtasks 
+                if (not (set(task.flags) & set(hide))
+                    and (filtered_subtasks
                          or (set(task.flags) & set(show))
                          or not show)):
                     task.tasks = filtered_subtasks
                     tasks_list.append(task)
-                    
+
                     logmsg_fmt = 'ADD: {} {}'
-                    
+
                     self.used_flags.update(task.flags)
-                
+
                 log.info(logmsg_fmt.format(task.name, task.flags))
-                
-            
+
             return tasks_list
-            
+
         if show is None:
             show = []
         if hide is None:
             hide = []
-            
+
         if show or hide:
             self.used_flags = set()
-            
+
             log.info('FLAG filter: SHOW {}   HIDE {}'.format(show, hide))
 
             self.tasks = filter_tasks(self.tasks)
@@ -305,6 +304,8 @@ class Schedule(object):
         self.tasks = sort_tasks(self.tasks, field)
 
     def check_top_task(self):
+        """ Add single root task if multiple """
+
         def _raise_index(task):
             task.index = int(task.index) + 1
             for t in task.tasks:
@@ -316,7 +317,7 @@ class Schedule(object):
         # need one top task
         top_task = Task(self)
         top_task.index = 1
-        #top_task.name = '%s %s' % (self.name, self.version)
+        # top_task.name = '%s %s' % (self.name, self.version)
         # removed version as per BZ#1396303 - see how that works
         top_task.name = self.name
         top_task.slug = self.slug
@@ -338,17 +339,15 @@ class Schedule(object):
             top_task.tasks.append(task)
 
         self.tasks = [top_task]
-        
-    
+
     def generate_slugs(self):
-        def gen_slugs_recurse(tasks, id_prefix):
+        def gen_slugs_recurse(tasks, id_prefix=''):
             for task in tasks:
                 task.slug = self.get_unique_id(task.name, id_prefix)
                 gen_slugs_recurse(task.tasks, task.slug)
-        
+
         self.id_reg = set()
-        gen_slugs_recurse(self.tasks, self.slug)
-    
+        gen_slugs_recurse(self.tasks)
 
     def print_tasks(self, tasks=None, level=0):
         if tasks is None:
@@ -480,23 +479,31 @@ class Schedule(object):
     def slugify_str(self, orig_str):
         return self.unique_id_re.sub('_', orig_str.lower())
 
-
     def get_unique_id(self, orig_str, id_prefix=''):
         '''Return unique id within schedule'''
-        
-        # shortcut - first orig_str gets prefix        
-        if not self.id_reg and id_prefix:
+
+        # shortcut - first orig_str gets prefix
+        if id_prefix and id_prefix not in self.id_reg:
             self.id_reg.add(id_prefix)
             return id_prefix
 
         pref = copy(id_prefix)
-        pref += '.'
+        if pref:
+            pref += '.'
 
         source = self.slugify_str(orig_str)
 
         found = False
         test_id = ''
-        for word in source.split('_'):
+        src_split = source.split('_')
+        len_src_split = len(src_split)
+
+        id_prefix_last_part = id_prefix.rsplit('.', 1)[-1]
+
+        for ix, word in enumerate(src_split, start=1):
+            if word == id_prefix_last_part and len_src_split > ix:
+                continue
+
             test_id = pref + word
             if test_id in self.id_reg:
                 pref = test_id + '_'

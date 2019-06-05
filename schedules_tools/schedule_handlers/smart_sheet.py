@@ -168,6 +168,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 self.schedule.unique_id_re.sub('_', self.schedule.name))
             self.schedule.mtime = self.get_handle_mtime()
             self.schedule.changelog = self.get_handle_changelog()
+            self.schedule.dStart = datetime.datetime.max
+            self.schedule.dFinish = datetime.datetime.min
 
             parents_stack = []
 
@@ -182,12 +184,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             for row in self.sheet.rows:
                 self._load_task(row, parents_stack)
 
-            self.schedule.check_top_task()
-
-            if self.schedule.tasks:
-                self.schedule.dStart = self.schedule.tasks[0].dStart
-                self.schedule.dFinish = self.schedule.tasks[0].dFinish
-            else:
+            if not self.schedule.tasks:
+                self.schedule.dStart = None
+                self.schedule.dFinish = None
                 log.warning('Empty schedule (no valid tasks) %s'
                             % self.get_info_dict(self.handle)['permalink'])
 
@@ -244,8 +243,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         # dates
         task.dStart = self._parse_date(cells[COLUMN_START])
-
         task.dFinish = self._parse_date(cells[COLUMN_FINISH])
+
+        self.schedule.dStart = min(self.schedule.dStart, task.dStart)
+        self.schedule.dFinish = max(self.schedule.dFinish, task.dFinish)
 
         if COLUMN_NOTE in cells and cells[COLUMN_NOTE]:
             task.note = unicode(cells[COLUMN_NOTE])

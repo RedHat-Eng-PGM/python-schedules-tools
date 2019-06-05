@@ -24,7 +24,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
     provide_export = True
 
     handle_deps_satisfied = True
-    
+
     default_export_ext = 'xml'
 
     # amount of working hours per day
@@ -52,31 +52,37 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             tmp_file = tempfile.mkstemp()[1]
             with open(tmp_file, 'wt') as hTmp_file:
                 for line in open(self.handle):
-                    hTmp_file.write(line.replace(' xmlns="http://schemas.microsoft.com/project"', ''))
-    
+                    hTmp_file.write(
+                        line.replace(
+                            ' xmlns="http://schemas.microsoft.com/project"',
+                            ''))
+
             start_level = 1
             tree = etree.parse(tmp_file)
-    
-            eTask_list = tree.xpath('Tasks/Task[OutlineLevel >= %s]' % start_level)
+
+            eTask_list = tree.xpath('Tasks/Task[OutlineLevel >= %s]' %
+                                    start_level)
             self.schedule.name = tree.xpath('Name|Title')[0].text.strip()
-            self.schedule.slug = self.schedule.unique_id_re.sub('_', self.schedule.name)
-    
+            self.schedule.slug = self.schedule.unique_id_re.sub(
+                '_', self.schedule.name)
+
             # extended attributes
             for eExtAttr in tree.xpath('ExtendedAttributes/ExtendedAttribute'):
                 fieldID = int(eExtAttr.xpath('FieldID')[0].text)
                 fieldName = eExtAttr.xpath('FieldName')[0].text
                 self.schedule.ext_attr[fieldName] = fieldID
-    
+
             if self.schedule.ext_attr:  # choose flags field
                 for ff_name in MSP_FLAGS_ATTRS:
                     if ff_name in self.schedule.ext_attr:
-                        self.schedule.flags_attr_id = self.schedule.ext_attr[ff_name]
+                        self.schedule.flags_attr_id = self.schedule.ext_attr[
+                                                                    ff_name]
                         break
-    
-            self.schedule.tasks = self._load_tasks_level(start_level, eTask_list)
-    
+
+            self.schedule.tasks = self._load_tasks_level(
+                start_level, eTask_list)
+
             os.unlink(tmp_file)
-            self.schedule.check_top_task()
             self.schedule.generate_slugs()
             return self.schedule
         except etree.XMLSyntaxError as e:
@@ -194,12 +200,12 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             eUnits.text = '1'
 
         et = etree.ElementTree(eProject)
-        
+
         if out_file:
             et.write(out_file, pretty_print=True, encoding="utf-8",
                      xml_declaration=True)
-        
-        return str(et)        
+
+        return str(et)
 
     # Schedule
     def export_msp_tasks(self, tasks, eParent, outline_prefix):
@@ -238,7 +244,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             task_level = int(eTask.xpath('OutlineLevel')[0].text)
 
             if task_level > level:
-                # return tasks may be empty since there could be no importable tasks yet
+                # return tasks may be empty
+                # since there could be no importable tasks yet
                 if len(return_tasks):
                     return_tasks[-1].tasks = self._load_tasks_level(
                         task_level, eTask_list)
@@ -251,18 +258,20 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
 
             # process task
             task = models.Task(self.schedule, level=level)
-            if self.task_load_msp_node(task, eTask):                
+            if self.task_load_msp_node(task, eTask):
                 # update schedule start/end
                 if self.schedule.dStart:
-                    self.schedule.dStart = min(self.schedule.dStart, task.dStart)
+                    self.schedule.dStart = min(self.schedule.dStart,
+                                               task.dStart)
                 else:
                     self.schedule.dStart = task.dStart
 
                 if self.schedule.dFinish:
-                    self.schedule.dFinish = max(self.schedule.dFinish, task.dFinish)
+                    self.schedule.dFinish = max(self.schedule.dFinish,
+                                                task.dFinish)
                 else:
                     self.schedule.dFinish = task.dFinish
-                    
+
                 return_tasks.append(task)
             # remove task from list
             eTask_list.pop(0)
@@ -325,11 +334,13 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if flag_ext_attr:
             flags_value = flag_ext_attr[0].xpath('Value')[0].text
             if flags_value:
-                task.flags = [f for f in flags_value.strip(' ,\n').split(',') if ' ' not in f]
+                task.flags = [f for f in flags_value.strip(' ,\n').split(',')
+                              if ' ' not in f]
                 task._schedule.used_flags |= set(task.flags)
 
         # workaround for SmartSheet exports - load flags, links
-        # @param value: XPath element instance (/Project/Tasks/Task/ExtendedAttribute/Value)
+        # @param value: XPath element instance
+        #   (/Project/Tasks/Task/ExtendedAttribute/Value)
         ext_attr_elements = eTask.xpath('ExtendedAttribute/Value')
         for ext_attr in ext_attr_elements:
             task.parse_extended_attr(ext_attr.text)
@@ -357,7 +368,7 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         duration = task.dFinish - task.dStart
         # Workaround for SmartSheet import:
         # They consider duration always +1 greater, than is difference between
-        # finish and start date in whole days, Finish element is ignored by them
+        # finish and start date in whole days, Finish elem is ignored by them
         duration += timedelta(days=1)
         eDuration = etree.SubElement(eTask, 'Duration')
         h, rem = divmod(duration.seconds, 3600)
@@ -375,7 +386,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if flags_str:
             ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
             value_element = etree.SubElement(ext_attr_element, 'Value')
-            value_element.text = '{}: {}'.format(models.ATTR_PREFIX_FLAG, flags_str)
+            value_element.text = '{}: {}'.format(
+                models.ATTR_PREFIX_FLAG, flags_str)
 
             # this value is not used, but required by SmartSheets import
             fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')
@@ -383,7 +395,8 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
         if task.link:
             ext_attr_element = etree.SubElement(eTask, 'ExtendedAttribute')
             value_element = etree.SubElement(ext_attr_element, 'Value')
-            value_element.text = '{}: {}'.format(models.ATTR_PREFIX_LINK, task.link)
+            value_element.text = '{}: {}'.format(
+                models.ATTR_PREFIX_LINK, task.link)
 
             # this value is not used, but required by SmartSheets import
             fieldid_element = etree.SubElement(ext_attr_element, 'FieldID')
