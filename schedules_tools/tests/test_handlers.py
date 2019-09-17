@@ -171,6 +171,8 @@ class TestHandlers(object):
         client = Smartsheet(converter_options['smartsheet_token'])
         sheet = client.Sheets.get_sheet(sheet_id, page_size=None, page=None)
 
+        original_sheet_version = sheet.version
+
         start_column_id = None
 
         for column in sheet.columns:
@@ -213,6 +215,10 @@ class TestHandlers(object):
         if resp.message != 'SUCCESS':
             msg = 'Inserting duplicated cells failed: {}'.format(resp)
             raise SmartSheetExportException(msg, source=sheet_id)
+
+        # refresh sheet object
+        sheet = client.Sheets.get_sheet(sheet_id, page_size=None, page=None)
+        assert sheet.version > original_sheet_version
 
     def import_teardown_handle_smartsheet(self, handle, converter_options):
         client = Smartsheet(converter_options['smartsheet_token'])
