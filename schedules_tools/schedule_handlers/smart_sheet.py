@@ -1,5 +1,6 @@
 import datetime
 import logging
+import numbers
 import re
 import traceback
 
@@ -260,7 +261,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             if match:
                 task.milestone = int(match[0]) == 0
 
-        if COLUMN_P_COMPLETE in cells and cells[COLUMN_P_COMPLETE] is not None:
+        if (COLUMN_P_COMPLETE in cells and cells[COLUMN_P_COMPLETE] is not None
+                and isinstance(cells[COLUMN_P_COMPLETE], numbers.Number)):
             task.p_complete = round(cells[COLUMN_P_COMPLETE] * 100, 1)
 
         if COLUMN_FLAGS in cells and cells[COLUMN_FLAGS]:
