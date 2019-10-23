@@ -25,11 +25,11 @@ help:
 
 
 srpm: prepare_source
-	rpmbuild --define "dist .el7eso" ${SRPM_OUTDIR_PARAM} -bs dist/*.spec
+	rpmbuild --define "dist .el7eng" ${SRPM_OUTDIR_PARAM} -bs dist/*.spec
 
 
 rpm: prepare_source
-	rpmbuild --define "dist .el7eso" -bb dist/*.spec
+	rpmbuild --define "dist .el7eng" -bb dist/*.spec
 
 
 pypi: source
