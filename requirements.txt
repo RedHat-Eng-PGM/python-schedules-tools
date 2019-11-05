@@ -1,3 +1,4 @@
+icalendar
 lxml
 redis
 pytz
