@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 # General exception type for subclassing
 class SchedulesToolsException(Exception):
     source = None

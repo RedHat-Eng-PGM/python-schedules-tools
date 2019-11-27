@@ -5,7 +5,10 @@ import re
 import logging
 
 from copy import copy
-from .utils import sort_tasks
+
+from schedules_tools import SchedulesToolsException
+
+from .utils import sort_tasks, slugify
 
 log = logging.getLogger(__name__)
 re_flags_separator = re.compile('[, ]+')
@@ -13,6 +16,8 @@ re_flags_separator = re.compile('[, ]+')
 ATTR_PREFIX_FLAG = 'Flags'
 ATTR_PREFIX_LINK = 'Link'
 ATTR_PREFIX_NOTE = 'Note'
+
+TASK_SLUG_NUMERATION_LIMIT = 9999
 
 
 class Task(object):
@@ -188,6 +193,13 @@ class Task(object):
 
         return self._subtree_hash
 
+    def get_slug_key(self, prefix=None):
+        slug_key = slugify(self.name)
+
+        if prefix is not None:
+            return '.'.join((prefix, slug_key))
+        return slug_key
+
 
 class Schedule(object):
     slug = ''
@@ -219,6 +231,7 @@ class Schedule(object):
         self.unique_id_re = re.compile('[\W_]+')
         self.errors_import = []
         self.mtime = None
+        self.tasks_slugs = None
 
 
     def make_flat(self):
@@ -341,13 +354,28 @@ class Schedule(object):
         self.tasks = [top_task]
 
     def generate_slugs(self):
-        def gen_slugs_recurse(tasks, id_prefix=''):
+        def gen_slugs_recursive(tasks, slug_prefix=None):
             for task in tasks:
-                task.slug = self.get_unique_id(task.name, id_prefix)
-                gen_slugs_recurse(task.tasks, task.slug)
+                task_slug = task.get_slug_key(slug_prefix)
 
-        self.id_reg = set()
-        gen_slugs_recurse(self.tasks)
+                if task_slug in self.tasks_slugs:
+                    for i in xrange(2, TASK_SLUG_NUMERATION_LIMIT + 1):
+                        task_slug_numerated = '%s_%d' % (task_slug, i)
+                        if task_slug_numerated not in self.task_slugs:
+                            final_task_slug = task_slug_numerated
+                            break
+                        elif i == TASK_SLUG_NUMERATION_LIMIT:
+                            raise SchedulesToolsException('Task slug generation error: '
+                                                          'reached numeration limit')
+                else:
+                    final_task_slug = task_slug
+
+                task.slug = final_task_slug
+                self.tasks_slugs.add(task.slug)
+                gen_slugs_recursive(task.tasks, task.slug)
+
+        self.tasks_slugs = set()
+        gen_slugs_recursive(self.tasks)
 
     def print_tasks(self, tasks=None, level=0):
         if tasks is None:
@@ -478,52 +506,6 @@ class Schedule(object):
 
     def slugify_str(self, orig_str):
         return self.unique_id_re.sub('_', orig_str.lower())
-
-    def get_unique_id(self, orig_str, id_prefix=''):
-        '''Return unique id within schedule'''
-
-        # shortcut - first orig_str gets prefix
-        if id_prefix and id_prefix not in self.id_reg:
-            self.id_reg.add(id_prefix)
-            return id_prefix
-
-        pref = copy(id_prefix)
-        if pref:
-            pref += '.'
-
-        source = self.slugify_str(orig_str)
-
-        found = False
-        test_id = ''
-        src_split = source.split('_')
-        len_src_split = len(src_split)
-
-        id_prefix_last_part = id_prefix.rsplit('.', 1)[-1]
-
-        for ix, word in enumerate(src_split, start=1):
-            if word == id_prefix_last_part and len_src_split > ix:
-                continue
-
-            test_id = pref + word
-            if test_id in self.id_reg:
-                pref = test_id + '_'
-            else:
-                found = True
-                self.id_reg.add(test_id)
-                break
-
-        if not found:
-            # duplicate orig_str names - add numbering
-            n = 2
-            while '%s_%s' % (test_id, n) in self.id_reg:
-                n += 1
-
-            test_id = '%s_%s' % (test_id, n)
-            self.id_reg.add(test_id)
-
-            log.info('Duplicate Names: %s, adding: %s' % (source, test_id))
-
-        return test_id
 
     def dump_as_dict(self):
         schedule = copy(vars(self))
