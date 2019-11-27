@@ -194,6 +194,10 @@ class Task(object):
         return self._subtree_hash
 
     def get_slug_key(self, prefix=None):
+        """
+        Generates slug key only for the task itself.
+        Doesn't include parent tasks slugs i.e. slug key is not a full slug path to the task.
+        """
         slug_key = slugify(self.name)
 
         if prefix is not None:
