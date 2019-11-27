@@ -1,5 +1,8 @@
+import re
 from copy import copy
 from operator import attrgetter
+
+TASK_SLUG_REGEX = re.compile('[\W_]+')
 
 
 def sort_tasks(tasks, field):
@@ -19,3 +22,7 @@ def _sort_tasks(tasks, key):
         task.tasks = _sort_tasks(copy(task.tasks), key)
 
     return sorted_tasks
+
+
+def slugify(name):
+    return TASK_SLUG_REGEX.sub('_', name.lower())

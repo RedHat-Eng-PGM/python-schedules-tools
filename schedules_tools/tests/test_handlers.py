@@ -75,7 +75,7 @@ class TestHandlers(object):
     def _clean_interm_struct(self, input_dict):
         """Removes keys that is not needed for comparison,
         unify time-part of dates"""
-        keys_to_remove = ['unique_id_re', 'id_reg', 'ext_attr', 'flags_attr_id',
+        keys_to_remove = ['unique_id_re', 'tasks_slugs', 'ext_attr', 'flags_attr_id',
                           'resources', 'mtime']
 
         # remove schedule attrs

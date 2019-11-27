@@ -13,7 +13,7 @@
             "priority": 500, 
             "flags": [], 
             "milestone": false, 
-            "slug": "root", 
+            "slug": "root_task_1", 
             "name": "Root task 1"
         }, 
         "item_state": "_changed_", 
@@ -29,7 +29,7 @@
                     "priority": 500, 
                     "flags": [], 
                     "milestone": false, 
-                    "slug": "root.subtask", 
+                    "slug": "root_task_1.subtask_1_1", 
                     "name": "subtask 1.1"
                 }, 
                 "subtree": [
@@ -48,7 +48,7 @@
                                 "qe"
                             ], 
                             "milestone": false, 
-                            "slug": "root.subtask.1", 
+                            "slug": "root_task_1.subtask_1_1.subtask_1_1_1", 
                             "name": "subtask 1.1.1"
                         }, 
                         "subtree": [], 
@@ -69,7 +69,7 @@
                             ], 
                             "milestone": false, 
                             "link": "http://www.google.com", 
-                            "slug": "root.subtask.1_1", 
+                            "slug": "root_task_1.subtask_1_1.subtask_1_1_2", 
                             "name": "subtask 1.1.2"
                         }, 
                         "subtree": [], 
@@ -89,7 +89,7 @@
                     "priority": 500, 
                     "flags": [], 
                     "milestone": false, 
-                    "slug": "root.subtask_1", 
+                    "slug": "root_task_1.subtask_1_2", 
                     "name": "subtask 1.2"
                 }, 
                 "subtree": [
@@ -104,7 +104,7 @@
                             "priority": 500, 
                             "flags": [], 
                             "milestone": false, 
-                            "slug": "root.subtask_1.subtask", 
+                            "slug": "root_task_1.subtask_1_2.subtask_1_2_1", 
                             "name": "subtask 1.2.1"
                         }, 
                         "subtree": [], 
@@ -121,7 +121,7 @@
                             "priority": 500, 
                             "flags": [], 
                             "milestone": false, 
-                            "slug": "root.subtask_1.subtask_1", 
+                            "slug": "root_task_1.subtask_1_2.subtask_1_2_2", 
                             "name": "subtask 1.2.2"
                         }, 
                         "subtree": [], 
@@ -141,7 +141,7 @@
                     "priority": 500, 
                     "flags": [], 
                     "milestone": false, 
-                    "slug": "root.launch", 
+                    "slug": "root_task_1.launch_phase", 
                     "name": "Launch phase"
                 }, 
                 "subtree": [], 
@@ -160,7 +160,7 @@
                         "qe"
                     ], 
                     "milestone": true, 
-                    "slug": "root.ga", 
+                    "slug": "root_task_1.ga", 
                     "name": "GA"
                 }, 
                 "subtree": [], 
@@ -177,7 +177,7 @@
                     "priority": 500, 
                     "flags": [], 
                     "milestone": false, 
-                    "slug": "root.after", 
+                    "slug": "root_task_1.after_ga", 
                     "name": "After GA"
                 }, 
                 "item_state": "_added_", 
@@ -194,7 +194,7 @@
             "priority": 500, 
             "flags": [], 
             "milestone": false, 
-            "slug": "root", 
+            "slug": "root_task_1", 
             "name": "Root task 1"
         }
     }

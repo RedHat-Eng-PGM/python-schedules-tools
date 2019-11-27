@@ -17,7 +17,7 @@
             "name": "Test project 10",
             "parentTask": "",
             "priority": 500,
-            "slug": "test",
+            "slug": "test_project_10",
             "start": "946681200",
             "tasks": [
                 {
@@ -27,9 +27,9 @@
                     "flags": [],
                     "index": 2,
                     "name": "Test 1",
-                    "parentTask": "test",
+                    "parentTask": "test_project_10",
                     "priority": 500,
-                    "slug": "test.1",
+                    "slug": "test_project_10.test_1",
                     "start": "946681200",
                     "tasks": [
                         {
@@ -41,9 +41,9 @@
                             ],
                             "index": 5,
                             "name": "Testing Phase",
-                            "parentTask": "test.1",
+                            "parentTask": "test_project_10.test_1",
                             "priority": 500,
-                            "slug": "test.1.testing",
+                            "slug": "test_project_10.test_1.testing_phase",
                             "start": "948409200",
                             "type": "Task"
                         }
