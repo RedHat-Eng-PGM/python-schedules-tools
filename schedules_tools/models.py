@@ -18,6 +18,8 @@ ATTR_PREFIX_LINK = 'Link'
 ATTR_PREFIX_NOTE = 'Note'
 
 TASK_SLUG_NUMERATION_LIMIT = 9999
+TASK_SLUG_CHAR_LIMIT = 255
+TASK_SLUG_TRUNCATION_LIMIT = TASK_SLUG_CHAR_LIMIT - (1 + len(str(TASK_SLUG_NUMERATION_LIMIT)))
 
 
 class Task(object):
@@ -361,6 +363,9 @@ class Schedule(object):
         def gen_slugs_recursive(tasks, slug_prefix=None):
             for task in tasks:
                 task_slug = task.get_slug_key(slug_prefix)
+
+                if task_slug > TASK_SLUG_TRUNCATION_LIMIT:
+                    task_slug = task_slug[:TASK_SLUG_TRUNCATION_LIMIT]
 
                 if task_slug in self.tasks_slugs:
                     for i in xrange(2, TASK_SLUG_NUMERATION_LIMIT + 1):
