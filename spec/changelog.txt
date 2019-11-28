@@ -1,3 +1,45 @@
+* Wed Nov 27 2019 Pavel Slama <pslama@redhat.com> 7.52-1.git20191127.da3fe63
+- updated ics test file (icalendar 4.0.3)
+
+* Wed Nov 27 2019 Aleksandr Sterkhov <i@likeon.name> 7.50-2.git20191127.346386a
+- Generate task slug from full names
+
+* Tue Nov 05 2019 Pavel Slama <pslama@redhat.com> 7.50-1.git20191127.7321280
+- update requirements - add icalendar
+
+* Tue Nov 05 2019 Ben Cotton <bcotton@funnelfiasco.com> 7.49-2.git20191127.70bb471
+- Add icalendar dependency
+
+* Wed Oct 23 2019 Pavel Slama <pslama@redhat.com> 7.49-1.git20191127.42ecd45
+- new distribution flag
+
+* Wed Oct 23 2019 Aleksandr Sterkhov <i@likeon.name> 7.42-3.git20191127.dbadc2d
+- Added test to check that smartsheet sheet version changes when schedule been modified
+
+* Fri Sep 27 2019 Pavel Slama <pslama@redhat.com> 7.42-2.git20191127.57e6898
+- check that complete percentage value is number
+
+* Wed Jun 05 2019 Pavel Slama <pslama@redhat.com> 7.42-1.git20191127.1da7a26
+- add test data regenerate to schedule diff, regenerate actual data
+
+* Wed Jun 05 2019 Pavel Slama <pslama@redhat.com> 7.41-2.git20191127.3065e85
+- better task slug generator, do not require one root task during import
+
+* Thu May 30 2019 Pavel Slama <pslama@redhat.com> 7.41-1.git20191127.3e9b029
+- make sure ext attr value is string before lowering
+
+* Tue May 28 2019 Pavel Slama <pslama@redhat.com> 7.37-5.git20191127.956f0b9
+- resolve merge
+
+* Thu May 16 2019 Aleksandr Sterkhov <i@likeon.name> 7.37-2.git20191127.01f7ca4
+- Added an option to sort tasks by date or name
+
+* Thu May 09 2019 Pavel Slama <pslama@redhat.com> 7.37-4.git20191127.4192a47
+- PEP8 compliance
+
+* Wed May 01 2019 Pavel Slama <pslama@redhat.com> 7.37-3.git20191127.c4956a9
+- use python2 explicitly
+
 * Wed May 01 2019 Pavel Slama <pslama@redhat.com> 7.37-2.git20190501.193fbd0
 - use python2 explicitly for rpm build
 
