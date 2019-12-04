@@ -370,7 +370,7 @@ class Schedule(object):
                 if task_slug in self.tasks_slugs:
                     for i in xrange(2, TASK_SLUG_NUMERATION_LIMIT + 1):
                         task_slug_numerated = '%s_%d' % (task_slug, i)
-                        if task_slug_numerated not in self.task_slugs:
+                        if task_slug_numerated not in self.tasks_slugs:
                             final_task_slug = task_slug_numerated
                             break
                         elif i == TASK_SLUG_NUMERATION_LIMIT:
