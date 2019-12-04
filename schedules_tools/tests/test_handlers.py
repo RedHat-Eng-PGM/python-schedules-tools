@@ -25,7 +25,7 @@ def pytest_generate_tests(metafunc):
     source_function = metafunc.function.__name__
 
     if source_function == 'test_import':
-        argnames = ['handler_name', 'import_schedule_file']
+        argnames = ['handler_name', 'import_schedule_file', 'interm_reference_file_name']
         argvalues = metafunc.cls.scenarios_import_combinations
         metafunc.parametrize(argnames, argvalues)
     elif source_function == 'test_export':
@@ -43,10 +43,12 @@ class TestHandlers(object):
     test_import_start_timestamp = None
 
     scenarios_import_combinations = [
-        ('msp', 'import-schedule-msp.xml'),
-        ('smartsheet', ''),
-        ('json', 'import-schedule-json.json'),
-        ('tjx2', 'import-schedule-tjx2.tjx'),
+        ('msp', 'import-schedule-msp.xml', None),
+        ('msp', 'import-schedule-msp-duplicated-names.xml',
+         'intermediary-struct-reference-duplicated-names.json'),
+        ('smartsheet', '', None),
+        ('json', 'import-schedule-json.json', None),
+        ('tjx2', 'import-schedule-tjx2.tjx', None),
     ]
     scenarios_export_combinations = [
         ('msp', 'export-schedule-msp.xml', False, [], [], {}, None),
@@ -236,7 +238,7 @@ class TestHandlers(object):
         assert self.test_import_start_timestamp < record['date']
         assert record['date'] < date_now
 
-    def test_import(self, handler_name, import_schedule_file):
+    def test_import(self, handler_name, import_schedule_file, interm_reference_file_name):
         """
         Generic pytest fixture that provides arguments for import_schedule meth.
         If there is specified 'import_schedule_file' value of argument,
@@ -273,7 +275,7 @@ class TestHandlers(object):
             self._clean_interm_struct(imported_schedule_dict)
 
             interm_reference_file = os.path.join(
-                self.basedir, self.intermediary_reference_file)
+                self.basedir, interm_reference_file_name or self.intermediary_reference_file)
             regenerate = os.environ.get('REGENERATE', False) == 'true'
             if regenerate:
                 log.info('test_import: Regenerating interm. reference file'
