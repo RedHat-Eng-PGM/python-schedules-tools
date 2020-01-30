@@ -137,4 +137,8 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
                 self.schedule.dFinish = end
         self.schedule.name = self.schedule.name.strip()
 
+        if self.options.get('always_regenerate_slugs', False):
+            # regenerate slugs based on name
+            self.schedule.generate_slugs()
+
         return self.schedule
