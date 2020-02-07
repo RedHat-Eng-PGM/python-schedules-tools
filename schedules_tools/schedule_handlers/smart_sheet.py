@@ -45,7 +45,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     _client_instance = None
     _sheet_instance = None
     _re_number = re.compile('[0-9]+')
-    _re_url = re.compile('^https?://.*?smartsheet.com')
+    _re_url = re.compile(r'^(https?://.*?smartsheet.com[^?]+)')
     columns_mapping_name = {
         'Task': COLUMN_TASK_NAME,
         'Task Name': COLUMN_TASK_NAME,
@@ -93,14 +93,18 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             except smartsheet.exceptions.ApiError as e:
                 log.warn(e)
 
-        elif ScheduleHandler_smartsheet.value_is_ss_permalink(value):
-            sheets = self.client.Sheets.list_sheets(include_all=True)
+        else:
+            match = ScheduleHandler_smartsheet.value_is_ss_permalink(value)
+            if match:
+                value = match.groups()[0]
 
-            for sheet in sheets.data:
-                if sheet.permalink == value:
-                    info_dict = info_dict = dict(id=int(sheet.id),
-                                                 permalink=value)
-                    break
+                sheets = self.client.Sheets.list_sheets(include_all=True)
+
+                for sheet in sheets.data:
+                    if sheet.permalink == value:
+                        info_dict = info_dict = dict(id=int(sheet.id),
+                                                     permalink=value)
+                        break
 
         return info_dict
 
@@ -115,9 +119,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     @classmethod
     def value_is_ss_permalink(cls, value):
-        # https://app.smartsheet.com/b/home?lx=0HHzeGnfHik-N13ZT8pU7g
-        if cls._re_url.match(str(value)):
-            return True
+        return cls._re_url.match(str(value))
 
     @classmethod
     def is_valid_source(cls, handle=None):
