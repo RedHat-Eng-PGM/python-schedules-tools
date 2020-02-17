@@ -28,7 +28,6 @@ BuildRequires: python-devel
 
 Requires: python-lxml
 Requires: python2-icalendar
-Requires: python2-backoff>=1.10.0
 
 
 %description

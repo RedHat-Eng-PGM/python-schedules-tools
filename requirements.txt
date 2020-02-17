@@ -1,4 +1,3 @@
-backoff
 icalendar
 lxml
 redis
