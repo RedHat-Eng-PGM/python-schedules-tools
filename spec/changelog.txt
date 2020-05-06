@@ -1,3 +1,9 @@
+* Wed May 06 2020 Pavel Slama <pslama@redhat.com> 7.57-3.git20200506.0b5eeee
+- correct rhel opnly build requires
+
+* Wed May 06 2020 Pavel Slama <pslama@redhat.com> 7.57-2.git20200506.450b176
+- update spec and code to build for python3
+
 * Mon Feb 17 2020 Pavel Slama <pslama@redhat.com> 7.57-1.git20200217.5d045dc
 - remove backoff as smartsheet sdk already does that
 

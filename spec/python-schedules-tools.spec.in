@@ -1,4 +1,6 @@
 %global srcname schedules-tools
+%define with_py2 0%{?fedora} <= 31 || 0%{?rhel}
+%define with_py2_prefix 0%{?rhel} >= 8 || 0%{?fedora}
 
 %global log_dir /var/log/%{name}
 %global log_files debug.log
@@ -16,23 +18,16 @@ Url:            https://github.com/RedHat-Eng-PGM/schedules-tools
 Source0:        %{srcname}-%{version}.%{release_number}.tar.gz
 BuildArch:      noarch
 
+
+BuildRequires: python2-devel
+BuildRequires: python2-setuptools
+
+BuildRequires: python3-devel
+BuildRequires: python3-setuptools
+
+
 %description
 Schedule tools to handle various formats (TaskJuggler, MS Project)
-
-%if 0%{?rhel} <= 7 && 0%{?fedora} == 0
-
-BuildRequires: python-setuptools
-BuildRequires: python-devel
-
-%else
-
-BuildRequires: python2-setuptools
-BuildRequires: python2-devel
-
-BuildRequires: python3-setuptools
-BuildRequires: python3-devel
-
-%endif
 
 
 
@@ -41,13 +36,17 @@ Summary:        %{summary}
 
 Requires: python2-icalendar
 
-%if 0%{?rhel} <= 7 && 0%{?fedora} == 0
-Requires: python-lxml
-%else
+%if 0%{?rhel} >= 8 || 0%{?fedora}
 Requires: python2-lxml
+%else
+Requires: python-lxml
 %endif
 
 %{?python_provide:%python_provide python2-%{srcname}}
+
+
+%description -n python2-%{srcname}
+Schedule tools to handle various formats (TaskJuggler, MS Project)
 
 
 
@@ -60,10 +59,6 @@ Requires: python3-lxml
 %{?python_provide:%python_provide python3-%{srcname}}
 
 
-
-%description -n python2-%{srcname}
-Schedule tools to handle various formats (TaskJuggler, MS Project)
-
 %description -n python3-%{srcname}
 Schedule tools to handle various formats (TaskJuggler, MS Project)
 
@@ -75,7 +70,8 @@ Schedule tools to handle various formats (TaskJuggler, MS Project)
 
 
 %build
-%if 0%{?fedora} <= 31
+
+%if %{with_py2}
 %py2_build
 %endif
 
@@ -84,7 +80,8 @@ Schedule tools to handle various formats (TaskJuggler, MS Project)
 
 
 %install
-%if 0%{?fedora} <= 31
+
+%if %{with_py2}
 %py2_install
 %endif
 
@@ -98,6 +95,7 @@ done
 
 
 
+%if %{with_py2}
 %files -n python2-%{srcname}
 %defattr(644,root,root,755)
 %{python2_sitelib}/*
@@ -108,7 +106,7 @@ done
 %defattr(664,root,apache,755)
 %dir %log_dir
 %ghost %config %log_dir/*
-
+%endif
 
 
 %files -n python3-%{srcname}
