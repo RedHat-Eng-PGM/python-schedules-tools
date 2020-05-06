@@ -1,3 +1,27 @@
+* Mon Feb 17 2020 Pavel Slama <pslama@redhat.com> 7.57-1.git20200217.5d045dc
+- remove backoff as smartsheet sdk already does that
+
+* Mon Feb 17 2020 Pavel Slama <pslama@redhat.com> 7.56-4.git20200217.1d1635d
+- actual required version
+
+* Wed Feb 12 2020 Pavel Slama <pslama@redhat.com> 7.56-3.git20200217.dbec8d0
+- add python-backoff dep
+
+* Fri Feb 07 2020 Pavel Slama <pslama@redhat.com> 7.56-2.git20200217.a779863
+- strip smartsheet permalinks of querystring
+
+* Thu Jan 30 2020 Pavel Slama <pslama@redhat.com> 7.56-1.git20200217.f64faee
+- optionally regenerate slugs for tjx imports
+
+* Wed Dec 04 2019 Aleksandr Sterkhov <i@likeon.name> 7.52-3.git20200217.fea47c4
+- Fixed tasks slugs numeration
+
+* Thu Nov 28 2019 Aleksandr Sterkhov <i@likeon.name> 7.52-2.git20200217.3586aaa
+- Task slug generator: truncating to 255 characters
+
+* Thu Nov 28 2019 Pavel Slama <pslama@redhat.com> 7.52-1.git20200217.1e83243
+- update changelog
+
 * Wed Nov 27 2019 Pavel Slama <pslama@redhat.com> 7.52-1.git20191127.da3fe63
 - updated ics test file (icalendar 4.0.3)
 

@@ -1,38 +1,71 @@
-%define py_version %(python2 -c "import sys; v=sys.version_info[:2]; print '%%d.%%d'%%v" 2>/dev/null || echo PYTHON-NOT-FOUND)
-%define py_prefix  %(python2 -c "import sys; print sys.prefix" 2>/dev/null || echo PYTHON-NOT-FOUND)
-%define py_libdir  %{py_prefix}/lib/python%{py_version}
-%define py_incdir  %{py_prefix}/include/python%{py_version}
-%define py_sitedir %{py_libdir}/site-packages
+%global srcname schedules-tools
 
 %global log_dir /var/log/%{name}
 %global log_files debug.log
-
-%global srcname schedules-tools
 
 
 Name:           python-%{srcname}
 Version:        %{version}
 Release:        %{release_number}.%{checkout}%{?dist}
 Epoch:          1
-License:        BSD
 Summary:        Schedule tools to handle various formats (TaskJuggler, MS Project)
+
+License:        BSD
 Group:          Applications/Engineering
 Url:            https://github.com/RedHat-Eng-PGM/schedules-tools
-Source:         %{srcname}-%{version}.%{release_number}.tar.gz
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source0:        %{srcname}-%{version}.%{release_number}.tar.gz
 BuildArch:      noarch
+
+%description
+Schedule tools to handle various formats (TaskJuggler, MS Project)
+
+%if 0%{?rhel} <= 7
 
 BuildRequires: python-setuptools
 BuildRequires: python-devel
 
+%else
 
-Requires: python-lxml
+BuildRequires: python2-setuptools
+BuildRequires: python2-devel
+
+BuildRequires: python3-setuptools
+BuildRequires: python3-devel
+
+%endif
+
+
+
+%package -n python2-%{srcname}
+Summary:        %{summary}
+
 Requires: python2-icalendar
 
+%if 0%{?rhel} <= 7 && 0%{?fedora} == 0
+Requires: python-lxml
+%else
+Requires: python2-lxml
+%endif
 
-%description
-Schedule tools
-Contains tools to manipulate with schledules.
+%{?python_provide:%python_provide python2-%{srcname}}
+
+
+
+%package -n python3-%{srcname}
+Summary:        %{summary}
+
+Requires: python3-icalendar
+Requires: python3-lxml
+
+%{?python_provide:%python_provide python3-%{srcname}}
+
+
+
+%description -n python2-%{srcname}
+Schedule tools to handle various formats (TaskJuggler, MS Project)
+
+%description -n python3-%{srcname}
+Schedule tools to handle various formats (TaskJuggler, MS Project)
 
 
 
@@ -42,12 +75,19 @@ Contains tools to manipulate with schledules.
 
 
 %build
+%if 0%{?fedora} <= 31
+%py2_build
+%endif
 
+%py3_build
 
 
 %install
-rm -rf %{buildroot}
-python2 setup.py install --root=%{buildroot} --record=INSTALLED_FILES
+%if 0%{?fedora} <= 31
+%py2_install
+%endif
+
+%py3_install
 
 # create log dir
 mkdir -m 755 -p %{buildroot}%{log_dir}
@@ -57,10 +97,22 @@ done
 
 
 
-%files
+%files -n python2-%{srcname}
 %defattr(644,root,root,755)
-%{py_sitedir}/schedules_tools
-%{py_sitedir}/schedules_tools*.egg-info
+%{python2_sitelib}/*
+
+%attr(755,root,root) %{_bindir}/schedule-*
+
+# setup permissions so that logrotate works correctly
+%defattr(664,root,apache,755)
+%dir %log_dir
+%ghost %config %log_dir/*
+
+
+
+%files -n python3-%{srcname}
+%defattr(644,root,root,755)
+%{python3_sitelib}/*
 
 %attr(755,root,root) %{_bindir}/schedule-*
 

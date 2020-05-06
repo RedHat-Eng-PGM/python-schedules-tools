@@ -49,7 +49,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
             sys.exit(1)
 
         for iteration in response:
-            print 'Iteration: %s (starts %s)' % (iteration.Name, iteration.StartDate)
+            print('Iteration: %s (starts %s)' % (iteration.Name, iteration.StartDate))
             start_time = datetime.datetime.combine(
                 datetime.datetime.strptime(iteration.StartDate[:10], '%Y-%m-%d'),
                 datetime.time(8))
@@ -68,7 +68,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         self.schedule.dStart = start_time
 
         for story in response:
-            print story.Name
+            print(story.Name)
             t = models.Task(self.schedule, level=1)
             t.index = index
             index += 1
@@ -78,7 +78,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
             max_st_end_time = start_time
             story.Tasks.sort(key=lambda x: x.TaskIndex)
             for task in story.Tasks:
-                print '-- %s  |  %sh  |  %s' % (task.Name, task.Estimate, task.Owner.Name)
+                print('-- %s  |  %sh  |  %s' % (task.Name, task.Estimate, task.Owner.Name))
                 t_in = models.Task(self.schedule, level=2)
                 t_in.index = index
                 index += 1
@@ -100,7 +100,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
                 t_in.resource = resource_id
 
                 t.tasks.append(t_in)
-            print ''
+            print('')
             t.dFinish = max_st_end_time
             max_end_time = max(max_end_time, t.dFinish)
             self.schedule.tasks.append(t)

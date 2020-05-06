@@ -390,7 +390,7 @@ class Schedule(object):
         if tasks is None:
             tasks = self.tasks
         for task in tasks:
-            print level * '  ', str(task)
+            print(level * '  ', str(task))
             if task.tasks:
                 self.print_tasks(task.tasks, level + 1)
 

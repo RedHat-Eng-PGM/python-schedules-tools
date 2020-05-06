@@ -1,15 +1,11 @@
-'''
-Created on Feb 15, 2012
-
-@author: pslama
-'''
 import datetime
 
 from subprocess import Popen, PIPE
-from setup_utils import get_rpm_version, get_rpm_version_format, get_git_tag_list
+from .setup_utils import get_rpm_version, get_rpm_version_format, get_git_tag_list
 
 
 CHANGELOG_FILENAME_PATH = 'spec/changelog.txt'
+
 
 def get_last_changelog_commit(filename):
     """
@@ -33,7 +29,7 @@ def get_rpm_log():
         first_tag_commit = get_git_tag_list()[-1]
     except IndexError:
         # no tag - version 1.0.0
-        print 'NO git tag where to take version from! Pls set tag.'
+        print('NO git tag where to take version from! Pls set tag.')
         exit()
     
     last_commit =  get_last_changelog_commit(CHANGELOG_FILENAME_PATH)

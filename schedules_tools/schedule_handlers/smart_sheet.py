@@ -238,7 +238,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         # skip empty rows
         if not all([c in cells and cells[c]
-                    for c in COLUMN_TASK_NAME, COLUMN_START, COLUMN_FINISH]):
+                    for c in (COLUMN_TASK_NAME, COLUMN_START, COLUMN_FINISH)]):
             # skip load, task doesn't contain all needed info
             return
 
