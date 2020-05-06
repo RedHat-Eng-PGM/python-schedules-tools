@@ -19,7 +19,7 @@ BuildArch:      noarch
 %description
 Schedule tools to handle various formats (TaskJuggler, MS Project)
 
-%if 0%{?rhel} <= 7
+%if 0%{?rhel} <= 7 && 0%{?fedora} == 0
 
 BuildRequires: python-setuptools
 BuildRequires: python-devel
@@ -80,6 +80,7 @@ Schedule tools to handle various formats (TaskJuggler, MS Project)
 %endif
 
 %py3_build
+
 
 
 %install
