@@ -1,5 +1,6 @@
 import logging
 import json
+from datetime import datetime
 
 from schedules_tools import jsondate
 from schedules_tools.models import Task
@@ -101,9 +102,11 @@ class ScheduleDiff(object):
     """ List of attributes used to compare 2 tasks. """
     tasks_match_attrs = ['name', 'dStart', 'dFinish', subtree_hash_attr_name]
 
-    def __init__(self, schedule_a, schedule_b):
+    def __init__(self, schedule_a, schedule_b, trim_time=False):
         self.schedule_a = schedule_a
         self.schedule_b = schedule_b
+
+        self.trim_time = trim_time
 
         self.result = self._diff()
 
@@ -217,7 +220,24 @@ class ScheduleDiff(object):
         Uses attributes defined in `tasks_match_attrs` to compare 2 tasks and
         returns a list of atts that don't match.
         """
-        return [attr for attr in self.tasks_match_attrs if getattr(task_a, attr) != getattr(task_b, attr)]
+        return [attr for attr in self.tasks_match_attrs if not self._compare_tasks_attributes(task_a, task_b, attr)]
+
+    def _compare_tasks_attributes(self, task_a, task_b, attr_name):
+        """
+        Compares tasks attributes.
+        Trims time from datetime objects if self.trim_time is set.
+        """
+        attribute_a = getattr(task_a, attr_name)
+        attribute_b = getattr(task_b, attr_name)
+
+        if self.trim_time:
+            if isinstance(attribute_a, datetime):
+                attribute_a = attribute_a.date()
+
+            if isinstance(attribute_b, datetime):
+                attribute_b = attribute_b.date()
+
+        return attribute_a == attribute_b
 
     def find_best_match(self, t1, possible_matches, start_at_index=0):
         """

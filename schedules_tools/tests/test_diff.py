@@ -1,7 +1,6 @@
 import datetime
 import pytest
 import os
-import jsondate
 
 from schedules_tools.tests import create_test_schedule
 from schedules_tools.converter import ScheduleConverter
@@ -73,61 +72,73 @@ class TestDiff(object):
         assert diff == ''
 
 
-def scheds_list(scheds_dir, ref_sched):
-    return [f for f in os.listdir(scheds_dir) if f != ref_sched]
-
-
 class TestScheduleDiff(object):
     ref_sched = 'sched_diff_reference.xml'
 
     SCHEDS_DIR = os.path.join(BASE_DIR, 'schedule_files/schedule_diff')
     OUTPUT_FILES_DIR = os.path.join(BASE_DIR, 'fixtures/schedule_diff')
 
+    diff_test_scenarios = (
+        ('sched_diff_dates_changed', False),
+        ('sched_diff_subtask_added', False),
+        ('sched_diff_subtask_removed', False),
+        ('sched_diff_subtask_removed', True),
+        ('sched_diff_subtask_tree_added', False),
+        ('sched_diff_subtask_tree_removed', False),
+        ('sched_diff_task_appended', False),
+        ('sched_diff_task_appended', True),
+        ('sched_diff_tasks_renamed', False),
+        ('sched_diff_time_changed', False),
+        ('sched_diff_time_changed', True),
+    )
+
     def import_schedule(self, filename):
         path = os.path.join(self.SCHEDS_DIR, filename)
         conv = ScheduleConverter()
         return conv.import_schedule(path)
 
-    @pytest.fixture(params=scheds_list(scheds_dir=SCHEDS_DIR, 
-                                       ref_sched=ref_sched), scope='class')
-    def diff_res(self, request):
-        filename = request.param
+    @pytest.mark.parametrize(
+        'schedule_name,trim_time',
+        diff_test_scenarios
+    )
+    @pytest.mark.parametrize(
+        'output_format',
+        ['json', 'txt']
+    )
+    def test_diff(self, schedule_name, trim_time, output_format):
 
         left = self.import_schedule(self.ref_sched)
-        right = self.import_schedule(filename)
+        right = self.import_schedule('%s.xml' % schedule_name)
+        diff = ScheduleDiff(left, right, trim_time=trim_time)
 
-        return ScheduleDiff(left, right), filename
+        if output_format == 'json':
+            diff_output = diff.dump_json(indent=4)
+        elif output_format == 'txt':
+            diff_output = str(diff)
+        else:
+            raise ValueError
 
-    @pytest.fixture
-    def expected(self, request, diff_res):
-        name = os.path.splitext(diff_res[1])[0]
-        ext = request.param
+        diff_reference_filename = '%s%s.%s' % (
+            schedule_name,
+            '_trim_time' if trim_time else '',
+            output_format
+        )
 
-        mode = 'r'
-        if os.environ.get('REGENERATE', 'false') == 'true':
-            mode = 'w'
+        regenerate = os.environ.get('REGENERATE', 'false').lower() == 'true'
+        if regenerate:
+            file_mode = 'w'
+        else:
+            file_mode = 'r'
 
-        with open(os.path.join(self.OUTPUT_FILES_DIR, '.'.join([name, ext])),
-                  mode) as f:
-            yield f
-
-    @pytest.mark.parametrize('expected', ['txt'], indirect=True)
-    def test_txt_output(self, diff_res, expected):
-        if os.environ.get('REGENERATE', 'false') == 'true':
-            expected.write(str(diff_res[0]))
-            return
-
-        assert str(diff_res[0]) == expected.read()
-
-    @pytest.mark.parametrize('expected', ['json'], indirect=True)
-    def test_json_output(self, diff_res, expected):
-        diff_json = diff_res[0].dump_json(indent=4)
-
-        if os.environ.get('REGENERATE', 'false') == 'true':
-            expected.write(diff_json)
-            return
-
-        assert jsondate.loads(diff_json) == jsondate.load(expected)
+        with open(
+            os.path.join(self.OUTPUT_FILES_DIR, diff_reference_filename),
+            file_mode
+        ) as f:
+            if regenerate:
+                f.write(diff_output)
+            else:
+                expected_diff_output = f.read()
+                assert diff_output == expected_diff_output
 
 
 class TestDiffCLI(object):
