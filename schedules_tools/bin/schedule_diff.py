@@ -33,7 +33,7 @@ def setup_logging(level):
     inst.addHandler(sh)
 
 
-if __name__ == '__main__':
+def main():
     setup_logging(logging.DEBUG)
     parser = argparse.ArgumentParser(
         description='Tool to show differences between two schedules.')
@@ -78,3 +78,7 @@ if __name__ == '__main__':
     if diff_res:
         print(diff_res)
         sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import argparse
 import sys
 import logging
@@ -22,7 +23,7 @@ def setup_logging(level):
     inst.addHandler(sh)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Convert schedules source to target',
                                      parents=[get_handlers_args_parser()])
 
@@ -30,12 +31,16 @@ if __name__ == '__main__':
                         help='Source handle (file/URL/...)',
                         type=str,
                         metavar='SRC')
-    
+
     parser.add_argument('target', metavar='TARGET',
                         help='Output target', default=None, nargs='?')
 
     args = parser.parse_args()
 
     setup_logging(getattr(logging, args.log_level))
-    
-    convert(args) 
+
+    convert(args)
+
+
+if __name__ == '__main__':
+    main()

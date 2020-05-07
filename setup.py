@@ -1,6 +1,7 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+
 import os
+import sys
 
 from setuptools import setup, find_packages
 from shutil import copyfile
@@ -36,7 +37,7 @@ else:  # see if there is already saved version
         if version:
             package_version = list(version)
             break
-    
+
 
 # prepare specfile if existing
 spec = 'python-{}.spec'.format(project_name)
@@ -45,9 +46,9 @@ spec_tgt = 'dist/' + spec
 if os.path.exists(spec_in):
     if not os.path.exists('dist'):
         os.mkdir('dist')
-        
+
     copyfile(spec_in, spec_tgt)
-    
+
     with open(spec_tgt, 'r+') as f:
         orig_content = f.read()
         f.seek(0, 0)
@@ -59,6 +60,7 @@ if os.path.exists(spec_in):
 with open('requirements.txt') as fd:
     requirements = fd.read().split()
 
+py_version = sys.version[:1]
 
 setup(
     name=package_name,
@@ -72,8 +74,13 @@ setup(
     include_package_data=True,
     test_suite='tests',
     tests_require=['testtools'],
+    entry_points={
+        # Make them all start with schedule- and end with python version
+        #   so we can generate symlinks in /usr/bin/ post install
+        'console_scripts': [
+            'schedule-convert%s=schedules_tools.bin.schedule_convert:main' % py_version,
+            'schedule-diff%s=schedules_tools.bin.schedule_diff:main' % py_version,
+        ]
+    },
     install_requires=requirements,
-    scripts=[
-        'scripts/schedule-convert',
-        'scripts/schedule-diff'],
 )

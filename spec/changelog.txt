@@ -1,3 +1,6 @@
+* Wed May 06 2020 Pavel Slama <pslama@redhat.com> 7.57-4.git20200506.e7fda04
+- py2 build spec variables
+
 * Wed May 06 2020 Pavel Slama <pslama@redhat.com> 7.57-3.git20200506.0b5eeee
 - correct rhel opnly build requires
 

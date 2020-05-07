@@ -2,6 +2,20 @@
 %define with_py2 0%{?fedora} <= 31 || 0%{?rhel}
 %define with_py2_prefix 0%{?rhel} >= 8 || 0%{?fedora}
 
+%define create_symlinks cd %{_bindir} \
+for i in `find . -type f -name 'schedule-*[23]'`; do \
+  ln -srf "$i" "${i:0:-1}" \
+done
+
+%define remove_symlinks cd %{_bindir} \
+if [ $1 == 0 ];then \
+  for i in schedule-*; do \
+    if [[ -L "$i" ]]; then \
+      rm -rf "$i" \
+    fi \
+  done \
+fi
+
 %global log_dir /var/log/%{name}
 %global log_files debug.log
 
@@ -95,12 +109,27 @@ done
 
 
 
+%post -n python2-%{srcname}
+%{create_symlinks}
+
+%post -n python3-%{srcname}
+%{create_symlinks}
+
+
+%postun -n python2-%{srcname}
+%{remove_symlinks}
+
+%postun -n python3-%{srcname}
+%{remove_symlinks}
+
+
+
 %if %{with_py2}
 %files -n python2-%{srcname}
 %defattr(644,root,root,755)
 %{python2_sitelib}/*
 
-%attr(755,root,root) %{_bindir}/schedule-*
+%attr(755,root,root) %{_bindir}/schedule-*2
 
 # setup permissions so that logrotate works correctly
 %defattr(664,root,apache,755)
@@ -113,7 +142,7 @@ done
 %defattr(644,root,root,755)
 %{python3_sitelib}/*
 
-%attr(755,root,root) %{_bindir}/schedule-*
+%attr(755,root,root) %{_bindir}/schedule-*3
 
 # setup permissions so that logrotate works correctly
 %defattr(664,root,apache,755)
