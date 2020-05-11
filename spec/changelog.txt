@@ -1,3 +1,9 @@
+* Thu May 07 2020 Pavel Slama <pslama@redhat.com> 7.63-1.git20200507.57caba6
+- use entries to package console scripts
+
+* Thu May 07 2020 Aleksandr Sterkhov <i@likeon.name> 7.57-5.git20200507.dd7fb2e
+- Schedule diff v2: added an option to trim tasks times
+
 * Wed May 06 2020 Pavel Slama <pslama@redhat.com> 7.57-4.git20200506.e7fda04
 - py2 build spec variables
 

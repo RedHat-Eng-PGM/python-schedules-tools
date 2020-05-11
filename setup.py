@@ -60,6 +60,9 @@ if os.path.exists(spec_in):
 with open('requirements.txt') as fd:
     requirements = fd.read().split()
 
+with open('requirements-tests.txt') as fd:
+    requirements_tests = fd.read().split()
+
 py_version = sys.version[:1]
 
 setup(
@@ -72,8 +75,7 @@ setup(
     description=project_description,
     packages=find_packages(exclude=('scripts',)),
     include_package_data=True,
-    test_suite='tests',
-    tests_require=['testtools'],
+    tests_require=requirements_tests,
     entry_points={
         # Make them all start with schedule- and end with python version
         #   so we can generate symlinks in /usr/bin/ post install
