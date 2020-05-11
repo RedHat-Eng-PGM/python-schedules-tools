@@ -1,29 +1,18 @@
-import json
-import re
 import logging
+import json
+from datetime import datetime
 
 from schedules_tools import jsondate
-from schedules_tools.models import Task
-from deepdiff import DeepDiff
-from deepdiff.helper import NotPresent
+from schedules_tools.models import Task, Schedule
+
 
 log = logging.getLogger(__name__)
-
-
-def _custom_json_encoder(obj):
-    if isinstance(obj, set):
-        return list(obj)
-    return jsondate._datetime_encoder(obj)
 
 
 REPORT_NO_CHANGE = ''
 REPORT_ADDED = '_added_'
 REPORT_REMOVED = '_removed_'
 REPORT_CHANGED = '_changed_'
-REPORT_NEW_VALUE = 'new_value'
-REPORT_OLD_VALUE = 'old_value'
-
-REPORT_KEYS = {REPORT_ADDED, REPORT_REMOVED, REPORT_CHANGED, }
 
 REPORT_PREFIX_MAP = {
     REPORT_ADDED: '[+]',
@@ -33,208 +22,419 @@ REPORT_PREFIX_MAP = {
 }
 
 
+NAME_SIM_THRESHOLD = 0.8
+TASK_SCORE_THRESHOLD = 0.45
+NAME_SIM_WEIGHT = 0.5
+TASK_POS_WEIGHT = 0.5
+
+
+def strings_similarity(str1, str2, winkler=True, scaling=0.1):
+    """
+    Find the Jaro-Winkler distance of 2 strings.
+    https://en.wikipedia.org/wiki/Jaro-Winkler_distance
+
+    :param winkler: add winkler adjustment to the Jaro distance
+    :param scaling: constant scaling factor for how much the score is adjusted
+                    upwards for having common prefixes. Should not exceed 0.25
+    """
+    if str1 == str2:
+        return 1.0
+
+    def num_of_char_matches(s1, len1, s2, len2):
+        count = 0
+        transpositions = 0  # number of matching chars w/ different sequence order
+        limit = int(max(len1, len2) / 2 - 1)
+
+        for i in range(len1):
+            start = i - limit
+            if start < 0:
+                start = 0
+
+            end = i + limit + 1
+            if end > len2:
+                end = len2
+
+            index = s2.find(s1[i], start, end)
+
+            if index > -1:  # found common char
+                count += 1
+
+                if index != i:
+                    transpositions += 1
+
+        return count, transpositions
+
+    len1 = len(str1)
+    len2 = len(str2)
+
+    num_of_matches, transpositions = num_of_char_matches(str1, len1, str2, len2)
+
+    if num_of_matches == 0:
+        return 0.0
+
+    m = float(num_of_matches)
+    t = transpositions / 2.0
+
+    dj = (m/float(len1) + m/float(len2) + (m-t)/m) / 3.0
+
+    if winkler:
+        length = 0
+        # length of common prefix at the start of the string (max = 4)
+        max_length = min(
+            len1,
+            len2,
+            4
+        )
+        while length < max_length and str1[length] == str2[length]:
+            length += 1
+
+        return dj + (length * scaling * (1.0 - dj))
+
+    return dj
+
+
 class ScheduleDiff(object):
 
-    def __init__(self, schedule_a, schedule_b):
+    result = []
+
+    hierarchy_attr = 'tasks'
+    subtree_hash_attr_name = 'subtree_hash'
+
+    """ List of attributes used to compare 2 tasks. """
+    tasks_match_attrs = ['name', 'dStart', 'dFinish', subtree_hash_attr_name]
+
+    def __init__(self, schedule_a, schedule_b, trim_time=False):
         self.schedule_a = schedule_a
         self.schedule_b = schedule_b
 
-        self.schedule_a_dict = schedule_a.dump_as_dict()
-        self.schedule_b_dict = schedule_b.dump_as_dict()
+        self.trim_time = trim_time
 
-        self.diff = DeepDiff(self.schedule_a_dict, self.schedule_b_dict,
-                             verbose_level=0,  # ignore type changes
-                             view='tree'
-                             )
+        self.result = self._diff()
 
-    def filter_attrs(self, in_dict, attrs):
-        return {k: v for k, v in in_dict.iteritems() if k in attrs}
-
-    def walk_dict(self, in_dict, keys_list):
-        """ Returns the value of the given keys_list path in the dictionary. """
-
-        if len(keys_list) > 0:
-            key = keys_list.pop(0)
-
-            if isinstance(in_dict, list):
-                item = in_dict[int(key)]
-            else:
-                item = in_dict[key]
-
-            in_dict = self.walk_dict(item, keys_list)
-        return in_dict
-
-    def path_to_keys(self, path):
-        """
-        Transforms a path str into list of keys,
-        collecting only the values wrapped with brackets.
-
-        Example: "root['attr1'][1]" becomes ['attr1', '1']
-        """
-        return re.findall(r"\[[']*([\w.]+)[']*\]", path)
-
-    def _create_change_report(self, change_type, new_value, old_value):
-        """
-        Returns a dictionary with the change report.
-
-        @param change_type: "added", "removed" or "changed"
-        """
-        change_value = {}
-        change_key = '_%s_' % change_type
-
-        if change_type == 'changed':
-            if not isinstance(new_value, NotPresent):
-                change_value['new_value'] = new_value
-            if not isinstance(old_value, NotPresent):
-                change_value['old_value'] = old_value
-
-        else:  # added or removed
-            change_value = new_value if change_type == 'added' else old_value
-
-        return {change_key: change_value}
-
-    def _apply_change_to_tasks(self, tasks, change_type):
-        res = []
-
-        for task in tasks:
-            report = self._create_change_report(change_type,
-                                                {} if change_type == 'removed' else task,
-                                                {} if change_type == 'added' else task)
-
-            report_value = report.itervalues().next()
-
-            if task['tasks']:
-                report_value['tasks'] = self._apply_change_to_tasks(task['tasks'], change_type)
-
-            res.append(report)
-        return res
-
-    def _add_change_report(self, to_dict, change):
-        """
-        Place a change report in the given dictionary, using the path of the change object.
-
-        NOTE:
-
-            Changes with paths not found in the given dictionary will be skipped.
-
-        @param to_dict: dictionary to be updated with the change reports
-        @param change: DiffLevel object that represents a change.
-        """
-        change_type = change.report_type.split('_')[-1]  # added, removed or changed
-        path = self.path_to_keys(change.path())
-        changed_key = path.pop()
-
+    def __str__(self):
         try:
-            parent = self.walk_dict(to_dict, path)
-        except (ValueError, KeyError):
-            log.warning("Change skipped."
-                           "Could not find any item with the path: %s" % change.path())
-            return
+            return unicode(self.result_to_str()).encode('utf-8')
+        except NameError:
+            return self.result_to_str()
 
-        change_report = self._create_change_report(change_type,
-                                                   new_value=change.t2,
-                                                   old_value=change.t1)
+    def _get_subtree(self, item):
+        return getattr(item, self.hierarchy_attr)
 
-        if isinstance(parent, list):
-            index = int(changed_key)
-            report_key, report_value = change_report.iteritems().next()
-
-            if report_key == REPORT_ADDED:
-                parent.insert(index, change_report)
-
-            else:
-                if 'tasks' in report_value:
-                    report_value['tasks'] = self._apply_change_to_tasks(parent[index]['tasks'], change_type)
-
-                parent[index] = change_report
-        else:
-            parent[changed_key] = change_report
-
-    def dump_dict(self, schedule_attrs=[]):
-        """
-        Returns a dictionary that represents the result of the diff.
-
-        @param  schedule_attrs: Set of schedule attrs to be returned.
-                                If not specified, will return all attrs.
-        """
-        filter_attrs = schedule_attrs or self.schedule_a_dict.keys()
-        diff_dict = self.filter_attrs(self.schedule_a_dict, filter_attrs)
-
-        def add_to_dict(change):
-            self._add_change_report(diff_dict, change)
-
-        self._for_each_change(add_to_dict, schedule_attrs)
-
-        return diff_dict
-
-    def dump_json(self, schedule_attrs=[], **kwargs):
-        """
-        Serialize diff result to a JSON formatted str.
-
-        @param  schedule_attrs: Set of schedule attrs to be returned.
-                                If not specified, will return all attrs.
-        @param  **kwargs: Can be used to pass in arguments to json.dumps().
-        """
-        kwargs['default'] = _custom_json_encoder
-        res_dict = self.dump_dict(schedule_attrs)
-        return json.dumps(res_dict, **kwargs)
-
-    def _for_each_change(self, perform, filter_attrs=[]):
-        """
-        Iterates through the list of changes and performs the action passed in as argument.
-
-        @param perform: Function to execute on each iteration.
-        """
-        for key, changes in self.diff.iteritems():
-            for change in changes:
-                path = change.path()
-                sched_attr = self.path_to_keys(path)[0]
-
-                if not filter_attrs or sched_attr in filter_attrs:
-                    # execute the given function
-                    perform(change)
-
-    def _task_to_str(self, task, prefix='', level=0):
-        task = Task.load_from_dict(task, schedule=None)
-        return "{} {}{}".format(prefix, level * ' ', str(task))
-
-    def _get_task_diff_str(self, task, change_type='', level=0):
-        prefix = REPORT_PREFIX_MAP[REPORT_NO_CHANGE]
-
-        if change_type in REPORT_KEYS:
-            prefix = REPORT_PREFIX_MAP[change_type]
-
-        return self._task_to_str(task, prefix=prefix, level=level)
-
-    def _merge_task(self, task):
-        merged_task = task
-        change_type = ''
-
-        for key, value in task.iteritems():
-            if key in REPORT_KEYS:
-                merged_task = value[REPORT_NEW_VALUE] if key == REPORT_CHANGED else value
-                change_type = key
-            elif self.contains_change_report(value):
-                merged_task[key], change_type = self._merge_task(value)
-
-        return merged_task, change_type
-
-    def contains_change_report(self, item):
-        return isinstance(item, dict) and any(key in item for key in REPORT_KEYS)
-
-    def tasks(self, tasks=None, level=0):
-        """ Textual representation of the tasks' diff. """
+    def result_to_str(self, items=None, level=0):
+        """ Textual representation of the diff. """
         res = ''
 
-        if tasks is None:
-            tasks_diff_dict = self.dump_dict(schedule_attrs=['tasks'])
-            tasks = tasks_diff_dict['tasks']
+        if items is None:
+            items = self.result
 
-        for task in tasks:
-            merged_task, change_type = self._merge_task(task)
-            res += '%s\n' % self._get_task_diff_str(merged_task, change_type, level)
+        schedule = Schedule()
 
-            if merged_task['tasks']:
-                res += self.tasks(merged_task['tasks'], level + 1)
+        for item in items:
+            subtree = item['subtree']
+            state = item['item_state']
+
+            if state in [REPORT_CHANGED, REPORT_ADDED]:
+                task = item['right']
+            elif state is REPORT_REMOVED:
+                task = item['left']
+            else:
+                task = item['both']
+
+            task_obj = Task.load_from_dict(task, schedule)
+
+            res += '{} {}{}\n'.format(REPORT_PREFIX_MAP[state], level * ' ', str(task_obj))
+
+            if subtree:
+                res += self.result_to_str(subtree, level + 2)
 
         return res
+
+    def _create_report(self,
+                       item_state,
+                       left=None,
+                       right=None,
+                       both=None,
+                       subtree=[],
+                       changed_attrs=[]):
+        """
+        Returns a dictionary representing a possible change.
+
+            {
+                left: Task or None,
+                right: Task or None,
+                both: used instead of left and right, when the task are equal,
+                subtree: List of reports from the child Tasks,
+                changed_attr: List of changed attributes,
+                item_state: Type of change
+            }
+
+        """
+
+        if both:
+            report = {
+                'both': both.dump_as_dict(recursive=False),
+                'subtree': subtree,
+                'changed_attrs': changed_attrs,
+                'item_state': item_state
+            }
+
+        else:
+            # No need to keep the whole structure,
+            # child tasks will be placed in report['tasks']
+            if left is not None:
+                left = left.dump_as_dict(recursive=False)
+
+            if right is not None:
+                right = right.dump_as_dict(recursive=False)
+
+            report = {
+                'left': left,
+                'right': right,
+                'subtree': subtree,
+                'changed_attrs': changed_attrs,
+                'item_state': item_state,
+            }
+
+        return report
+
+    def _set_subtree_items_state(self, items, state):
+        """
+        Set the given state recursively on the subtree items
+        """
+
+        def create_report(item):
+            kwargs = {
+                'subtree': self._set_subtree_items_state(self._get_subtree(item), state)
+            }
+
+            if state == REPORT_NO_CHANGE:
+                kwargs['both'] = item
+
+            elif state == REPORT_ADDED:
+                kwargs['right'] = item
+
+            elif state == REPORT_REMOVED:
+                kwargs['left'] = item
+
+            return self._create_report(state, **kwargs)
+
+        return [create_report(item) for item in items]
+
+    def get_changed_attrs(self, task_a, task_b):
+        """
+        Uses attributes defined in `tasks_match_attrs` to compare 2 tasks and
+        returns a list of atts that don't match.
+        """
+        return [attr for attr in self.tasks_match_attrs
+                if not self._compare_tasks_attributes(task_a, task_b, attr)]
+
+    def _compare_tasks_attributes(self, task_a, task_b, attr_name):
+        """
+        Compares tasks attributes.
+        Trims time from datetime objects if self.trim_time is set.
+        """
+        attribute_a = getattr(task_a, attr_name)
+        attribute_b = getattr(task_b, attr_name)
+
+        if self.trim_time:
+            if isinstance(attribute_a, datetime):
+                attribute_a = attribute_a.date()
+
+            if isinstance(attribute_b, datetime):
+                attribute_b = attribute_b.date()
+
+        return attribute_a == attribute_b
+
+    def find_best_match(self, t1, possible_matches, start_at_index=0):
+        """
+        Finds the best match for the given task in the list of possible matches.
+
+        Returns the index of the best match and a dict
+            with a state suggestion and list of changed attrs.
+        """
+        match_index = None
+        best_match = {
+            'state': REPORT_REMOVED,
+            'changes': [],
+            'name_score': 0,
+            'score': TASK_SCORE_THRESHOLD
+        }
+
+        if start_at_index > 0:
+            possible_matches = possible_matches[start_at_index:]
+
+        for i, t2 in enumerate(possible_matches, start_at_index):
+            res = self.eval_tasks(t1, t2, i, name_threshold=best_match['name_score'])
+
+            if (res['state'] is REPORT_CHANGED
+                    and res['score'] > best_match['score']):
+
+                match_index = i
+                best_match = res
+
+            if res['state'] is REPORT_NO_CHANGE:
+                match_index = i
+                best_match = res
+                break
+
+        return match_index, best_match
+
+    def _task_position_score(self, index):
+        return 1.0 / (2 * (index + 1))
+
+    def _task_score(self, name_score, position_score):
+        weight_sum = NAME_SIM_WEIGHT + TASK_POS_WEIGHT
+        name_score *= NAME_SIM_WEIGHT
+        position_score *= TASK_POS_WEIGHT
+
+        return (name_score + position_score) / weight_sum
+
+    def eval_tasks(self, t1, t2, t2_index, name_threshold=NAME_SIM_THRESHOLD):
+        name_score = 0.0
+        position_score = 0.0
+        changed_attrs = self.get_changed_attrs(t1, t2)
+
+        # different names
+        if 'name' in changed_attrs:
+            t1_subtree = getattr(t1, self.subtree_hash_attr_name)
+            t2_subtree = getattr(t2, self.subtree_hash_attr_name)
+
+            if t1_subtree and t2_subtree:
+                if t1_subtree == t2_subtree:
+                    state = REPORT_CHANGED
+                    position_score = 1.0
+
+                else:
+                    name_score = strings_similarity(t1.name, t2.name)
+
+                    if (name_score > name_threshold
+                            and len(changed_attrs) < len(self.tasks_match_attrs)):
+                        state = REPORT_CHANGED
+                        position_score = self._task_position_score(t2_index)
+                    else:
+                        state = REPORT_REMOVED
+
+            # no subtrees
+            else:
+                name_score = strings_similarity(t1.name, t2.name, winkler=False)
+
+                if name_score > name_threshold:
+                    state = REPORT_CHANGED
+                    position_score = self._task_position_score(t2_index)
+                else:
+                    state = REPORT_REMOVED
+
+        # names are equal
+        else:
+            name_score = 1.0
+
+            if (not changed_attrs
+                or (len(changed_attrs) == 1
+                    and self.subtree_hash_attr_name in changed_attrs)):
+
+                state = REPORT_NO_CHANGE
+            else:
+                state = REPORT_CHANGED
+                position_score = 1.0
+
+        return {
+            'state': state,
+            'changes': changed_attrs,
+            'name_score': name_score,
+            'position_score': position_score,
+            'score': self._task_score(name_score, position_score)
+        }
+
+    def _diff(self, tasks_a=None, tasks_b=None):
+
+        if tasks_a is None:
+            tasks_a = self.schedule_a.tasks
+
+        if tasks_b is None:
+            tasks_b = self.schedule_b.tasks
+
+        res = []
+        last_b_index = 0
+
+        # shortcut to create a report for an added task
+        def report_task_added(index, recursive=True):
+            task = tasks_b[index]
+            subtree = self._get_subtree(task)
+
+            if recursive:
+                subtree = self._set_subtree_items_state(subtree, REPORT_ADDED)
+
+            return self._create_report(REPORT_ADDED, right=task, subtree=subtree)
+
+        for task in tasks_a:
+            match_index, match = self.find_best_match(task, tasks_b, start_at_index=last_b_index)
+            report = {}
+
+            if match_index is None:
+                subtree = self._set_subtree_items_state(self._get_subtree(task), REPORT_REMOVED)
+                report = self._create_report(REPORT_REMOVED, left=task, subtree=subtree)
+
+            else:
+                # ALL elements between last_b_index and match_index => ADDED
+                res.extend([report_task_added(k) for k in range(last_b_index, match_index)])
+
+                # exact match => NO CHANGE
+                if not match['changes']:
+                    subtree = self._set_subtree_items_state(self._get_subtree(task), match['state'])
+                    report_kwargs = {'both': task, 'subtree': subtree}
+
+                # structural change => CHANGED / NO CHANGE
+                elif self.subtree_hash_attr_name in match['changes']:
+
+                    # process child tasks
+                    subtree = self._diff(
+                        self._get_subtree(task),
+                        self._get_subtree(tasks_b[match_index])
+                    )
+
+                    if len(match['changes']) > 1:
+                        report_kwargs = {
+                            'left': task,
+                            'right': tasks_b[match_index],
+                            'subtree': subtree
+                        }
+
+                    else:
+                        report_kwargs = {
+                            'both': task,
+                            'subtree': subtree
+                        }
+
+                # no structural changes => CHANGED
+                else:
+                    subtree = self._set_subtree_items_state(
+                        self._get_subtree(tasks_b[match_index]), REPORT_NO_CHANGE)
+
+                    report_kwargs = {
+                        'left': task,
+                        'right': tasks_b[match_index],
+                        'subtree': subtree
+                    }
+
+                report = self._create_report(match['state'],
+                                             changed_attrs=match['changes'],
+                                             **report_kwargs)
+
+                last_b_index = match_index + 1
+
+            res.append(report)
+
+        # remaining tasks => ADDED
+        res.extend([report_task_added(k) for k in range(last_b_index, len(tasks_b))])
+
+        return res
+
+    def dump_json(self, **kwargs):
+
+        def _encoder(obj):
+            if isinstance(obj, Task):
+                return obj.dump_as_dict()
+            return jsondate._datetime_encoder(obj)
+
+        kwargs['default'] = _encoder
+        return json.dumps(self.result, **kwargs)

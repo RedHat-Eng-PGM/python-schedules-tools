@@ -30,7 +30,7 @@ def do_req(worker):
         cont = ss.client.Sheets.list_sheets(include_all=True)
         cont = str(cont)
         if 'Rate limit' in cont:
-            print worker, i
+            print(worker, i)
 
 
 if __name__ == '__main__':

@@ -61,7 +61,7 @@ def get_git_date():
     proc.wait()
     if proc.returncode != 0:
         raise RuntimeError("Not a git repository")
-    lines = proc.stdout.read().strip().split("\n")
+    lines = str(proc.stdout.read().strip()).split("\n")
     return lines[0].split(" ")[0].replace("-", "")
 
 
@@ -73,7 +73,7 @@ def get_git_version():
     proc.wait()
     if proc.returncode != 0:
         raise RuntimeError("Not a git repository")
-    lines = proc.stdout.read().strip().split("\n")
+    lines = str(proc.stdout.read().strip()).split("\n")
     return lines[0]
 
 

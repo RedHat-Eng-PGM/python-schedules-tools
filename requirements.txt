@@ -1,4 +1,4 @@
 icalendar
 lxml
 pyral
-smartsheet-python-sdk
+smartsheet-python-sdk<3

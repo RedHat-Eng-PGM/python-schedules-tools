@@ -14,6 +14,7 @@ from schedules_tools.schedule_handlers.smart_sheet import (
 from schedules_tools.converter import ScheduleConverter
 from schedules_tools.tests import jsondate
 from schedules_tools.models import Schedule
+from time import sleep
 
 # smartsheet log
 logging.basicConfig(level=logging.INFO)
@@ -70,6 +71,7 @@ class TestHandlers(object):
     smartsheet_sheet_id = None
     smartsheet_client = None
     replace_time_opts = dict(hour=0, minute=0, tzinfo=None)
+    datetime_fmt = '%Y-%m-%dT%H:%M:%SZ'
 
     def _sanitize_export_test_ics(self, content):
         return re.sub('DTSTAMP:[0-9]+T[0-9]+Z', 'DTSTAMP:20170101T010101Z', content)
@@ -86,8 +88,14 @@ class TestHandlers(object):
                 input_dict.pop(key)
 
         # Schedule attrs
-        input_dict['dStart'] = input_dict['dStart'].replace(**self.replace_time_opts)
-        input_dict['dFinish'] = input_dict['dFinish'].replace(**self.replace_time_opts)
+        if isinstance(input_dict['dStart'], datetime.datetime):
+            input_dict['dStart'] = input_dict['dStart'].replace(**self.replace_time_opts)
+            input_dict['dFinish'] = input_dict['dFinish'].replace(**self.replace_time_opts)
+        else:
+            input_dict['dStart'] = datetime.datetime.strptime(input_dict['dStart'],
+                                                              self.datetime_fmt)
+            input_dict['dFinish'] = datetime.datetime.strptime(input_dict['dFinish'],
+                                                               self.datetime_fmt)
 
         # Task(s) attrs
         for task in input_dict['tasks']:
@@ -95,8 +103,12 @@ class TestHandlers(object):
 
     def _clear_task_time(self, task):
         """For comparison purpose we ignore hours and minutes of task."""
-        task['dStart'] = task['dStart'].replace(**self.replace_time_opts)
-        task['dFinish'] = task['dFinish'].replace(**self.replace_time_opts)
+        if isinstance(task['dStart'], datetime.datetime):
+            task['dStart'] = task['dStart'].replace(**self.replace_time_opts)
+            task['dFinish'] = task['dFinish'].replace(**self.replace_time_opts)
+        else:
+            task['dStart'] = datetime.datetime.strptime(task['dStart'], self.datetime_fmt)
+            task['dFinish'] = datetime.datetime.strptime(task['dFinish'], self.datetime_fmt)
 
         for inner_task in task['tasks']:
             self._clear_task_time(inner_task)
@@ -107,8 +119,12 @@ class TestHandlers(object):
         # https://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-from-json
 
         # if this is a unicode string, return its string representation
-        if isinstance(data, unicode):
-            return data.encode('utf-8')
+        try:
+            if isinstance(data, unicode):
+                return data.encode('utf-8')
+        except NameError:
+            # py3 doesn't know unicode
+            return data
 
         # if this is a list of values, return list of byteified values
         if isinstance(data, list):
@@ -231,9 +247,9 @@ class TestHandlers(object):
                                            imported_schedule_dict):
         changelog = imported_schedule_dict['changelog']
         assert len(changelog.keys()) == 1
-        assert isinstance(changelog.keys()[0], int)
+        assert isinstance(list(changelog.keys())[0], int)
 
-        record = changelog.values()[0]
+        record = list(changelog.values())[0]
         date_now = datetime.datetime.now(tz=tzutc())
         assert self.test_import_start_timestamp < record['date']
         assert record['date'] < date_now
@@ -250,7 +266,8 @@ class TestHandlers(object):
         """
         handle = None
         converter_options = dict()
-        self.test_import_start_timestamp = datetime.datetime.now(tz=tzutc())
+        self.test_import_start_timestamp = datetime.datetime.now(tz=tzutc()).replace(microsecond=0)
+        sleep(1)  # make sure import takes at least second
 
         if import_schedule_file:
             handle = os.path.join(self.basedir, self.schedule_files_dir,
@@ -312,7 +329,7 @@ class TestHandlers(object):
                 import_setup_fn = getattr(self, callback_name)
                 import_setup_fn(handle, converter_options)
 
-    def test_export(self, handler_name, export_schedule_file, 
+    def test_export(self, handler_name, export_schedule_file,
                     flat, flag_show, flag_hide, options,
                     tmpdir, sort):
         full_export_schedule_file = os.path.join(self.basedir,

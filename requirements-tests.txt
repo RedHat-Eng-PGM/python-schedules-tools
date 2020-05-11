@@ -1,2 +1,4 @@
-testtools
+mock
 pytest
+redis
+testtools

@@ -13,6 +13,14 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 class BaseCvsTest(object):
     handler_class = cvs_mod
 
+    def setUp(self):
+        try:
+            import builtins  #noqa
+            self.mock_open_name = 'builtins.open'
+        except ImportError:
+            # py2
+            self.mock_open_name = '__builtin__.open'
+
     @classmethod
     def _make_reference_obj(cls, handle=None, checkout_dir=None, options=dict()):
         options = {
@@ -33,9 +41,14 @@ class BaseCvsWithDefaultHandler(BaseCvsTest):
     def setUp(self):
         self.reference_obj = self._make_reference_obj(self.handle,
                                                       self.checkout_dir)
+        super(BaseCvsWithDefaultHandler, self).setUp()
 
 
 class TestCvsCustomRepo(BaseCvsTest):
+    @pytest.fixture(autouse=True)
+    def setUp(self):
+        super(TestCvsCustomRepo, self).setUp()
+
     def test_get_local_shared_path(self):
         checkout_dir = '/tmp/aaa'
         reference = self._make_reference_obj(checkout_dir=checkout_dir)
@@ -64,7 +77,7 @@ class TestCvsCustomRepo(BaseCvsTest):
             mock_cvs_root.return_value]
 
         mock_os.path.isdir.return_value = True
-        with mock.patch('__builtin__.open', mock_fileopen):
+        with mock.patch(self.mock_open_name, mock_fileopen):
             assert not reference._is_valid_cvs_dir(path)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, 'refresh_local')
@@ -159,7 +172,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
 
         mock_os.path.exists.return_value = True
         mock_os.path.isdir.return_value = True
-        with mock.patch('__builtin__.open', mock_fileopen):
+        with mock.patch(self.mock_open_name, mock_fileopen):
             assert self.reference_obj._is_valid_cvs_dir(path)
 
     @mock.patch('schedules_tools.storage_handlers.cvs.os.path.exists')
@@ -186,7 +199,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_isdir.return_value = True
         mock_fileopen = mock.mock_open(read_data='asdf')
 
-        with mock.patch('__builtin__.open', mock_fileopen):
+        with mock.patch(self.mock_open_name, mock_fileopen):
             assert not self.reference_obj._is_valid_cvs_dir(path)
 
     @mock.patch.object(cvs_mod.StorageHandler_cvs, '_cvs_checkout')

@@ -242,7 +242,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             # skip load, task doesn't contain all needed info
             return
 
-        task.name = unicode(cells[COLUMN_TASK_NAME])
+        try:
+            task.name = unicode(cells[COLUMN_TASK_NAME])
+        except NameError:
+            task.name = str(cells[COLUMN_TASK_NAME])
 
         # dates
         task.dStart = self._parse_date(cells[COLUMN_START])
@@ -252,7 +255,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         self.schedule.dFinish = max(self.schedule.dFinish, task.dFinish)
 
         if COLUMN_NOTE in cells and cells[COLUMN_NOTE]:
-            task.note = unicode(cells[COLUMN_NOTE])
+            try:
+                task.note = unicode(cells[COLUMN_NOTE])
+            except NameError:
+                task.note = str(cells[COLUMN_NOTE])
 
         if COLUMN_PRIORITY in cells:
             task.priority = cells[COLUMN_PRIORITY]

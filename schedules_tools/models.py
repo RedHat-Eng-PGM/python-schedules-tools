@@ -1,10 +1,20 @@
-import itertools
 import pprint
 import datetime
 import re
 import logging
 
 from copy import copy
+
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest  # py2
+
+try:
+    xrange  # py2 - override range function and use py3 code
+    range = xrange  #noqa
+except NameError:
+    pass
 
 from schedules_tools import SchedulesToolsException
 
@@ -54,13 +64,15 @@ class Task(object):
         self.milestone = False
         self.level = level
 
-    def __unicode__(self):
-        return '%s %s MS:%s  (%s - %s)  F%s  [%s]' % (
-            self.slug, self.name, self.milestone, self.dStart, self.dFinish,
-            self.flags, len(self.tasks))
-
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        out = '%s %s MS:%s  (%s - %s)  F%s  [%s]' % (
+                self.slug, self.name, self.milestone, self.dStart, self.dFinish,
+                self.flags, len(self.tasks))
+
+        try:
+            return unicode(out).encode('utf-8')
+        except NameError:
+            return out
 
     def parse_extended_attr(self, value, key=None):
         """
@@ -107,7 +119,7 @@ class Task(object):
             self.note = ' '.join([self.note, val]).lstrip()
 
         else:
-            log.warn('Extended attr "{}" wasn\'t recognized.'.format(key))
+            log.info('Extended attr "{}" wasn\'t recognized.'.format(key))
 
     @staticmethod
     def _workaround_it_phase_names(eTask):
@@ -190,7 +202,11 @@ class Task(object):
             self._subtree_hash = ''
 
             for child_task in self.tasks:
-                values_list = [unicode(getattr(child_task, attr)) for attr in attrs]
+                try:
+                    values_list = [unicode(getattr(child_task, attr)) for attr in attrs]
+                except NameError:  # py3
+                    values_list = [str(getattr(child_task, attr)) for attr in attrs]
+
                 self._subtree_hash += ''.join(values_list) + child_task.subtree_hash
 
         return self._subtree_hash
@@ -234,11 +250,10 @@ class Schedule(object):
         self.used_flags = set()
         self.changelog = {}
         self.ext_attr = {}
-        self.unique_id_re = re.compile('[\W_]+')
+        self.unique_id_re = re.compile(r'[\W_]+')
         self.errors_import = []
         self.mtime = None
         self.tasks_slugs = None
-
 
     def make_flat(self):
         '''Convert tasks structure to flat list'''
@@ -248,11 +263,10 @@ class Schedule(object):
                 task.tasks = []
                 tasks_list.append(task)
                 add_tasks_to_list(subtasks, tasks_list)
-        
+
         flat_tasks = []
         add_tasks_to_list(self.tasks, flat_tasks)
         self.tasks = flat_tasks
-
 
     def filter_milestones(self):
         '''Keep only tasks that are milestones or contain children that are'''
@@ -260,30 +274,29 @@ class Schedule(object):
             tasks_list = []
             for task in tasks:
                 filtered_subtasks = filter_tasks(task.tasks)
-                
+
                 logmsg_fmt = 'REMOVE: {} {}'
-                
+
                 if task.milestone or filtered_subtasks:
                     task.tasks = filtered_subtasks
                     tasks_list.append(task)
                     logmsg_fmt = 'ADD: {} {}'
-                    
+
                 log.info(logmsg_fmt.format(task.name, task.milestone))
-                    
+
             return tasks_list
-        
+
         self.tasks = filter_tasks(self.tasks)
-        
-    
+
     def filter_flags(self, show=None, hide=None):
         '''
         Keep only tasks that match flag conditions or contain children tha match
-        
+
         Args:
             show: list of flags to show
             hide: list of flags to hide
         '''
-        
+
         def filter_tasks(tasks):
             tasks_list = []
             for task in tasks:
@@ -364,11 +377,11 @@ class Schedule(object):
             for task in tasks:
                 task_slug = task.get_slug_key(slug_prefix)
 
-                if task_slug > TASK_SLUG_TRUNCATION_LIMIT:
+                if len(task_slug) > TASK_SLUG_TRUNCATION_LIMIT:
                     task_slug = task_slug[:TASK_SLUG_TRUNCATION_LIMIT]
 
                 if task_slug in self.tasks_slugs:
-                    for i in xrange(2, TASK_SLUG_NUMERATION_LIMIT + 1):
+                    for i in range(2, TASK_SLUG_NUMERATION_LIMIT + 1):
                         task_slug_numerated = '%s_%d' % (task_slug, i)
                         if task_slug_numerated not in self.tasks_slugs:
                             final_task_slug = task_slug_numerated
@@ -424,7 +437,7 @@ class Schedule(object):
         missing_str = ('{}: Some phase upwards is missing to compare with '
                        'this one on the {} side.\n')
 
-        for left, right in itertools.izip_longest(left, right):
+        for left, right in zip_longest(left, right):
             if not left:
                 ret += missing_str.format(right.name, 'LEFT')
                 break

@@ -1,10 +1,11 @@
 import datetime
+import json
 import pytest
 import os
 
 from schedules_tools.tests import create_test_schedule
 from schedules_tools.converter import ScheduleConverter
-from schedules_tools.diff_v2 import ScheduleDiff
+from schedules_tools.diff import ScheduleDiff
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -138,6 +139,14 @@ class TestScheduleDiff(object):
                 f.write(diff_output)
             else:
                 expected_diff_output = f.read()
+
+                if output_format == 'json':
+                    # Need to load them again:
+                    # 1) Dates are saved as strings in expected
+                    # 2) Dict equality doesn't depend on keys order
+                    expected_diff_output = json.loads(expected_diff_output)
+                    diff_output = json.loads(diff_output)
+
                 assert diff_output == expected_diff_output
 
 

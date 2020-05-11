@@ -1,7 +1,7 @@
 import os
 import sys
 import re
-from schedule_handlers import ScheduleHandlerBase
+from .schedule_handlers import ScheduleHandlerBase
 import logging
 import importlib
 

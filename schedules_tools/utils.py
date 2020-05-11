@@ -2,7 +2,7 @@ import re
 from copy import copy
 from operator import attrgetter
 
-TASK_SLUG_REGEX = re.compile('[\W_]+')
+TASK_SLUG_REGEX = re.compile(r'[\W_]+')
 
 
 def sort_tasks(tasks, field):

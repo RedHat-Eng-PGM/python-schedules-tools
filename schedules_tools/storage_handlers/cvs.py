@@ -32,13 +32,13 @@ class StorageHandler_cvs(StorageBase):
     repo_name = None  # repo
 
     tmp_root = None  # local tmp handle dir
-  
-    refresh_validity = 5 # seconds
+
+    refresh_validity = 5  # seconds
     _last_refresh_local = None
     block_refresh = False  # allows to skip refresh
 
     local_handle = None
-    
+
     exclusive_access_option = 'exclusive_access'
 
     def __init__(self, handle=None, options=dict(), **kwargs):
@@ -46,8 +46,8 @@ class StorageHandler_cvs(StorageBase):
         self.checkout_dir_perm = options.get('cvs_checkout_dir_permission',
                                              None)
         self.repo_name = options.get('cvs_repo_name')
-        self.repo_root = options.get('cvs_root')    
-        self.block_refresh = options.get('cvs_block_refresh', False)  
+        self.repo_root = options.get('cvs_root')
+        self.block_refresh = options.get('cvs_block_refresh', False)
 
         super(StorageHandler_cvs, self).__init__(handle, options, **kwargs)
 
@@ -79,14 +79,14 @@ class StorageHandler_cvs(StorageBase):
                              stderr=stderr,
                              cwd=cwd)
         stdout, stderr = p.communicate()
-        
+
         if exclusive:
             self.release_shared_lock()
 
         if p.returncode != 0:
             msg = str({'stdout': stdout, 'stderr': stderr, 'cmd': cmd_str})
             raise CvsCommandException(msg, source=self)
-        
+
         return stdout, stderr
 
     @staticmethod
@@ -184,8 +184,11 @@ class StorageHandler_cvs(StorageBase):
             if last_refresh_time:
                 last_refresh_time = datetime_mod.datetime.strptime(last_refresh_time,
                                                                    datetime_format)
-                last_refresh_expired = (last_refresh_time <
-                                        datetime_mod.datetime.now() - datetime_mod.timedelta(seconds=self.refresh_validity))
+                last_refresh_expired = (
+                    last_refresh_time <
+                    datetime_mod.datetime.now() - datetime_mod.timedelta(
+                                                                seconds=self.refresh_validity)
+                )
 
             if force or last_refresh_expired:
                 self._update_shared_repo()
@@ -195,7 +198,6 @@ class StorageHandler_cvs(StorageBase):
 
                 if self.redis:
                     self.redis.set(last_refresh_local_time_key, last_refresh_time)
-
 
     def _copy_subtree_to_tmp(self, processed_path):
         """
@@ -209,17 +211,17 @@ class StorageHandler_cvs(StorageBase):
             Path to processed_path copied directory  in /tmp
         """
         src = os.path.join(self.checkout_dir, self.repo_name, processed_path)
-        
+
         dst_tmp_dir = tempfile.mkdtemp(prefix='sch_')
         dst = os.path.join(dst_tmp_dir, processed_path)
-        
+
         # lock cvs so nothing changes during copy
         self.acquire_shared_lock(msg='copying subtree from shared cvs copy')
         copy_tree(src, dst)
         self.release_shared_lock()
 
         return dst_tmp_dir
-    
+
     def _process_path(self):
         """
         Get handle and figure out, which directory subtree needs to be check
@@ -262,7 +264,7 @@ class StorageHandler_cvs(StorageBase):
     def clean_local_handle(self):
         if self.local_handle:
             log.debug('Cleaning local handle {}'.format(self.local_handle))
-            
+
             remove_tree(self.tmp_root)
             self.local_handle = None
 
@@ -324,7 +326,7 @@ class StorageHandler_cvs(StorageBase):
         cmd_revision = ''
         cvs_params = ''
         # -d = retrieve also new directories
-        # -P = prune empty directories        
+        # -P = prune empty directories
         cmd_params = '-dP'
 
         if revision and datetime_rev:
@@ -352,7 +354,7 @@ class StorageHandler_cvs(StorageBase):
         do complete checkout of the repository from scratch.
         """
         try:
-            stdout, stderr = self._cvs_update()
+            stdout, _ = self._cvs_update()
 
             # Are there any directories with troubles? Remove them (afterwards).
             to_cleanup = self._parse_cvs_update_output(stdout)
@@ -365,7 +367,7 @@ class StorageHandler_cvs(StorageBase):
                 self._clean_checkout_directory(path)
 
             # This step is just for sure - shouldn't occur usually
-            stdout, stderr = self._cvs_update()
+            stdout, _ = self._cvs_update()
             to_cleanup = self._parse_cvs_update_output(stdout)
             if to_cleanup:
                 # Something went wrong by update, do complete fresh checkout
@@ -388,7 +390,7 @@ class StorageHandler_cvs(StorageBase):
             list of paths, that's corrupted
 
         """
-        re_flags = re.compile('^(\S)\s+(\S+)')
+        re_flags = re.compile(r'^(\S)\s+(\S+)')
         to_cleanup = set()
 
         for line in cvsoutput.splitlines():
@@ -418,7 +420,7 @@ class StorageHandler_cvs(StorageBase):
         rm_dir = os.path.join(self.checkout_dir, directory)
         if os.path.exists(rm_dir):
             # lock cvs so nothing changes during cleanup
-            self.acquire_shared_lock(msg='cleaning shared cvs copy')            
+            self.acquire_shared_lock(msg='cleaning shared cvs copy')
             remove_tree(rm_dir)
             self.release_shared_lock()
 
@@ -434,7 +436,7 @@ class StorageHandler_cvs(StorageBase):
 
         changelog = {}
         cmd = 'log {}'.format(os.path.join(self.repo_name, self.handle))
-        stdout, stderr = self._cvs_command(cmd)
+        stdout, _ = self._cvs_command(cmd)
 
         STATE_HEAD = 'head'
         STATE_REVISION = 'revision'
@@ -447,12 +449,13 @@ class StorageHandler_cvs(StorageBase):
         author = None
         date = None
         comment = []
-        re_date_author = re.compile('date:\s*([^;]+);\s+author:\s*([^;]+);')
-        re_head = re.compile('head:\s+(.+)')
-        re_revision = re.compile('revision\s+(.+)')
-        re_branches = re.compile('branches:\s+(.+);')
+        re_date_author = re.compile(r'date:\s*([^;]+);\s+author:\s*([^;]+);')
+        re_head = re.compile(r'head:\s+(.+)')
+        re_revision = re.compile(r'revision\s+(.+)')
+        re_branches = re.compile(r'branches:\s+(.+);')
         log_separator = '----------------------------'
-        log_end_separator = '============================================================================='
+        log_end_separator = \
+            '============================================================================='
 
         for line in stdout.splitlines():
             if state == STATE_HEAD:

@@ -16,7 +16,7 @@ import sys
 import argparse
 import logging
 from schedules_tools import discovery
-from schedules_tools.diff_v2 import ScheduleDiff
+from schedules_tools.diff import ScheduleDiff
 
 
 def setup_logging(level):

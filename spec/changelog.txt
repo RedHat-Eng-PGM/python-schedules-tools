@@ -1,3 +1,6 @@
+* Mon May 11 2020 Pavel Slama <pslama@redhat.com> 7.63-2.git20200511.a0ddcf9
+- consolidate requirements
+
 * Thu May 07 2020 Pavel Slama <pslama@redhat.com> 7.63-1.git20200507.57caba6
 - use entries to package console scripts
 

@@ -142,7 +142,7 @@ class ScheduleHandler_json(ScheduleHandlerBase):
         # during import
 
         schedule_dict['changelog'] = self.schedule.changelog
-        for log in self.schedule.changelog.itervalues():
+        for log in self.schedule.changelog.values():
             log['date'] = datetime.datetime.strftime(log['date'], '%Y-%m-%d')
 
         schedule_dict['tasks'] = []
