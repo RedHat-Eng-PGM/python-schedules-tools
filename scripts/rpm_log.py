@@ -41,15 +41,18 @@ def get_rpm_log():
                   '%s..' % first_tag_commit],
                  stdout=PIPE, stderr=PIPE)
     output, _ = proc.communicate()
-    ver_lines = output.splitlines()
+    ver_lines = output.decode('utf-8').splitlines()
     out = {}
+    actual_ts = 0
 
     for ver_line in ver_lines:
         if not len(ver_line):
             continue
-        elif ver_line[0] == '*':
+
+        if ver_line[0] == '*':
             timestamp, _, rest = ver_line[2:].partition(' ')
             actual_ts = timestamp
+
             rest, _, commit_hash = rest.rpartition(' ')
             # TODO:3 git log -3 --pretty --walk-reflogs master stable
             date = datetime.date.fromtimestamp(float(timestamp))
@@ -58,6 +61,7 @@ def get_rpm_log():
             new_line = '* %s %s %s' % (
                     beg_date, rest, get_rpm_version_format(get_rpm_version(commit_hash)))
             out[actual_ts] = new_line + '\n'
+
         elif actual_ts:
             out[actual_ts] += ver_line + '\n'
 
