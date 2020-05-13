@@ -38,12 +38,6 @@ else:  # see if there is already saved version
             break
 
 
-with open('requirements.txt') as fd:
-    requirements = fd.read().split()
-
-with open('requirements-tests.txt') as fd:
-    requirements_tests = fd.read().split()
-
 py_version = sys.version[:1]
 
 setup(
@@ -56,7 +50,6 @@ setup(
     description=project_description,
     packages=find_packages(exclude=('scripts',)),
     include_package_data=True,
-    tests_require=requirements_tests,
     entry_points={
         # Make them all start with schedule- and end with python version
         #   so we can generate symlinks in /usr/bin/ post install
@@ -65,5 +58,18 @@ setup(
             'schedule-diff%s=schedules_tools.bin.schedule_diff:main' % py_version,
         ]
     },
-    install_requires=requirements,
+    install_requires=[
+        'icalendar',
+        'lxml'
+    ],
+    extras_require={
+        "Rally":  ["pyral"],
+        "Smartsheet": ["smartsheet-python-sdk<3"],
+    },
+    tests_require=[
+        'mock',
+        'pytest',
+        'redis',
+        'testtools',
+    ],
 )

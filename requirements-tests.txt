@@ -1,4 +1,0 @@
-mock
-pytest
-redis
-testtools
