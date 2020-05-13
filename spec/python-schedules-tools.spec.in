@@ -152,3 +152,5 @@ done
 
 
 %changelog
+* Wed May 13 2020 Pavel Slama <pslama@redhat.com> 7.63-5
+- Remove spec generation from python setup.py - split

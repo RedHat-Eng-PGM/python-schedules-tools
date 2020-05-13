@@ -7,6 +7,7 @@ ifneq (${SRPM_OUTDIR}, "")
 	SRPM_OUTDIR_PARAM := --define "_srcrpmdir $(SRPM_OUTDIR)"
 endif
 
+RPM_NAME = python-schedules-tools
 
 help:
 	@echo "Usage: make <target>"
@@ -44,12 +45,9 @@ clean:
 	find . -\( -name "*.pyc" -o -name '*.pyo' -o -name "*~" -\) -delete
 	rm -rf ./*.egg-info ./dist
 
+
 install:
 	@python setup.py install
-
-
-log:
-	@python scripts/rpm_log.py
 
 source: clean
 	@python setup.py sdist
@@ -57,4 +55,7 @@ source: clean
 prepare_source: source
 	mkdir -p ~/rpmbuild/SOURCES
 	cp dist/*.tar.gz ~/rpmbuild/SOURCES
+
+	spec/add_version.py > dist/${RPM_NAME}.spec
+	cat spec/${RPM_NAME}.spec.in >> dist/${RPM_NAME}.spec
 

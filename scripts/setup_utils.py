@@ -11,13 +11,13 @@ def write_version(file_name, version_tuple):
     fo = open(file_name, "w")
     fo.write('VERSION = ("%s", %s, "%s")\n' % tuple(version_tuple))
     fo.close()
-    
+
+
 def read_version(file_name):
     with open(file_name, "r") as f:
         match = re.match('^VERSION[^(]*\("([^"]+)", ([^,]+), "([^"]+)"\)', f.read())
         if match:
             return match.groups()
-    
 
 
 def memoize(obj):
@@ -35,11 +35,12 @@ def memoize(obj):
 @memoize
 def get_git_tag_list():
     # get existing tags reversed
-    proc = Popen(['git', 'for-each-ref', '--format=%(refname)', '--sort=-taggerdate', 'refs/tags'], stdout=PIPE, stderr=PIPE)
+    proc = Popen(['git', 'for-each-ref', '--format=%(refname)', '--sort=-taggerdate', 'refs/tags'],
+                 stdout=PIPE, stderr=PIPE)
     output = proc.communicate()[0].strip()
     tags = output.splitlines()
 
-    for idx, tag in enumerate(tags):
+    for idx, _ in enumerate(tags):
         tags[idx] = tags[idx][10:]
 
     return tags
@@ -61,7 +62,12 @@ def get_git_date():
     proc.wait()
     if proc.returncode != 0:
         raise RuntimeError("Not a git repository")
-    lines = str(proc.stdout.read().strip()).split("\n")
+
+    stdout = proc.stdout.read()
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode()
+
+    lines = stdout.strip().split("\n")
     return lines[0].split(" ")[0].replace("-", "")
 
 
@@ -73,8 +79,12 @@ def get_git_version():
     proc.wait()
     if proc.returncode != 0:
         raise RuntimeError("Not a git repository")
-    lines = str(proc.stdout.read().strip()).split("\n")
-    return lines[0]
+
+    stdout = proc.stdout.read()
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode()
+
+    return stdout.strip().split("\n")[0]
 
 
 def get_rpm_version(head_rev=None):
@@ -88,6 +98,9 @@ def get_rpm_version(head_rev=None):
 
     for tag in get_git_tag_list():
         # get tag rev number
+        if isinstance(tag, bytes):
+            tag = tag.decode()
+
         tag_rev = get_tag_rev_number(tag)
 
         if head_rev == tag_rev:
