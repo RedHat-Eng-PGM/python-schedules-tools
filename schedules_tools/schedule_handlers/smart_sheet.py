@@ -217,8 +217,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             date_str: Examples of input: 2017-01-20 or 2017-01-20T08:00:00
 
         Returns:
-            datetime instance
+            datetime instance or None if string couldn't be parsed
         """
+        date = None
+
         for format_str in [self.datetime_format, self.date_format]:
             try:
                 date = datetime.datetime.strptime(date_str, format_str)
@@ -226,7 +228,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             except ValueError:
                 pass
         # We don't require so precise timestamp, so ignore seconds
-        date = date.replace(second=0)
+        if date:
+            date = date.replace(second=0)
+
         return date
 
     def _load_task(self, row, parents_stack):
@@ -250,6 +254,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # dates
         task.dStart = self._parse_date(cells[COLUMN_START])
         task.dFinish = self._parse_date(cells[COLUMN_FINISH])
+
+        if not (task.dStart and task.dFinish):
+            # Couldn't parse the dates
+            return
 
         self.schedule.dStart = min(self.schedule.dStart, task.dStart)
         self.schedule.dFinish = max(self.schedule.dFinish, task.dFinish)
