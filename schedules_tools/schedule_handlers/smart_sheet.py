@@ -415,6 +415,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 'value': task.name
             })
         if task.dStart:
+            if isinstance(task.dStart, datetime.datetime):
+                task.dStart = task.dStart.date()
             row.cells.append({
                 'column_id': self.sheet.columns[2].id,
                 'value': task.dStart.isoformat()
@@ -428,6 +430,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             # finish date can be set only as (start, duration) tuple,
             # put direct value for Finish column is not allowed.
             # Even if start and finish date are the same, duration equals 1.
+            if isinstance(task.dFinish, datetime.datetime):
+                task.dFinish = task.dFinish.date()
             duration = (task.dFinish - task.dStart).days + 1
             row.cells.append({
                 'column_id': self.sheet.columns[1].id,  # finish #3
