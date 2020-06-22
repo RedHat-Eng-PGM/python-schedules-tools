@@ -1,3 +1,4 @@
+import calendar
 import datetime
 import logging
 import numbers
@@ -36,6 +37,14 @@ except ImportError:
     additional_deps_satistifed = False
 
 
+def date_range(start, finish):
+    current_date = start
+    while current_date != finish:
+        yield current_date
+        current_date += datetime.timedelta(days=1)
+    yield finish
+
+
 class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     provide_export = True
     handle_deps_satisfied = additional_deps_satistifed
@@ -44,6 +53,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     datetime_format = '%Y-%m-%dT%H:%M:%S'  # 2017-01-20T08:00:00
     _client_instance = None
     _sheet_instance = None
+    _sheet_columns = None
     _re_number = re.compile('[0-9]+')
     _re_url = re.compile(r'^(https?://.*?smartsheet.com[^?]+)')
     columns_mapping_name = {
@@ -61,6 +71,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         'Link': COLUMN_LINK,
         'Priority': COLUMN_PRIORITY,
     }
+    dayname_to_isoweekday = {x.lower(): i + 1 for i, x in enumerate(calendar.day_name)}
 
     columns_mapping_id = {}
 
@@ -147,7 +158,39 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             except smartsheet.exceptions.ApiError as e:
                 raise SmartSheetImportException(e.message, source=self.handle)
 
+            self._sheet_columns = {x.title.lower(): x.id for x in self._sheet_instance.columns}
+
         return self._sheet_instance
+
+    @property
+    def working_days_and_holidays(self):
+        if not self._working_days_and_holidays:
+            sheet = self.sheet
+            verbose_working_weekdays = sheet.project_settings.working_days.to_list()
+            working_isoweekdays = set(self.dayname_to_isoweekday[x.lower()]
+                                      for x in verbose_working_weekdays)
+            holidays = set(sheet.project_settings.working_days.non_working_days.to_list())
+            self._working_days_and_holidays = working_isoweekdays, holidays
+
+        return self._working_days_and_holidays
+
+    def calculate_duration(self, start, finish):
+        if start == finish:
+            return 1
+
+        working_isoweekdays, holidays = self.working_days_and_holidays
+        duration = 1
+
+        for date in date_range(start, finish):
+            if date.isoweekday() not in working_isoweekdays:
+                continue
+
+            if date in holidays:
+                continue
+
+            duration += 1
+
+        return duration
 
     def get_handle_mtime(self):
         return self.sheet.modified_at
@@ -359,8 +402,10 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     def export_schedule(self, output=None):
         # Project sheet from API (Templates.list_public_templates)
+        schedule_name = self.schedule.name[:50]
+
         sheet_spec = self.client.models.Sheet({
-            'name': self.schedule.name,
+            'name': schedule_name,
             'from_id': 5066554783098756,
         })
         resp = self.client.Home.create_sheet_from_template(sheet_spec)
@@ -404,26 +449,33 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # sheet ID
         return self.handle
 
-    def export_task(self, task, parent_id=None):
+    def export_task(self, task, parent_id=None, sibling_id=None, to_top=False):
         row = self.client.models.Row()
-        row.parent_id = parent_id
-        row.to_bottom = True
+        if sibling_id:
+            row.sibling_id = sibling_id
+        else:
+            if to_top:
+                row.to_top = True
+            else:
+                row.to_bottom = True
+            if parent_id:
+                row.parent_id = parent_id
 
         if task.name:
             row.cells.append({
-                'column_id': self.sheet.columns[0].id,
+                'column_id': self._sheet_columns['task name'],
                 'value': task.name
             })
         if task.dStart:
             if isinstance(task.dStart, datetime.datetime):
                 task.dStart = task.dStart.date()
             row.cells.append({
-                'column_id': self.sheet.columns[2].id,
+                'column_id': self._sheet_columns['start'],
                 'value': task.dStart.isoformat()
             })
         if task.milestone:
             row.cells.append({
-                'column_id': self.sheet.columns[1].id,
+                'column_id': self._sheet_columns['duration'],
                 'value': '0'
             })
         elif task.dFinish:
@@ -434,12 +486,18 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 task.dFinish = task.dFinish.date()
             duration = (task.dFinish - task.dStart).days + 1
             row.cells.append({
-                'column_id': self.sheet.columns[1].id,  # finish #3
+                'column_id': self._sheet_columns['duration'],
                 'value': '{}d'.format(duration)
             })
+        elif task.duration:
+            row.cells.append({
+                'column_id': self._sheet_columns['duration'],
+                'value': '{}d'.format(task.duration)
+            })
+
         if task.flags:
             row.cells.append({
-                'column_id': self.sheet.columns[4].id,
+                'column_id': self._sheet_columns['flags'],
                 'value': ', '.join(task.flags)
             })
         if task.link:
@@ -468,9 +526,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                    'of {}'.format(len_result))
             raise SmartSheetExportException(msg, source=self.handle)
 
-        row_id = resp.result[0].id
+        row = resp.result[0]
 
         for nested_task in task.tasks:
-            self.export_task(nested_task, parent_id=row_id)
+            self.export_task(nested_task, parent_id=row.id)
 
-        return row_id
+        return row

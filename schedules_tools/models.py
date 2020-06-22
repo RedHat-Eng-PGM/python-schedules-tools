@@ -40,6 +40,7 @@ class Task(object):
     priority = 500
     dStart = datetime.datetime.max
     dFinish = datetime.datetime.min
+    duration = None
     milestone = False
     p_complete = 0.0
     flags = []
