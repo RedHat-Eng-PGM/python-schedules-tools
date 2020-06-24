@@ -158,9 +158,14 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             except smartsheet.exceptions.ApiError as e:
                 raise SmartSheetImportException(e.message, source=self.handle)
 
-            self._sheet_columns = {x.title.lower(): x.id for x in self._sheet_instance.columns}
-
         return self._sheet_instance
+
+    @property
+    def sheet_columns(self):
+        if self._sheet_columns is None:
+            self._sheet_columns = {x.title.lower(): x.id
+                                   for x in self.sheet.columns}
+        return self._sheet_columns
 
     @property
     def working_days_and_holidays(self):
@@ -463,19 +468,19 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
         if task.name:
             row.cells.append({
-                'column_id': self._sheet_columns['task name'],
+                'column_id': self.sheet_columns['task name'],
                 'value': task.name
             })
         if task.dStart:
             if isinstance(task.dStart, datetime.datetime):
                 task.dStart = task.dStart.date()
             row.cells.append({
-                'column_id': self._sheet_columns['start'],
+                'column_id': self.sheet_columns['start'],
                 'value': task.dStart.isoformat()
             })
         if task.milestone:
             row.cells.append({
-                'column_id': self._sheet_columns['duration'],
+                'column_id': self.sheet_columns['duration'],
                 'value': '0'
             })
         elif task.dFinish:
