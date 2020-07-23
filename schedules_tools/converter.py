@@ -97,7 +97,7 @@ class ScheduleConverter(object):
                               storage_src_format,
                               options=dict()):
         """Init storage handler if it's necessary and isn't already prepared"""
-        if storage_src_format and not self.storage_handler:
+        if storage_src_format and storage_src_format != 'none' and not self.storage_handler:
             storage_handler_cls = self._get_storage_handler_cls(
                                                         storage_src_format)
             storage_handler = storage_handler_cls(handle=handle,
