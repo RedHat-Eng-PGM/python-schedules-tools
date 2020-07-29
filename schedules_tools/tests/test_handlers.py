@@ -22,16 +22,27 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
+def is_taskjuggler_available():
+    from distutils.spawn import find_executable
+    return find_executable('taskjuggler') is not None
+
+
 def pytest_generate_tests(metafunc):
     source_function = metafunc.function.__name__
 
     if source_function == 'test_import':
         argnames = ['handler_name', 'import_schedule_file', 'interm_reference_file_name']
-        argvalues = metafunc.cls.scenarios_import_combinations
+        # Remove test scenarios without available dependencies
+        argvalues = []
+        for scenario in metafunc.cls.scenarios_import_combinations:
+            if scenario[0] == 'tjp' and not is_taskjuggler_available():
+                continue
+            argvalues.append(scenario)
+
         metafunc.parametrize(argnames, argvalues)
     elif source_function == 'test_export':
-        argnames = ['handler_name', 'export_schedule_file', 'flat', 
-                    'flag_show', 'flag_hide', 
+        argnames = ['handler_name', 'export_schedule_file', 'flat',
+                    'flag_show', 'flag_hide',
                     'options', 'sort']
         argvalues = metafunc.cls.scenarios_export_combinations
         metafunc.parametrize(argnames, argvalues)
