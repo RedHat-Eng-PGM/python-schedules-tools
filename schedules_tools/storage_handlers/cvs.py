@@ -176,8 +176,8 @@ class StorageHandler_cvs(StorageBase):
             last_refresh_local_time_key = self.redis_key + '_last_refresh_local'
             last_refresh_expired = True  # init
 
-            if self.redis:
-                last_refresh_time = self.redis.get(last_refresh_local_time_key)
+            if self.redis and (r_value := self.redis.get(last_refresh_local_time_key)):
+                last_refresh_time = str(r_value, 'utf-8')
             else:
                 last_refresh_time = self._last_refresh_local
 
@@ -394,7 +394,7 @@ class StorageHandler_cvs(StorageBase):
         to_cleanup = set()
 
         for line in cvsoutput.splitlines():
-            match = re.findall(re_flags, line)
+            match = re.findall(re_flags, str(line, 'utf-8'))
             if not match:
                 continue
             flag, filename = match[0]
@@ -458,6 +458,7 @@ class StorageHandler_cvs(StorageBase):
             '============================================================================='
 
         for line in stdout.splitlines():
+            line = str(line, 'utf-8')
             if state == STATE_HEAD:
                 matches = re_head.findall(line)
                 if not matches:
