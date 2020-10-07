@@ -41,7 +41,7 @@ def get_git_tag_list():
     tags = output.splitlines()
 
     for idx, _ in enumerate(tags):
-        tags[idx] = tags[idx][10:]
+        tags[idx] = str(tags[idx][10:], 'utf-8')
 
     return tags
 
@@ -50,7 +50,7 @@ def get_git_tag_list():
 def get_tag_rev_number(tag):
     proc = Popen(['git', 'rev-list', '--abbrev-commit', '-n 1', tag],
                  stdout=PIPE, stderr=PIPE)
-    tag_rev = proc.communicate()[0].strip()
+    tag_rev = str(proc.communicate()[0].strip(), 'utf-8')
     return tag_rev
 
 
@@ -63,9 +63,7 @@ def get_git_date():
     if proc.returncode != 0:
         raise RuntimeError("Not a git repository")
 
-    stdout = proc.stdout.read()
-    if isinstance(stdout, bytes):
-        stdout = stdout.decode()
+    stdout = str(proc.stdout.read(), 'utf-8')
 
     lines = stdout.strip().split("\n")
     return lines[0].split(" ")[0].replace("-", "")
@@ -80,9 +78,7 @@ def get_git_version():
     if proc.returncode != 0:
         raise RuntimeError("Not a git repository")
 
-    stdout = proc.stdout.read()
-    if isinstance(stdout, bytes):
-        stdout = stdout.decode()
+    stdout = str(proc.stdout.read(), 'utf-8')
 
     return stdout.strip().split("\n")[0]
 
@@ -98,8 +94,6 @@ def get_rpm_version(head_rev=None):
 
     for tag in get_git_tag_list():
         # get tag rev number
-        if isinstance(tag, bytes):
-            tag = tag.decode()
 
         tag_rev = get_tag_rev_number(tag)
 
