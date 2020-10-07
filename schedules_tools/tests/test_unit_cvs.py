@@ -445,7 +445,7 @@ class TestCvs(BaseCvsWithDefaultHandler):
         mock_cvs_checkout.assert_called()
 
     def test_parse_cvs_update_output(self):
-        cvsoutput = """
+        cvsoutput = b"""
 ? rhel-unknown/vacations.tji
 cvs update: warning: rhel-updated-wo-flag/Makefile was lost
 U rhel-updated/Makefile
@@ -495,7 +495,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
                                   mock_refresh_local,
                                   mock_cvs_command):
         with open(os.path.join(BASE_DIR, 'fixtures', 'cvs_log.stdout')) as fd:
-            cvs_stdout = fd.read()
+            cvs_stdout = bytes(fd.read(), 'utf-8')
 
         with open(os.path.join(BASE_DIR, 'fixtures', 'cvs_log.json')) as fd:
             changelog_ref = jsondate.load(fd)
