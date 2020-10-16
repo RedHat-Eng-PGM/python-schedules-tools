@@ -176,10 +176,12 @@ class StorageHandler_cvs(StorageBase):
             last_refresh_local_time_key = self.redis_key + '_last_refresh_local'
             last_refresh_expired = True  # init
 
-            if self.redis and (r_value := self.redis.get(last_refresh_local_time_key)):
-                last_refresh_time = str(r_value, 'utf-8')
-            else:
-                last_refresh_time = self._last_refresh_local
+            last_refresh_time = self._last_refresh_local
+
+            if self.redis:
+                r_value = self.redis.get(last_refresh_local_time_key)
+                if r_value:
+                    last_refresh_time = str(r_value, 'utf-8')
 
             if last_refresh_time:
                 last_refresh_time = datetime_mod.datetime.strptime(last_refresh_time,
