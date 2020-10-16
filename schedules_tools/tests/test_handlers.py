@@ -85,7 +85,7 @@ class TestHandlers(object):
     datetime_fmt = '%Y-%m-%dT%H:%M:%SZ'
 
     def _sanitize_export_test_ics(self, content):
-        return re.sub('DTSTAMP:[0-9]+T[0-9]+Z', 'DTSTAMP:20170101T010101Z', content)
+        return re.sub(r'DTSTAMP:[0-9]+T[0-9]+Z', 'DTSTAMP:20170101T010101Z', content)
 
     def _clean_interm_struct(self, input_dict):
         """Removes keys that is not needed for comparison,

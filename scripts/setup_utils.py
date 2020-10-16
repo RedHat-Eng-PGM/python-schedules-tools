@@ -15,7 +15,7 @@ def write_version(file_name, version_tuple):
 
 def read_version(file_name):
     with open(file_name, "r") as f:
-        match = re.match('^VERSION[^(]*\("([^"]+)", ([^,]+), "([^"]+)"\)', f.read())
+        match = re.match(r'^VERSION[^(]*\("([^"]+)", ([^,]+), "([^"]+)"\)', f.read())
         if match:
             return match.groups()
 

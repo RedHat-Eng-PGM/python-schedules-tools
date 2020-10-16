@@ -21,7 +21,7 @@ from schedules_tools import SchedulesToolsException
 from .utils import sort_tasks, slugify
 
 log = logging.getLogger(__name__)
-re_flags_separator = re.compile('[, ]+')
+re_flags_separator = re.compile(r'[, ]+')
 
 ATTR_PREFIX_FLAG = 'Flags'
 ATTR_PREFIX_LINK = 'Link'

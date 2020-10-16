@@ -27,3 +27,4 @@ devel-tools/*.pp
 .pydevproject
 .refactorings
 .settings
+/.pytest_cache/

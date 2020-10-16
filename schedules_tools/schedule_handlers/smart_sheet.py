@@ -54,7 +54,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     _client_instance = None
     _sheet_instance = None
     _sheet_columns = None
-    _re_number = re.compile('[0-9]+')
+    _re_number = re.compile(r'[0-9]+')
     _re_url = re.compile(r'^(https?://.*?smartsheet.com[^?]+)')
     columns_mapping_name = {
         'Task': COLUMN_TASK_NAME,

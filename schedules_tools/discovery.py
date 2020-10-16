@@ -11,8 +11,8 @@ BASE_DIR = os.path.dirname(os.path.realpath(
     os.path.join(__file__, os.pardir)))
 
 log = logging.getLogger(__name__)
-re_schedule_handler = re.compile('^ScheduleHandler_(\S+)$')
-re_storage_handler = re.compile('^StorageHandler_(\S+)$')
+re_schedule_handler = re.compile(r'^ScheduleHandler_(\S+)$')
+re_storage_handler = re.compile(r'^StorageHandler_(\S+)$')
 
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
