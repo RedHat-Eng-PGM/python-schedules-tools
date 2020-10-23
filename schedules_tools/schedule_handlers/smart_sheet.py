@@ -75,6 +75,8 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     columns_mapping_id = {}
 
+    wrong_handles = set([])  # not existing handles cache
+
     # getter/setter to convert handle to Smartsheet id
     @property
     def handle(self):
@@ -109,13 +111,23 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             if match:
                 value = match.groups()[0]
 
-                sheets = self.client.Sheets.list_sheets(include_all=True)
+                # Need a speedup in case of wrong handle
+                if value not in self.__class__.wrong_handles:
+                    log.info('Getting sheets looking for handle (consuming)')
+                    log.info('Waiting on Smartsheets')
 
-                for sheet in sheets.data:
-                    if sheet.permalink == value:
-                        info_dict = info_dict = dict(id=int(sheet.id),
-                                                     permalink=value)
-                        break
+                    sheets = self.client.Sheets.list_sheets(include_all=True)
+
+                    log.info('Getting sheets looking for handle (consuming) - DONE')
+
+                    for sheet in sheets.data:
+                        if sheet.permalink == value:
+                            info_dict = info_dict = dict(id=int(sheet.id),
+                                                         permalink=value)
+                            break
+
+                    if not info_dict:
+                        self.__class__.wrong_handles.add(value)
 
         return info_dict
 
@@ -150,6 +162,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     @property
     def sheet(self):
         if not self._sheet_instance:
+            if self.handle in self.__class__.wrong_handles:
+                raise SmartSheetImportException(
+                    'Wrong handle (does not exist or missing permissions)', source=self.handle)
             try:
                 # get sheet and turn off rows pagination to get all rows
                 self._sheet_instance = self.client.Sheets.get_sheet(
@@ -212,6 +227,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         return changelog
 
     def import_schedule(self):
+        log.info(f'Import schedule {self.handle}')
+        log.info('Waiting on Smartsheets')
+
         try:
             self.schedule = models.Schedule()
             self.schedule.name = str(self.sheet.name)
@@ -221,6 +239,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             self.schedule.changelog = self.get_handle_changelog()
             self.schedule.dStart = datetime.datetime.max
             self.schedule.dFinish = datetime.datetime.min
+            log.debug('Import schedule - after first call to smartsheet')
 
             parents_stack = []
 
