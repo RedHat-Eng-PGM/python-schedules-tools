@@ -227,7 +227,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         return changelog
 
     def import_schedule(self):
-        log.info(f'Import schedule {self.handle}')
+        log.info('Import schedule %s' % self.handle)
         log.info('Waiting on Smartsheets')
 
         try:
