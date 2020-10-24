@@ -41,6 +41,8 @@ class StorageHandler_cvs(StorageBase):
 
     exclusive_access_option = 'exclusive_access'
 
+    group_writable = True
+
     def __init__(self, handle=None, options=dict(), **kwargs):
         self.checkout_dir = options.get('cvs_checkout_path')
         self.checkout_dir_perm = options.get('cvs_checkout_dir_permission',
@@ -280,6 +282,9 @@ class StorageHandler_cvs(StorageBase):
         """
         verify_existing_dif = True
 
+        if self.group_writable:
+            orig_umask = os.umask(0o002)  # group writable
+
         if not self.checkout_dir:
             verify_existing_dif = False
             self.checkout_dir = tempfile.mkdtemp(prefix='sch_repo_')
@@ -294,6 +299,8 @@ class StorageHandler_cvs(StorageBase):
             return self.checkout_dir
 
         temp_checkout_dir = tempfile.mkdtemp(prefix='sch_tmp_repo_')
+        os.chmod(temp_checkout_dir, self.checkout_dir_perm)
+
         cmd = 'co {}'.format(self.repo_name)
 
         self._cvs_command(cmd, cwd=temp_checkout_dir, exclusive=True)
@@ -308,6 +315,9 @@ class StorageHandler_cvs(StorageBase):
 
         if self.checkout_dir_perm:
             os.chmod(self.checkout_dir, self.checkout_dir_perm)
+
+        if orig_umask:
+            os.umask(orig_umask)  # group writable
 
         return self.checkout_dir
 
@@ -342,11 +352,18 @@ class StorageHandler_cvs(StorageBase):
         if revision:
             cmd_revision = '-r "{}"'.format(revision)
 
+        if self.group_writable:
+            orig_umask = os.umask(0o002)  # group writable
+
         cmd = '{cvs_params} update {cmd_params} {cmd_revision} {filename}'.format(
             cvs_params=cvs_params,
             cmd_params=cmd_params,
             cmd_revision=cmd_revision, filename=filename).strip()
         stdout, stderr = self._cvs_command(cmd, exclusive=True)
+
+        if orig_umask:
+            os.umask(orig_umask)  # group writable
+
         return stdout, stderr
 
     def _update_shared_repo(self):
