@@ -1,3 +1,4 @@
+import grp
 import logging
 import os
 import re
@@ -41,8 +42,6 @@ class StorageHandler_cvs(StorageBase):
 
     exclusive_access_option = 'exclusive_access'
 
-    group_writable = True
-
     def __init__(self, handle=None, options=dict(), **kwargs):
         self.checkout_dir = options.get('cvs_checkout_path')
         self.checkout_dir_perm = options.get('cvs_checkout_dir_permission',
@@ -50,6 +49,10 @@ class StorageHandler_cvs(StorageBase):
         self.repo_name = options.get('cvs_repo_name')
         self.repo_root = options.get('cvs_root')
         self.block_refresh = options.get('cvs_block_refresh', False)
+
+        # local checkout access
+        self.group_owner = options.get('cvs_group_owner', None)  # name, not id
+        self.group_writable = options.get('cvs_group_writable', True)
 
         super(StorageHandler_cvs, self).__init__(handle, options, **kwargs)
 
@@ -299,6 +302,10 @@ class StorageHandler_cvs(StorageBase):
             return self.checkout_dir
 
         temp_checkout_dir = tempfile.mkdtemp(prefix='sch_tmp_repo_')
+
+        if self.group_owner:
+            os.chown(temp_checkout_dir, -1, grp.getgrnam(self.group_owner).gr_gid)
+
         os.chmod(temp_checkout_dir, self.checkout_dir_perm)
 
         cmd = 'co {}'.format(self.repo_name)
