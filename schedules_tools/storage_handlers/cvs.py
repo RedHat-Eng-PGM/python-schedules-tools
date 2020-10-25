@@ -306,7 +306,8 @@ class StorageHandler_cvs(StorageBase):
         if self.group_owner:
             os.chown(temp_checkout_dir, -1, grp.getgrnam(self.group_owner).gr_gid)
 
-        os.chmod(temp_checkout_dir, self.checkout_dir_perm)
+        if self.checkout_dir_perm:
+            os.chmod(temp_checkout_dir, self.checkout_dir_perm)
 
         cmd = 'co {}'.format(self.repo_name)
 
