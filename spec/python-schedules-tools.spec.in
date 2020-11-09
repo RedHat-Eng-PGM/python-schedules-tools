@@ -1,30 +1,14 @@
 %global srcname schedules-tools
-%define with_py2 0%{?fedora} <= 31 || 0%{?rhel}
-%define with_py2_prefix 0%{?rhel} >= 8 || 0%{?fedora}
-
-%define create_symlinks cd %{_bindir} \
-for i in `find . -type f -name 'schedule-*[23]'`; do \
-  ln -srf "$i" "${i:0:-1}" \
-done
-
-%define remove_symlinks cd %{_bindir} \
-if [ $1 == 0 ];then \
-  for i in schedule-*; do \
-    if [[ -L "$i" ]]; then \
-      rm -rf "$i" \
-    fi \
-  done \
-fi
 
 %global log_dir /var/log/%{name}
 %global log_files debug.log
 
 
-Name:           python-%{srcname}
+Name:           python3-%{srcname}
 Version:        %{version}
 Release:        %{release_number}.%{checkout}%{?dist}
 Epoch:          1
-Summary:        Schedule tools to handle various formats (TaskJuggler, MS Project)
+Summary:        Schedule tools to handle various formats
 
 License:        BSD
 Group:          Applications/Engineering
@@ -33,48 +17,17 @@ Source0:        %{srcname}-%{version}.%{release_number}.tar.gz
 BuildArch:      noarch
 
 
-BuildRequires: python2-devel
-BuildRequires: python2-setuptools
-
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 
 
 %description
-Schedule tools to handle various formats (TaskJuggler, MS Project)
-
-
-
-%package -n python2-%{srcname}
-Summary:        %{summary}
-
-Requires: python2-icalendar
-
-%if 0%{?rhel} >= 8 || 0%{?fedora}
-Requires: python2-lxml
-%else
-Requires: python-lxml
-%endif
-
-%{?python_provide:%python_provide python2-%{srcname}}
-
-
-%description -n python2-%{srcname}
-Schedule tools to handle various formats (TaskJuggler, MS Project)
-
-
-
-%package -n python3-%{srcname}
-Summary:        %{summary}
+Schedule tools to handle various formats
 
 Requires: python3-icalendar
 Requires: python3-lxml
 
 %{?python_provide:%python_provide python3-%{srcname}}
-
-
-%description -n python3-%{srcname}
-Schedule tools to handle various formats (TaskJuggler, MS Project)
 
 
 
@@ -84,21 +37,11 @@ Schedule tools to handle various formats (TaskJuggler, MS Project)
 
 
 %build
-
-%if %{with_py2}
-%py2_build
-%endif
-
 %py3_build
 
 
 
 %install
-
-%if %{with_py2}
-%py2_install
-%endif
-
 %py3_install
 
 # create log dir
@@ -109,40 +52,11 @@ done
 
 
 
-%post -n python2-%{srcname}
-%{create_symlinks}
-
-%post -n python3-%{srcname}
-%{create_symlinks}
-
-
-%postun -n python2-%{srcname}
-%{remove_symlinks}
-
-%postun -n python3-%{srcname}
-%{remove_symlinks}
-
-
-
-%if %{with_py2}
-%files -n python2-%{srcname}
-%defattr(644,root,root,755)
-%{python2_sitelib}/*
-
-%attr(755,root,root) %{_bindir}/schedule-*2
-
-# setup permissions so that logrotate works correctly
-%defattr(664,root,apache,755)
-%dir %log_dir
-%ghost %config %log_dir/*
-%endif
-
-
-%files -n python3-%{srcname}
+%files
 %defattr(644,root,root,755)
 %{python3_sitelib}/*
 
-%attr(755,root,root) %{_bindir}/schedule-*3
+%attr(755,root,root) %{_bindir}/schedule-*
 
 # setup permissions so that logrotate works correctly
 %defattr(664,root,apache,755)
@@ -152,5 +66,8 @@ done
 
 
 %changelog
+* Mon Nov 9 2020 Pavel Slama <pslama@redhat.com> 8.0-1
+- Remove py2
+
 * Wed May 13 2020 Pavel Slama <pslama@redhat.com> 7.63-5
 - Remove spec generation from python setup.py - split

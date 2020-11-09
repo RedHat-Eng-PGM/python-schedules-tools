@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
 with open('schedules_tools/version.py') as ver_file:
     exec(ver_file.read())

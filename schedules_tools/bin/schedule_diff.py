@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
+
 """
 Simple wrapper to get diff of two schedules
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
 import os
 import sys
@@ -51,11 +51,9 @@ setup(
     packages=find_packages(exclude=('scripts',)),
     include_package_data=True,
     entry_points={
-        # Make them all start with schedule- and end with python version
-        #   so we can generate symlinks in /usr/bin/ post install
         'console_scripts': [
-            'schedule-convert%s=schedules_tools.bin.schedule_convert:main' % py_version,
-            'schedule-diff%s=schedules_tools.bin.schedule_diff:main' % py_version,
+            'schedule-convert=schedules_tools.bin.schedule_convert:main',
+            'schedule-diff=schedules_tools.bin.schedule_diff:main',
         ]
     },
     install_requires=[
