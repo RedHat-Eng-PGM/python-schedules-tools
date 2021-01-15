@@ -80,17 +80,20 @@ class TestScheduleDiff(object):
     OUTPUT_FILES_DIR = os.path.join(BASE_DIR, 'fixtures/schedule_diff')
 
     diff_test_scenarios = (
-        ('sched_diff_dates_changed', False),
-        ('sched_diff_subtask_added', False),
-        ('sched_diff_subtask_removed', False),
-        ('sched_diff_subtask_removed', True),
-        ('sched_diff_subtask_tree_added', False),
-        ('sched_diff_subtask_tree_removed', False),
-        ('sched_diff_task_appended', False),
-        ('sched_diff_task_appended', True),
-        ('sched_diff_tasks_renamed', False),
-        ('sched_diff_time_changed', False),
-        ('sched_diff_time_changed', True),
+        ('sched_diff_dates_changed', False, False),
+        ('sched_diff_subtask_added', False, False),
+        ('sched_diff_subtask_removed', False, False),
+        ('sched_diff_subtask_removed', True, False),
+        ('sched_diff_subtask_tree_added', False, False),
+        ('sched_diff_subtask_tree_removed', False, False),
+        ('sched_diff_task_appended', False, False),
+        ('sched_diff_task_appended', True, False),
+        ('sched_diff_tasks_renamed', False, False),
+        ('sched_diff_time_changed', False, False),
+        ('sched_diff_time_changed', True, False),
+        ('sched_diff_reference', True, True),
+        ('sched_diff_flags_changed', True, True),
+        ('sched_diff_flags_changed', True, False),
     )
 
     def import_schedule(self, filename):
@@ -99,18 +102,29 @@ class TestScheduleDiff(object):
         return conv.import_schedule(path)
 
     @pytest.mark.parametrize(
-        'schedule_name,trim_time',
+        'schedule_name,trim_time,compare_flags',
         diff_test_scenarios
     )
     @pytest.mark.parametrize(
         'output_format',
         ['json', 'txt']
     )
-    def test_diff(self, schedule_name, trim_time, output_format):
+    def test_diff(self, schedule_name, trim_time, compare_flags, output_format):
 
         left = self.import_schedule(self.ref_sched)
         right = self.import_schedule('%s.xml' % schedule_name)
-        diff = ScheduleDiff(left, right, trim_time=trim_time)
+
+        if compare_flags:
+            extra_compare_attributes = ['flags']
+        else:
+            extra_compare_attributes = None
+
+        diff = ScheduleDiff(
+            left,
+            right,
+            trim_time=trim_time,
+            extra_compare_attributes=extra_compare_attributes
+        )
 
         if output_format == 'json':
             diff_output = diff.dump_json(indent=4)
@@ -119,9 +133,10 @@ class TestScheduleDiff(object):
         else:
             raise ValueError
 
-        diff_reference_filename = '%s%s.%s' % (
+        diff_reference_filename = '%s%s%s.%s' % (
             schedule_name,
             '_trim_time' if trim_time else '',
+            '_compare_flags' if compare_flags else '',
             output_format
         )
 

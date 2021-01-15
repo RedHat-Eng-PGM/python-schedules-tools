@@ -16,6 +16,11 @@ try:
 except NameError:
     pass
 
+try:
+    text_type = unicode
+except NameError:
+    text_type = str
+
 from schedules_tools import SchedulesToolsException
 
 from .utils import sort_tasks, slugify
@@ -54,7 +59,6 @@ class Task(object):
     _date_format = '%Y-%m-%dT%H:%M:%S'
     _rx = None
     _schedule = None
-    _subtree_hash = None
 
     def __init__(self, schedule=None, level=1):
         self.tasks = []
@@ -64,6 +68,7 @@ class Task(object):
         self.priority = 500
         self.milestone = False
         self.level = level
+        self._subtree_hash_cache = {}
 
     def __str__(self):
         out = '%s %s MS:%s  (%s - %s)  F%s  [%s]' % (
@@ -169,7 +174,7 @@ class Task(object):
     def dump_as_dict(self, recursive=True):
         attrs = copy(vars(self))
         # avoid infinite looping schedule > task > schedule ...
-        exclude = ['_schedule', '_subtree_hash']
+        exclude = ['_schedule', '_subtree_hash_cache']
 
         if recursive:
             attrs['tasks'] = []
@@ -195,22 +200,38 @@ class Task(object):
 
         return task
 
-    @property
-    def subtree_hash(self):
-        attrs = ['name', 'dStart', 'dFinish']
+    def get_subtree_hash(self, fields):
+        if not isinstance(fields, tuple):
+            fields = tuple(fields)
 
-        if self._subtree_hash is None:
-            self._subtree_hash = ''
+        if fields not in self._subtree_hash_cache:
+            if self.tasks:
+                hashes = []
+                for child_task in self.tasks:
+                    task_hash_values = []
+                    for attr_name in fields:
+                        attr_value = getattr(child_task, attr_name)
 
-            for child_task in self.tasks:
-                try:
-                    values_list = [unicode(getattr(child_task, attr)) for attr in attrs]
-                except NameError:  # py3
-                    values_list = [str(getattr(child_task, attr)) for attr in attrs]
+                        if isinstance(attr_value, list):
+                            attr_value = sorted(attr_value)
 
-                self._subtree_hash += ''.join(values_list) + child_task.subtree_hash
+                        task_hash_values.append(text_type(attr_value))
 
-        return self._subtree_hash
+                    hashes.append(
+                        '%s%s' % (
+                            ''.join(task_hash_values),
+                            child_task.get_subtree_hash(fields)
+                        )
+                    )
+
+                subtree_hash = ''.join(hashes)
+
+            else:
+                subtree_hash = ''
+
+            self._subtree_hash_cache[fields] = subtree_hash
+
+        return self._subtree_hash_cache[fields]
 
     def get_slug_key(self, prefix=None):
         """

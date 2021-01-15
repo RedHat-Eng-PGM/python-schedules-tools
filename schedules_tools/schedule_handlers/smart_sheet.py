@@ -237,8 +237,12 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 self.schedule.unique_id_re.sub('_', self.schedule.name))
             self.schedule.mtime = self.get_handle_mtime()
             self.schedule.changelog = self.get_handle_changelog()
-            self.schedule.dStart = datetime.datetime.max
-            self.schedule.dFinish = datetime.datetime.min
+            if self.options.get('trim_time'):
+                self.schedule.dStart = datetime.date.max
+                self.schedule.dFinish = datetime.date.min
+            else:
+                self.schedule.dStart = datetime.datetime.max
+                self.schedule.dFinish = datetime.datetime.min
             log.debug('Import schedule - after first call to smartsheet')
 
             parents_stack = []
@@ -297,6 +301,9 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
         # We don't require so precise timestamp, so ignore seconds
         if date:
             date = date.replace(second=0)
+
+        if date is not None and self.options.get('trim_time'):
+            date = date.date()
 
         return date
 

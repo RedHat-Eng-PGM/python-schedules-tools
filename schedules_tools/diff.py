@@ -100,14 +100,19 @@ class ScheduleDiff(object):
     hierarchy_attr = 'tasks'
     subtree_hash_attr_name = 'subtree_hash'
 
-    """ List of attributes used to compare 2 tasks. """
-    tasks_match_attrs = ['name', 'dStart', 'dFinish', subtree_hash_attr_name]
+    """ Default list of attributes used to compare 2 tasks. """
+    default_tasks_match_attrs = ['name', 'dStart', 'dFinish']
 
-    def __init__(self, schedule_a, schedule_b, trim_time=False):
+    def __init__(self, schedule_a, schedule_b, trim_time=False, extra_compare_attributes=None):
         self.schedule_a = schedule_a
         self.schedule_b = schedule_b
 
         self.trim_time = trim_time
+
+        self.attributes_to_compare = self.default_tasks_match_attrs
+        if extra_compare_attributes:
+            # avoid using += to not modify class-level list
+            self.attributes_to_compare = self.attributes_to_compare + list(extra_compare_attributes)
 
         self.result = self._diff()
 
@@ -222,11 +227,16 @@ class ScheduleDiff(object):
 
     def get_changed_attrs(self, task_a, task_b):
         """
-        Uses attributes defined in `tasks_match_attrs` to compare 2 tasks and
+        Uses attributes defined in `self.attributes_to_compare` and subtree hash to compare 2 tasks and
         returns a list of atts that don't match.
         """
-        return [attr for attr in self.tasks_match_attrs
-                if not self._compare_tasks_attributes(task_a, task_b, attr)]
+        changed_attributes = [attr for attr in self.attributes_to_compare
+                              if not self._compare_tasks_attributes(task_a, task_b, attr)]
+        if task_a.get_subtree_hash(self.attributes_to_compare) \
+                != task_b.get_subtree_hash(self.attributes_to_compare):
+            changed_attributes.append(self.subtree_hash_attr_name)
+
+        return changed_attributes
 
     def _compare_tasks_attributes(self, task_a, task_b, attr_name):
         """
@@ -296,8 +306,8 @@ class ScheduleDiff(object):
 
         # different names
         if 'name' in changed_attrs:
-            t1_subtree = getattr(t1, self.subtree_hash_attr_name)
-            t2_subtree = getattr(t2, self.subtree_hash_attr_name)
+            t1_subtree = t1.get_subtree_hash(self.attributes_to_compare)
+            t2_subtree = t2.get_subtree_hash(self.attributes_to_compare)
 
             if t1_subtree and t2_subtree:
                 if t1_subtree == t2_subtree:
@@ -308,7 +318,7 @@ class ScheduleDiff(object):
                     name_score = strings_similarity(t1.name, t2.name)
 
                     if (name_score > name_threshold
-                            and len(changed_attrs) < len(self.tasks_match_attrs)):
+                            and len(changed_attrs) < len(self.attributes_to_compare)):
                         state = REPORT_CHANGED
                         position_score = self._task_position_score(t2_index)
                     else:
