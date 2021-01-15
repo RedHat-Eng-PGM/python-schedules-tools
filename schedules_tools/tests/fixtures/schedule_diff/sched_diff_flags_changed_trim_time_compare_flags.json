@@ -1,0 +1,225 @@
+[
+    {
+        "both": {
+            "flags": [],
+            "p_complete": 0.0,
+            "priority": 500,
+            "milestone": false,
+            "level": 1,
+            "index": 1,
+            "name": "Root task 1",
+            "dStart": "2017-01-20T08:00:00Z",
+            "dFinish": "2018-01-08T16:59:00Z",
+            "slug": "root_task_1"
+        },
+        "subtree": [
+            {
+                "both": {
+                    "flags": [],
+                    "p_complete": 0.0,
+                    "priority": 500,
+                    "milestone": false,
+                    "level": 2,
+                    "index": 2,
+                    "name": "subtask 1.1",
+                    "dStart": "2017-01-20T08:00:00Z",
+                    "dFinish": "2017-01-26T16:59:00Z",
+                    "slug": "root_task_1.subtask_1_1"
+                },
+                "subtree": [
+                    {
+                        "left": {
+                            "flags": [
+                                "pm",
+                                "qe"
+                            ],
+                            "p_complete": 0.0,
+                            "priority": 500,
+                            "milestone": false,
+                            "level": 3,
+                            "index": 3,
+                            "name": "subtask 1.1.1",
+                            "dStart": "2017-01-20T08:00:00Z",
+                            "dFinish": "2017-01-24T16:59:00Z",
+                            "note": "My task comment",
+                            "slug": "root_task_1.subtask_1_1.subtask_1_1_1"
+                        },
+                        "right": {
+                            "flags": [
+                                "qe",
+                                "roadmap"
+                            ],
+                            "p_complete": 0.0,
+                            "priority": 500,
+                            "milestone": false,
+                            "level": 3,
+                            "index": 3,
+                            "name": "subtask 1.1.1",
+                            "dStart": "2017-01-20T08:00:00Z",
+                            "dFinish": "2017-01-24T16:59:00Z",
+                            "note": "My task comment",
+                            "slug": "root_task_1.subtask_1_1.subtask_1_1_1"
+                        },
+                        "subtree": [],
+                        "changed_attrs": [
+                            "flags"
+                        ],
+                        "item_state": "_changed_"
+                    },
+                    {
+                        "left": {
+                            "flags": [
+                                "docs",
+                                "qe"
+                            ],
+                            "p_complete": 0.0,
+                            "priority": 500,
+                            "milestone": false,
+                            "level": 3,
+                            "index": 4,
+                            "name": "subtask 1.1.2",
+                            "dStart": "2017-01-25T08:00:00Z",
+                            "dFinish": "2017-01-26T16:59:00Z",
+                            "link": "http://www.google.com",
+                            "slug": "root_task_1.subtask_1_1.subtask_1_1_2"
+                        },
+                        "right": {
+                            "flags": [
+                                "docs",
+                                "test"
+                            ],
+                            "p_complete": 0.0,
+                            "priority": 500,
+                            "milestone": false,
+                            "level": 3,
+                            "index": 4,
+                            "name": "subtask 1.1.2",
+                            "dStart": "2017-01-25T08:00:00Z",
+                            "dFinish": "2017-01-26T16:59:00Z",
+                            "link": "http://www.google.com",
+                            "slug": "root_task_1.subtask_1_1.subtask_1_1_2"
+                        },
+                        "subtree": [],
+                        "changed_attrs": [
+                            "flags"
+                        ],
+                        "item_state": "_changed_"
+                    }
+                ],
+                "changed_attrs": [
+                    "subtree_hash"
+                ],
+                "item_state": ""
+            },
+            {
+                "both": {
+                    "flags": [],
+                    "p_complete": 0.0,
+                    "priority": 500,
+                    "milestone": false,
+                    "level": 2,
+                    "index": 5,
+                    "name": "subtask 1.2",
+                    "dStart": "2017-01-26T08:00:00Z",
+                    "dFinish": "2017-12-31T16:59:00Z",
+                    "slug": "root_task_1.subtask_1_2"
+                },
+                "subtree": [
+                    {
+                        "both": {
+                            "flags": [],
+                            "p_complete": 0.0,
+                            "priority": 500,
+                            "milestone": false,
+                            "level": 3,
+                            "index": 6,
+                            "name": "subtask 1.2.1",
+                            "dStart": "2017-01-26T08:00:00Z",
+                            "dFinish": "2017-01-31T16:59:00Z",
+                            "slug": "root_task_1.subtask_1_2.subtask_1_2_1"
+                        },
+                        "subtree": [],
+                        "changed_attrs": [],
+                        "item_state": ""
+                    },
+                    {
+                        "both": {
+                            "flags": [],
+                            "p_complete": 0.0,
+                            "priority": 500,
+                            "milestone": false,
+                            "level": 3,
+                            "index": 7,
+                            "name": "subtask 1.2.2",
+                            "dStart": "2017-12-31T08:00:00Z",
+                            "dFinish": "2017-12-31T16:59:00Z",
+                            "slug": "root_task_1.subtask_1_2.subtask_1_2_2"
+                        },
+                        "subtree": [],
+                        "changed_attrs": [],
+                        "item_state": ""
+                    }
+                ],
+                "changed_attrs": [],
+                "item_state": ""
+            },
+            {
+                "both": {
+                    "flags": [],
+                    "p_complete": 0.0,
+                    "priority": 500,
+                    "milestone": false,
+                    "level": 2,
+                    "index": 8,
+                    "name": "Launch phase",
+                    "dStart": "2018-01-08T08:00:00Z",
+                    "dFinish": "2018-01-08T16:59:00Z",
+                    "slug": "root_task_1.launch_phase"
+                },
+                "subtree": [],
+                "changed_attrs": [],
+                "item_state": ""
+            },
+            {
+                "left": {
+                    "flags": [
+                        "qe"
+                    ],
+                    "p_complete": 0.0,
+                    "priority": 500,
+                    "milestone": true,
+                    "level": 2,
+                    "index": 9,
+                    "name": "GA",
+                    "dStart": "2018-01-08T08:00:00Z",
+                    "dFinish": "2018-01-08T16:59:00Z",
+                    "slug": "root_task_1.ga"
+                },
+                "right": {
+                    "flags": [
+                        "qe",
+                        "roadmap"
+                    ],
+                    "p_complete": 0.0,
+                    "priority": 500,
+                    "milestone": true,
+                    "level": 2,
+                    "index": 9,
+                    "name": "GA",
+                    "dStart": "2018-01-08T08:00:00Z",
+                    "dFinish": "2018-01-08T16:59:00Z",
+                    "slug": "root_task_1.ga"
+                },
+                "subtree": [],
+                "changed_attrs": [
+                    "flags"
+                ],
+                "item_state": "_changed_"
+            }
+        ],
+        "changed_attrs": [
+            "subtree_hash"
+        ],
+        "item_state": ""
+    }
+]
