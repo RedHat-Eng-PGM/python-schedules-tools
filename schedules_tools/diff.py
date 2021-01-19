@@ -117,10 +117,7 @@ class ScheduleDiff(object):
         self.result = self._diff()
 
     def __str__(self):
-        try:
-            return unicode(self.result_to_str()).encode('utf-8')
-        except NameError:
-            return self.result_to_str()
+        return self.result_to_str()
 
     def _get_subtree(self, item):
         return getattr(item, self.hierarchy_attr)
