@@ -12,7 +12,7 @@ from schedules_tools.schedule_handlers.smart_sheet import (
 
 
 from schedules_tools.converter import ScheduleConverter
-from schedules_tools.tests import jsondate
+from schedules_tools import jsondate
 from schedules_tools.models import Schedule
 from time import sleep
 
@@ -124,47 +124,12 @@ class TestHandlers(object):
         for inner_task in task['tasks']:
             self._clear_task_time(inner_task)
 
-    @classmethod
-    def _convert_struct_unicode_to_str(cls, data, ignore_dicts=False):
-        # Taken from:
-        # https://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-from-json
-
-        # if this is a unicode string, return its string representation
-        try:
-            if isinstance(data, unicode):
-                return data.encode('utf-8')
-        except NameError:
-            # py3 doesn't know unicode
-            return data
-
-        # if this is a list of values, return list of byteified values
-        if isinstance(data, list):
-            return [
-                cls._convert_struct_unicode_to_str(item, ignore_dicts=True)
-                for item in data
-            ]
-
-        # if this is a dictionary, return dictionary of byteified keys
-        # and values but only if we haven't already byteified it
-        if isinstance(data, dict) and not ignore_dicts:
-            # decode datetime object separately
-            data = jsondate._datetime_decoder(data)
-            return {
-                cls._convert_struct_unicode_to_str(key, ignore_dicts=True):
-                    cls._convert_struct_unicode_to_str(value, ignore_dicts=True)
-                for key, value in data.iteritems()
-            }
-
-        # if it's anything else, return it in its original form
-        return data
-
     def get_intermediary_reference_schedule(self):
         interm_reference_file = os.path.join(self.basedir,
                                              self.intermediary_reference_file)
 
         with open(interm_reference_file) as fd:
-            intermediary_input_dict = jsondate.load(
-                fd, object_hook=self._convert_struct_unicode_to_str)
+            intermediary_input_dict = jsondate.load(fd)
 
         schedule = Schedule.load_from_dict(intermediary_input_dict)
         return schedule
@@ -317,8 +282,7 @@ class TestHandlers(object):
                                   separators=(',', ': '))
 
             with open(interm_reference_file) as fd:
-                reference_dict = json.load(
-                    fd, object_hook=self._convert_struct_unicode_to_str)
+                reference_dict = json.load(fd)
             self._clean_interm_struct(reference_dict)
 
             # test/assert changelog separately, if there exists a hook

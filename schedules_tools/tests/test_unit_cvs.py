@@ -5,7 +5,7 @@ import pytest
 
 from schedules_tools.storage_handlers import cvs as cvs_mod
 from schedules_tools import storage_handlers
-from schedules_tools.tests import jsondate
+from schedules_tools import jsondate
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 

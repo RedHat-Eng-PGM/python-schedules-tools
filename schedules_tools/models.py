@@ -5,21 +5,7 @@ import logging
 
 from copy import copy
 
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest  # py2
-
-try:
-    xrange  # py2 - override range function and use py3 code
-    range = xrange  #noqa
-except NameError:
-    pass
-
-try:
-    text_type = unicode
-except NameError:
-    text_type = str
+from itertools import zip_longest
 
 from schedules_tools import SchedulesToolsException
 
@@ -71,14 +57,8 @@ class Task(object):
         self._subtree_hash_cache = {}
 
     def __str__(self):
-        out = '%s %s MS:%s  (%s - %s)  F%s  [%s]' % (
-                self.slug, self.name, self.milestone, self.dStart, self.dFinish,
-                self.flags, len(self.tasks))
-
-        try:
-            return unicode(out).encode('utf-8')
-        except NameError:
-            return out
+        return f'{self.slug} {self.name} MS:{self.milestone}  ({self.dStart} - {self.dFinish})  ' \
+               f'F{self.flags}  [{len(self.tasks)}]'
 
     def parse_extended_attr(self, value, key=None):
         """
@@ -125,7 +105,7 @@ class Task(object):
             self.note = ' '.join([self.note, val]).lstrip()
 
         else:
-            log.info('Extended attr "{}" wasn\'t recognized.'.format(key))
+            log.info(f'Extended attr "{key}" wasn\'t recognized.')
 
     @staticmethod
     def _workaround_it_phase_names(eTask):
@@ -215,7 +195,7 @@ class Task(object):
                         if isinstance(attr_value, list):
                             attr_value = sorted(attr_value)
 
-                        task_hash_values.append(text_type(attr_value))
+                        task_hash_values.append(str(attr_value))
 
                     hashes.append(
                         '%s%s' % (
