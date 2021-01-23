@@ -51,11 +51,12 @@ class ScheduleHandler_msp(ScheduleHandlerBase):
             # remove project's xmlns
             tmp_file = tempfile.mkstemp()[1]
             with open(tmp_file, 'wt') as hTmp_file:
-                for line in open(self.handle):
-                    hTmp_file.write(
-                        line.replace(
-                            ' xmlns="http://schemas.microsoft.com/project"',
-                            ''))
+                with open(self.handle) as handle_file:
+                    for line in handle_file:
+                        hTmp_file.write(
+                            line.replace(
+                                ' xmlns="http://schemas.microsoft.com/project"',
+                                ''))
 
             start_level = 1
             tree = etree.parse(tmp_file)
