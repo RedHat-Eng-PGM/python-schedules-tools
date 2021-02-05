@@ -76,6 +76,12 @@ class TestHandlers(object):
         ('html', 'export-schedule-html-sort-date.html', False, [], [], {}, 'dStart'),
         ('html', 'export-schedule-html-options.html', False, [], [],
          dict(html_title='Test title', html_table_header='<p>Test header</p>'), None),
+
+        ('html', 'export-schedule-html-css.html', False, [], [],
+         dict(html_css_href='./test.css'), None),
+
+        ('html', 'export-schedule-html-indent.html', False, [], [],
+         dict(html_level_indent='2'), None),
     ]
 
     smartsheet_columns_ids = ()

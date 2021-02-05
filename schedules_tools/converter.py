@@ -414,6 +414,12 @@ def get_handlers_args_parser(add_help=False):
                         help='HTML export page title')
     parser.add_argument('--html-table-header',
                         help='HTML export table header')
+    parser.add_argument('--html-level-indent',
+                        help='HTML export task level indentation in em (float, default 1)',
+                        type=float,
+                        default=1)
+    parser.add_argument('--html-css-href',
+                        help='HTML export custom css for <link> tag')
 
     parser.add_argument('--flat',
                         help='Make output schedule flat',

@@ -23,6 +23,10 @@ table.schedule th {
 table.schedule td {
     background-color: #f3ebae;
 }
+
+table.schedule td.parent-task {
+    font-weight: bold;
+}
 table.schedule td.date {
     font-size: 90%;
     white-space: nowrap;
@@ -45,8 +49,6 @@ class ScheduleHandler_html(ScheduleHandlerBase):
 
     default_export_ext = 'html'
 
-    indent_level_px = 14
-
     def __init__(self, *args, **kwargs):
         super(ScheduleHandler_html, self).__init__(*args, **kwargs)
         if not self.options.get('date_format', False):
@@ -65,10 +67,12 @@ class ScheduleHandler_html(ScheduleHandlerBase):
             curr_hiearchy_index += '.' + str(hiearchy_index)
         e_td.text = curr_hiearchy_index
 
-        padding = (task.level - 1) * self.indent_level_px
+        padding = (task.level - 1) * float(self.options.get('html_level_indent', 1))
         e_td = etree.SubElement(e_tr, 'td',
-                                style='padding-left: {}px'.format(padding))
+                                style='padding-left: {}em'.format(padding))
         e_td.text = task.name
+        if len(task.tasks):
+            e_td.attrib['class'] = 'parent-task'
 
         if task.note:
             e_note = etree.SubElement(e_td, 'div')
@@ -102,24 +106,32 @@ class ScheduleHandler_html(ScheduleHandlerBase):
         e_html = etree.Element('html')
         e_head = etree.SubElement(e_html, 'head')
 
-        e_encoding = etree.SubElement(e_head, 'meta', charset="utf-8")
+        etree.SubElement(e_head, 'meta', charset="utf-8")
 
         if self.options.get('html_title', False):
             title = self.options['html_title']
         else:
             title = self.schedule.name
-                    
+
         e_title = etree.SubElement(e_head, 'title')
         e_title.text = title
 
-        e_style = etree.SubElement(e_head, 'style', type='text/css')
-        e_style.text = css
+        if self.options.get('html_css_href', False):
+            etree.SubElement(e_head,
+                             'link',
+                             type='text/css',
+                             rel='stylesheet',
+                             href=self.options['html_css_href']
+                             )
+        else:
+            e_style = etree.SubElement(e_head, 'style', type='text/css')
+            e_style.text = css
 
         e_body = etree.SubElement(e_html, 'body')
 
         e_h1 = etree.SubElement(e_body, 'h1')
         e_h1.text = title
-        
+
         if self.options.get('html_table_header', False):
             e_body.append(etree.fromstring(self.options['html_table_header']))
 
@@ -138,5 +150,5 @@ class ScheduleHandler_html(ScheduleHandlerBase):
         if out_file:
             etree_return.write(out_file, pretty_print=True, encoding="utf-8",
                                xml_declaration=False)
-        
+
         return str(etree_return)
