@@ -4,6 +4,7 @@ import sys
 import datetime
 import os
 import logging
+from datetime import timedelta
 
 log = logging.getLogger(__name__)
 
@@ -49,10 +50,14 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
             sys.exit(1)
 
         for iteration in response:
-            print('Iteration: %s (starts %s)' % (iteration.Name, iteration.StartDate))
+            print('Iteration: %s (starts %s ends %s)' % (
+                iteration.Name, iteration.StartDate[:10], iteration.EndDate[:10]))
             start_time = datetime.datetime.combine(
                 datetime.datetime.strptime(iteration.StartDate[:10], '%Y-%m-%d'),
                 datetime.time(8))
+            end_time = datetime.datetime.combine(
+                datetime.datetime.strptime(iteration.EndDate[:10], '%Y-%m-%d'),
+                datetime.time(8)) - timedelta(days=1)
             break
 
         response = rally.get('UserStory', fetch=True, query=query_criteria, order="Rank")
@@ -66,6 +71,7 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
             start_time = datetime.datetime.combine(datetime.date.today(), datetime.time(8))
         max_end_time = start_time
         self.schedule.dStart = start_time
+        self.schedule.dFinish = end_time
 
         for story in response:
             print(story.Name)
@@ -98,13 +104,11 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
                     self.schedule.resources[resource_id] = str(task.Owner.Name)
 
                 t_in.resource = resource_id
+                t_in.user = task.Owner.UserName.split('@')[0]
 
                 t.tasks.append(t_in)
             print('')
             t.dFinish = max_st_end_time
-            max_end_time = max(max_end_time, t.dFinish)
             self.schedule.tasks.append(t)
 
-        self.schedule.dFinish = max_end_time
         return self.schedule
-
