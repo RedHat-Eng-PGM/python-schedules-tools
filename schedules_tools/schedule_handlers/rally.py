@@ -9,7 +9,7 @@ from datetime import timedelta
 log = logging.getLogger(__name__)
 
 try:
-    from pyral import Rally, rallySettings
+    from pyral import Rally, rallyWorkset
     additional_deps_satistifed = True
 except ImportError:
     additional_deps_satistifed = False
@@ -35,9 +35,9 @@ class ScheduleHandler_rally(ScheduleHandlerBase):
         start_time = None
 
         options = ['--config=%s' % self.handle]
-        server, user, password, workspace, project = rallySettings(options)
+        server, user, password, apikey, workspace, project = rallyWorkset(options)
 
-        rally = Rally(server, user, password, workspace=workspace, project=project)
+        rally = Rally(server, user, password, apikey, workspace=workspace, project=project)
 
         rally_iter = self.options['rally_iter']
         self.schedule.name = rally_iter.strip()

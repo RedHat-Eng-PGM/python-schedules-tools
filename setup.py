@@ -61,7 +61,7 @@ setup(
         'lxml'
     ],
     extras_require={
-        "Rally":  ["pyral"],
+        "Rally":  ["pyral>1.5"],
         "Smartsheet": ["smartsheet-python-sdk<3"],
     },
     tests_require=[
