@@ -12,7 +12,8 @@ def scm_config():
 
     return {'version_scheme': scheme,
             'write_to': "schedules_tools/version.py",
-            'local_scheme': 'dirty-tag'}
+            'local_scheme': 'dirty-tag'
+    }
 
 
 setup(

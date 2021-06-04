@@ -6,7 +6,7 @@
 
 Name:           python3-%{srcname}
 Version:        %{version}
-Release:        %{release_number}.%{checkout}%{?dist}
+Release:        %{release_number}%{?dist}
 Epoch:          1
 Summary:        Schedule tools to handle various formats
 
