@@ -22,9 +22,11 @@ devel-tools/*.pp
 
 .buildpath
 .cache
+.coverage
 .eggs
 .project
 .pydevproject
 .refactorings
 .settings
+.tox
 /.pytest_cache/
