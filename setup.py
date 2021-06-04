@@ -62,7 +62,8 @@ setup(
     ],
     extras_require={
         "Rally":  ["pyral>1.5"],
-        "Smartsheet": ["smartsheet-python-sdk<3"],
+        "Smartsheet": ['smartsheet-python-sdk @ '
+                       'git+https://github.com/RedHat-Eng-PGM/smartsheet-python-sdk.git@master'],
     },
     tests_require=[
         'mock',
