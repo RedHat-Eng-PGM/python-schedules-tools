@@ -33,13 +33,6 @@ rpm: prepare_source
 	rpmbuild -bb dist/*.spec
 
 
-pypi: source
-	twine upload dist/*tar.gz -r pypi-pgm
-
-pypitest: source
-	twine upload dist/*tar.gz -r pypitest-pgm 
-
-
 clean:
 	@python setup.py clean
 	find . -\( -name "*.pyc" -o -name '*.pyo' -o -name "*~" -\) -delete

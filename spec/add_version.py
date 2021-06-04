@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-VERSION = None
+version_tuple = (1, 1)
 
 with open('schedules_tools/version.py') as ver_file:
     exec(ver_file.read())
 
-print("%define version {}\n%define release_number {}\n%define checkout {}".format(*VERSION))
+print(f"%define version {version_tuple[0]}.{version_tuple[1]}")
+print(f"%define release_number {version_tuple[2]}")
