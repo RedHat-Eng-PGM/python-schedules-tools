@@ -1,12 +1,13 @@
+import datetime
+import os
+import pytest
+import tempfile
+
+import mock
 from schedules_tools import converter
 from schedules_tools.models import Schedule
 from schedules_tools.storage_handlers import StorageBase
-#from scripts import schedule_converter as converter_cli
-import tempfile
-import os
-import datetime
-import mock
-import pytest
+
 
 DATA_DIR = 'schedule_files'
 
@@ -185,7 +186,6 @@ class TestConverter(BaseTestConvert):
         mock_schedule_handler_cls = mock.Mock()
         mock_schedule_handler = mock.Mock()
         provided_schedule = Schedule()
-        date_mtime_storage = datetime.datetime(2009, 3, 13)
         provided_schedule.mtime = datetime.datetime(2010, 3, 13)
 
         mock_schedule_handler.import_schedule.return_value = provided_schedule
@@ -244,25 +244,3 @@ class TestConverter(BaseTestConvert):
 
         # Test1 - Development
         assert 'https://github.com/1' == schedule.tasks[0].tasks[0].tasks[0].link
-
-
-#class TestConverterCLI(BaseTestConvert):
-#    def test_discover_handlers(self):
-#        args = ['--handlers-path', 'tests/foohandlers',
-#                self.file_tjx, 'abc', self.file_out_name]
-#        converter_cli.main(args)
-#        with open(self.file_out_name) as fd:
-#            line = fd.readline()
-#            assert line == self.schedule_name
-#
-#    def test_override_handlers(self):
-#        args = ['--handlers-path', 'tests/conflicthandlers',
-#                self.file_tjx2, 'tjx', self.file_out_name]
-#        converter_cli.main(args)
-#        with open(self.file_out_name) as fd:
-#            line = fd.readline()
-#            assert line == 'schedule.name={}'.format(self.schedule_name)
-#
-#    def test_tjx_msp(self):
-#        args = [self.file_tjx, 'msp', self.file_out_name]
-#        converter_cli.main(args)

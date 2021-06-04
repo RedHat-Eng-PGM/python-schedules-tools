@@ -1,6 +1,6 @@
-import logging
-import json
 from datetime import datetime
+import json
+import logging
 
 from schedules_tools import jsondate
 from schedules_tools.models import Task, Schedule
@@ -224,7 +224,9 @@ class ScheduleDiff(object):
 
     def get_changed_attrs(self, task_a, task_b):
         """
-        Uses attributes defined in `self.attributes_to_compare` and subtree hash to compare 2 tasks and
+        Compare 2 tasks
+
+        Uses attributes defined in `self.attributes_to_compare` and subtree hash and
         returns a list of atts that don't match.
         """
         changed_attributes = [attr for attr in self.attributes_to_compare

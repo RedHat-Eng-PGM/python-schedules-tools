@@ -1,9 +1,11 @@
-import os
-import sys
-import re
-from .schedule_handlers import ScheduleHandlerBase
-import logging
 import importlib
+import logging
+import os
+import re
+import sys
+
+from .schedule_handlers import ScheduleHandlerBase
+
 
 VALID_MODULE_NAME = re.compile(r'^(\w+)\.py$', re.IGNORECASE)
 PARENT_DIRNAME = os.path.basename(os.path.dirname(os.path.realpath(__file__)))
@@ -16,6 +18,7 @@ re_storage_handler = re.compile(r'^StorageHandler_(\S+)$')
 
 # FIXME(mpavlase): Figure out nicer way to deal with paths
 sys.path.append(BASE_DIR)
+
 
 def get_local_path(path):
     return os.path.join(BASE_DIR, PARENT_DIRNAME, path)
@@ -51,8 +54,8 @@ class AutodiscoverHandlers(object):
                 continue
 
             # TODO(mpavlase): figure out more reliable way to test subclasses
-            #is_subclass = issubclass(obj, handlers.ScheduleHandlerBase)
-            #if not is_subclass:
+            # is_subclass = issubclass(obj, handlers.ScheduleHandlerBase)
+            # if not is_subclass:
             #    continue
 
             key = re.findall(self.re_class_teplate, obj.__name__)
@@ -99,7 +102,7 @@ class AutodiscoverHandlers(object):
             loaded_module = self._load_module(pypath)
         except ImportError as e:
             log.warn('Skipping path "{}", couldn\'t load'
-                        'it: {} )'.format(pypath, e))
+                     'it: {} )'.format(pypath, e))
             return self._discovered_handlers
 
         module_path = os.path.dirname(loaded_module.__file__)
@@ -182,6 +185,7 @@ class ScheduleHandlerDiscovery(LazyDictDiscovery):
 
 class StorageHandlerDiscovery(LazyDictDiscovery):
     pass
+
 
 schedule_handlers = ScheduleHandlerDiscovery(cls_template=re_schedule_handler)
 storage_handlers = StorageHandlerDiscovery(cls_template=re_storage_handler)

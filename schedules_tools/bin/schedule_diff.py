@@ -12,12 +12,14 @@ Follows 'diff' exit codes:
     2 - other trouble
 """
 
-import schedules_tools.converter as conv
-import sys
 import argparse
 import logging
+import sys
+
 from schedules_tools import discovery
 from schedules_tools.diff import ScheduleDiff
+
+import schedules_tools.converter as conv
 
 
 def setup_logging(level):
@@ -71,7 +73,6 @@ def main():
     right.import_schedule(args.right)
 
     if args.simple_diff:
-        whole_days = False
         diff_res = left.schedule.diff(right.schedule, whole_days=args.whole_days)
     else:
         diff_res = ScheduleDiff(left.schedule, right.schedule)

@@ -1,8 +1,8 @@
 import logging
 import os
 
-from schedules_tools import discovery
 from schedules_tools import SchedulesToolsException
+from schedules_tools import discovery
 from schedules_tools.discovery import search_paths
 from schedules_tools.models import Schedule
 from schedules_tools.storage_handlers import AcquireLockException
@@ -96,8 +96,13 @@ class ScheduleConverter(object):
                               handle,
                               storage_src_format,
                               options=dict()):
-        """Init storage handler if it's necessary and isn't already prepared"""
-        if storage_src_format and storage_src_format != 'none' and not self.storage_handler:
+        """Init storage handler
+
+        If it's necessary and isn't already prepared
+        """
+        if (storage_src_format
+                and storage_src_format != 'none'
+                and not self.storage_handler):
             storage_handler_cls = self._get_storage_handler_cls(
                                                         storage_src_format)
             storage_handler = storage_handler_cls(handle=handle,
@@ -215,7 +220,8 @@ class ScheduleConverter(object):
             # - use storage handler to overwrite it
             if self.storage_handler:
                 if self.storage_handler.provide_changelog:
-                    schedule.changelog = self.storage_handler.get_handle_changelog()
+                    schedule.changelog = \
+                        self.storage_handler.get_handle_changelog()
 
                 if self.storage_handler.provide_mtime:
                     schedule.mtime = self.storage_handler.get_handle_mtime()
@@ -333,7 +339,10 @@ def convert(args):
 
 
 def get_handlers_args_parser(add_help=False):
-    """Return parent parser for schedules tools scripts with handler arguments"""
+    """Return parent parser
+
+    For schedules tools scripts with handler arguments
+    """
     import argparse
 
     parser = argparse.ArgumentParser(add_help=add_help)
@@ -414,10 +423,11 @@ def get_handlers_args_parser(add_help=False):
                         help='HTML export page title')
     parser.add_argument('--html-table-header',
                         help='HTML export table header')
-    parser.add_argument('--html-level-indent',
-                        help='HTML export task level indentation in em (float, default 1)',
-                        type=float,
-                        default=1)
+    parser.add_argument(
+        '--html-level-indent',
+        help='HTML export task level indentation in em (float, default 1)',
+        type=float,
+        default=1)
     parser.add_argument('--html-css-href',
                         help='HTML export custom css for <link> tag')
 
@@ -451,15 +461,18 @@ def get_handlers_args_parser(add_help=False):
                         metavar='TARGET_FORMAT',
                         help='Target format to convert',
                         default='html')
-    parser.add_argument('--tz',
-                        help='Timezone used for schedule conversions (default "America/New_York")',
-                        default='America/New_York')
+    parser.add_argument(
+        '--tz',
+        help='Timezone used for schedule conversions '
+             '(default "America/New_York")',
+        default='America/New_York')
 
     def sorting_field(value):
         try:
             field = SORT_FIELDS[value]
         except KeyError:
-            raise argparse.ArgumentTypeError('"%s" is not a valid sorting value' % value)
+            raise argparse.ArgumentTypeError(
+                '"%s" is not a valid sorting value' % value)
 
         return field
 

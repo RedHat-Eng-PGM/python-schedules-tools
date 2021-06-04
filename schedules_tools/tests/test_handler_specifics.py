@@ -1,9 +1,5 @@
 import logging
-import pytest
 
-from lxml import etree
-
-from schedules_tools.schedule_handlers import msp
 from schedules_tools import models
 
 logging.basicConfig()

@@ -1,11 +1,12 @@
 import datetime
-import mock
 import os
 import pytest
 
-from schedules_tools.storage_handlers import cvs as cvs_mod
-from schedules_tools import storage_handlers
+import mock
 from schedules_tools import jsondate
+from schedules_tools import storage_handlers
+from schedules_tools.storage_handlers import cvs as cvs_mod
+
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -15,7 +16,7 @@ class BaseCvsTest(object):
 
     def setUp(self):
         try:
-            import builtins  #noqa
+            import builtins  # noqa
             self.mock_open_name = 'builtins.open'
         except ImportError:
             # py2
@@ -276,7 +277,6 @@ class TestCvs(BaseCvsWithDefaultHandler):
     def test_get_local_handle_multiple_times(self,
                                              mock_refresh_local,
                                              mock_copy_subtree_to_tmp):
-        #mock_copy_subtree_to_tmp.return_value = '/tmp/tmpaaa'
         mock_copy_subtree_to_tmp.side_effect = ['/tmp/tmpaaa', '/tmp/tmpbbb', '/tmp/tmpccc']
 
         return_value = self.reference_obj.get_local_handle()
@@ -517,7 +517,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'exclusive_access': True,
         }
         handle = 'program/product/release/release.tjp'
-        reference = cvs_mod.StorageHandler_cvs(
+        _ = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
         mock_redis.assert_called_with()
@@ -534,7 +534,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'redis_url': 'redis://redishost:1234/5'
         }
         handle = 'program/product/release/release.tjp'
-        reference = cvs_mod.StorageHandler_cvs(
+        _ = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
         mock_redis_from_url.assert_called_with('redis://redishost:1234/5')
@@ -551,7 +551,7 @@ x rhel-unknown-flag/rhel-3-0-0.tjp
             'cvs_lock_redis_uri': 'http://redishost:1234/5'
         }
         handle = 'program/product/release/release.tjp'
-        reference = cvs_mod.StorageHandler_cvs(
+        _ = cvs_mod.StorageHandler_cvs(
             handle,
             options=options)
         mock_redis.assert_called_with()

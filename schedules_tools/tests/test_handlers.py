@@ -1,4 +1,3 @@
-from dateutil.tz import tzutc
 import datetime
 import json
 import logging
@@ -6,15 +5,16 @@ import os
 import pytest
 import re
 import shutil
-from smartsheet import Smartsheet
+from time import sleep
+
+from dateutil.tz import tzutc
+from schedules_tools import jsondate
+from schedules_tools.converter import ScheduleConverter
+from schedules_tools.models import Schedule
 from schedules_tools.schedule_handlers.smart_sheet import (
     SmartSheetExportException)
+from smartsheet import Smartsheet
 
-
-from schedules_tools.converter import ScheduleConverter
-from schedules_tools import jsondate
-from schedules_tools.models import Schedule
-from time import sleep
 
 # smartsheet log
 logging.basicConfig(level=logging.INFO)
@@ -352,4 +352,3 @@ class TestHandlers(object):
             actual_output = sanitize_func(actual_output)
 
         assert expected_output == actual_output
-

@@ -1,10 +1,12 @@
-from schedules_tools.schedule_handlers import ScheduleHandlerBase, TJXCommonMixin
-from schedules_tools import models
 import datetime
 import logging
 import os
+
 from lxml import etree
 from pytz import timezone
+from schedules_tools import models
+from schedules_tools.schedule_handlers import ScheduleHandlerBase, TJXCommonMixin
+
 
 log = logging.getLogger(__name__)
 
@@ -67,8 +69,10 @@ class ScheduleHandler_tjx2(TJXCommonMixin, ScheduleHandlerBase):
             p_complete = 0.0
         task.p_complete = p_complete
 
-        task.dStart = self._load_tjx_date(eTask, 'actual', 'start') or self._load_tjx_date(eTask, 'plan', 'start')
-        task.dFinish = self._load_tjx_date(eTask, 'actual', 'end') or self._load_tjx_date(eTask, 'plan', 'end')
+        task.dStart = self._load_tjx_date(eTask, 'actual', 'start') \
+            or self._load_tjx_date(eTask, 'plan', 'start')
+        task.dFinish = self._load_tjx_date(eTask, 'actual', 'end') \
+            or self._load_tjx_date(eTask, 'plan', 'end')
 
         if task.milestone:
             task.dFinish = task.dStart

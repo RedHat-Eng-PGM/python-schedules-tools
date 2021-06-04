@@ -126,8 +126,10 @@ class ScheduleHandler_tjx(TJXCommonMixin, ScheduleHandlerBase):
 
         task.priority = int(eTask.xpath('Priority')[0].text)
         task.p_complete = float(eTask.xpath('complete')[0].text)
-        task.dStart = self._load_tjx_date(eTask, 'actual', 'start') or self._load_tjx_date(eTask, 'plan', 'start')
-        task.dFinish = self._load_tjx_date(eTask, 'actual', 'end') or self._load_tjx_date(eTask, 'plan', 'end')
+        task.dStart = self._load_tjx_date(eTask, 'actual', 'start') \
+            or self._load_tjx_date(eTask, 'plan', 'start')
+        task.dFinish = self._load_tjx_date(eTask, 'actual', 'end') \
+            or self._load_tjx_date(eTask, 'plan', 'end')
 
         # sanity check - if only tart defined and beyond plan finish
         task.dFinish = max(task.dFinish, task.dStart)
