@@ -1,41 +1,41 @@
 {
     "changelog": {},
-    "end": "949705200",
+    "end": "949708800",
     "ext_attr": {},
     "flags_attr_id": null,
     "name": "Test project 10",
     "resources": {},
     "slug": "Test_project_10",
-    "start": "946681200",
+    "start": "946684800",
     "tasks": [
         {
             "_level": 1,
             "complete": 53.0,
-            "end": "949705200",
+            "end": "949708800",
             "flags": [],
             "index": 1,
             "name": "Test project 10",
             "parentTask": "",
             "priority": 500,
             "slug": "test_project_10",
-            "start": "946681200",
+            "start": "946684800",
             "tasks": [
                 {
                     "_level": 2,
                     "complete": 58.0,
-                    "end": "949532400",
+                    "end": "949536000",
                     "flags": [],
                     "index": 2,
                     "name": "Test 1",
                     "parentTask": "test_project_10",
                     "priority": 500,
                     "slug": "test_project_10.test_1",
-                    "start": "946681200",
+                    "start": "946684800",
                     "tasks": [
                         {
                             "_level": 3,
                             "complete": 36.0,
-                            "end": "948409200",
+                            "end": "948412800",
                             "flags": [],
                             "index": 3,
                             "link": "https://github.com/1",
@@ -43,26 +43,26 @@
                             "parentTask": "test_project_10.test_1",
                             "priority": 500,
                             "slug": "test_project_10.test_1.development",
-                            "start": "946681200",
+                            "start": "946684800",
                             "type": "Task"
                         },
                         {
                             "_level": 3,
                             "complete": 40.0,
-                            "end": "948409200",
+                            "end": "948412800",
                             "flags": [],
                             "index": 4,
                             "name": "Dev",
                             "parentTask": "test_project_10.test_1",
                             "priority": 500,
                             "slug": "test_project_10.test_1.dev",
-                            "start": "948409200",
+                            "start": "948412800",
                             "type": "Milestone"
                         },
                         {
                             "_level": 3,
                             "complete": 90.0,
-                            "end": "949532400",
+                            "end": "949536000",
                             "flags": [
                                 "flag1"
                             ],
@@ -71,13 +71,13 @@
                             "parentTask": "test_project_10.test_1",
                             "priority": 500,
                             "slug": "test_project_10.test_1.testing_phase",
-                            "start": "948409200",
+                            "start": "948412800",
                             "type": "Task"
                         },
                         {
                             "_level": 3,
                             "complete": 0.0,
-                            "end": "948409200",
+                            "end": "948412800",
                             "flags": [
                                 "flag2"
                             ],
@@ -87,7 +87,7 @@
                             "parentTask": "test_project_10.test_1",
                             "priority": 500,
                             "slug": "test_project_10.test_1.release",
-                            "start": "948409200",
+                            "start": "948412800",
                             "type": "Milestone"
                         }
                     ],
@@ -96,32 +96,32 @@
                 {
                     "_level": 2,
                     "complete": 0.0,
-                    "end": "949705200",
+                    "end": "949708800",
                     "flags": [],
                     "index": 7,
                     "name": "Test 2",
                     "parentTask": "test_project_10",
                     "priority": 500,
                     "slug": "test_project_10.test_2",
-                    "start": "949532400",
+                    "start": "949536000",
                     "tasks": [
                         {
                             "_level": 3,
                             "complete": 0.0,
-                            "end": "949705200",
+                            "end": "949708800",
                             "flags": [],
                             "index": 8,
                             "name": "First task",
                             "parentTask": "test_project_10.test_2",
                             "priority": 500,
                             "slug": "test_project_10.test_2.first_task",
-                            "start": "949532400",
+                            "start": "949536000",
                             "type": "Task"
                         },
                         {
                             "_level": 3,
                             "complete": 0.0,
-                            "end": "949705200",
+                            "end": "949708800",
                             "flags": [
                                 "flag1",
                                 "flag2",
@@ -133,7 +133,7 @@
                             "parentTask": "test_project_10.test_2",
                             "priority": 500,
                             "slug": "test_project_10.test_2.another_task",
-                            "start": "949705200",
+                            "start": "949708800",
                             "type": "Milestone"
                         }
                     ],

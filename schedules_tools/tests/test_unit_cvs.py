@@ -101,7 +101,7 @@ class TestCvsCustomRepo(BaseCvsTest):
         ret = reference.get_handle_mtime()
 
         mock_refresh_local.assert_called()
-        assert ret == datetime.datetime(2016, 10, 27, 4, 30, 32)
+        assert ret == datetime.datetime(2016, 10, 27, 2, 30, 32)  # UTC time
         mock_get_local_shared_path.assert_called_with(handle)
 
     def test_process_path(self):
