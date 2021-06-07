@@ -43,7 +43,7 @@ install:
 	@python setup.py install
 
 source: clean
-	@python setup.py sdist
+	@python -m build
 
 prepare_source: source
 	mkdir -p ~/rpmbuild/SOURCES
