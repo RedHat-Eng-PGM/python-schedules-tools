@@ -34,9 +34,8 @@ rpm: prepare_source
 
 
 clean:
-	@python setup.py clean
+	rm -rf ./*.egg-info ./dist ./build
 	find . -\( -name "*.pyc" -o -name '*.pyo' -o -name "*~" -\) -delete
-	rm -rf ./*.egg-info ./dist
 
 
 install:
