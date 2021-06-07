@@ -1,6 +1,7 @@
 import datetime
 import os
 import pytest
+import time
 
 import mock
 from schedules_tools import jsondate
@@ -21,6 +22,8 @@ class BaseCvsTest(object):
         except ImportError:
             # py2
             self.mock_open_name = '__builtin__.open'
+
+        time.tzset()  # Need to set to TZ env var explicitly
 
     @classmethod
     def _make_reference_obj(cls, handle=None, checkout_dir=None, options=dict()):
