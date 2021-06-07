@@ -39,7 +39,7 @@ Requires: python3-lxml
 
 
 %build
-%{__python3} -m pip install -U build 
+%{__python3} -m pip install -U build --user
 CFLAGS="${CFLAGS:-${RPM_OPT_FLAGS}}" LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS}}" %{__python3} -m build
 
 
