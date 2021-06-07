@@ -3,6 +3,8 @@
 %global log_dir /var/log/%{name}
 %global log_files debug.log
 
+%define py_setup "-m"
+
 
 Name:           python3-%{srcname}
 Version:        %{version}
@@ -19,7 +21,7 @@ BuildArch:      noarch
 
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
-
+BuildRequires: python3-pip
 
 %description
 Schedule tools to handle various formats
@@ -37,12 +39,17 @@ Requires: python3-lxml
 
 
 %build
-%py3_build
+%{__python3} -m pip install -U build 
+CFLAGS="${CFLAGS:-${RPM_OPT_FLAGS}}" LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS}}" %{__python3} -m build
+
 
 
 
 %install
-%py3_install
+# py3_install macro uses plain setup.py (distutils) - can't deal with setuptools_scm
+# Had to replace with wheel macro which uses pip for installation
+%py3_install_wheel *.whl
+
 
 # create log dir
 mkdir -m 755 -p %{buildroot}%{log_dir}
