@@ -38,11 +38,9 @@ clean:
 	find . -\( -name "*.pyc" -o -name '*.pyo' -o -name "*~" -\) -delete
 
 
-install:
-	@python setup.py install
-
 source: clean
 	@python -m build
+
 
 prepare_source: source
 	mkdir -p ~/rpmbuild/SOURCES

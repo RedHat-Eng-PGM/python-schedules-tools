@@ -1,8 +1,8 @@
 from datetime import datetime
 import logging
+
 import pytz
 
-from lxml import etree
 
 log = logging.getLogger(__name__)
 
@@ -93,40 +93,3 @@ class ScheduleHandlerBase(object):
     def extract_backup(self, handle=None):
         """Prepare files which need a backup in case of external source"""
         return []
-
-
-class TJXCommonMixin(object):
-    default_export_ext = 'tjx'
-
-    src_tree = None
-    provide_changelog = True
-    provide_mtime = True
-
-    def _get_parsed_tree(self):
-        if not self.src_tree:
-            self.src_tree = etree.parse(self.handle)
-
-        return self.src_tree
-
-    def get_handle_changelog(self):
-        # import changelog
-        changelog = {}
-
-        for log in self._get_parsed_tree().xpath('changelog/log'):
-            changelog[log.get('rev')] = {
-                'date': datetime.strptime(log.get('date'), '%Y/%m/%d'),
-                'user': log.get('user'),
-                'msg': log.text.strip(),
-            }
-
-        return changelog
-
-    def get_handle_mtime(self):
-        mtime = None
-
-        changelog = self.get_handle_changelog()
-
-        if changelog:
-            mtime = changelog.values()[0]['date']
-
-        return mtime

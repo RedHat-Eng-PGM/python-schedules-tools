@@ -35,8 +35,6 @@ def pytest_generate_tests(metafunc):
         # Remove test scenarios without available dependencies
         argvalues = []
         for scenario in metafunc.cls.scenarios_import_combinations:
-            if scenario[0] == 'tjp' and not is_taskjuggler_available():
-                continue
             argvalues.append(scenario)
 
         metafunc.parametrize(argnames, argvalues)
@@ -60,7 +58,6 @@ class TestHandlers(object):
          'intermediary-struct-reference-duplicated-names.json'),
         ('smartsheet', '', None),
         ('json', 'import-schedule-json.json', None),
-        ('tjx2', 'import-schedule-tjx2.tjx', None),
     ]
     scenarios_export_combinations = [
         ('msp', 'export-schedule-msp.xml', False, [], [], {}, None),

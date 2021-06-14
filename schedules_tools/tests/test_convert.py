@@ -19,12 +19,8 @@ CURR_DIR = os.path.join(BASE_DIR, PARENT_DIRNAME)
 
 class BaseTestConvert(object):
     _filenames = {
-        'tjx': 'proj-10-1-2.tjx',
-        'tjx2': 'proj-10-1-2-v2.tjx',
         'smartsheet': 'import-schedule-msp.xml'
     }
-    file_tjx = ''
-    file_tjx2 = ''
     file_smartsheet = ''
     schedule_name = 'Test project 10'
 
@@ -48,18 +44,18 @@ class BaseTestConvert(object):
 class TestConverter(BaseTestConvert):
 
     def test_init_storage_handler(self):
-        handle = 'source.tjx'
+        handle = 'source.xml'
 
         conv = converter.ScheduleConverter()
         assert conv.storage_handler is None
 
-        conv._init_storage_handler(handle, storage_src_format='cvs')
+        conv._init_storage_handler(handle, storage_src_format='local')
         inst_storage = conv.storage_handler
 
         assert isinstance(inst_storage, StorageBase)
 
         # try to reinitialize
-        conv._init_storage_handler(handle, storage_src_format='cvs')
+        conv._init_storage_handler(handle, storage_src_format='local')
         assert conv.storage_handler is inst_storage
 
     @mock.patch('schedules_tools.converter.ScheduleConverter.storage_handler',
@@ -71,7 +67,7 @@ class TestConverter(BaseTestConvert):
                                                mock_get_schedule_handler_cls,
                                                mock_storage_handler):
         conv = converter.ScheduleConverter()
-        handle = 'source.tjx'
+        handle = 'source.xml'
         curr_date = datetime.datetime(2010, 3, 13)
         mock_storage_handler.return_value = None
 
@@ -87,7 +83,7 @@ class TestConverter(BaseTestConvert):
                                                 mock_get_local_handle_from_storage,
                                                 mock_get_schedule_handler_cls,
                                                 mock_storage_handler):
-        handle = 'source.tjx'
+        handle = 'source.xml'
         date_storage_handler = datetime.datetime(2010, 3, 13)
 
         mock_provide_mtime = mock.PropertyMock()
@@ -125,7 +121,7 @@ class TestConverter(BaseTestConvert):
         mock_storage_handler.get_handle_changelog.return_value = 'storage-changelog'
         type(mock_storage_handler).provide_changelog = mock.PropertyMock(return_value=True)
 
-        handle = 'source.tjx'
+        handle = 'source.xml'
 
         conv = converter.ScheduleConverter()
         schedule = conv.import_schedule(handle)
@@ -164,7 +160,7 @@ class TestConverter(BaseTestConvert):
         mock_storage_handler.get_handle_changelog.return_value = 'storage-changelog'
         type(mock_storage_handler).provide_changelog = mock.PropertyMock(return_value=True)
 
-        handle = 'source.tjx'
+        handle = 'source.xml'
 
         conv = converter.ScheduleConverter()
         schedule = conv.import_schedule(handle)
@@ -200,7 +196,7 @@ class TestConverter(BaseTestConvert):
         mock_storage_handler.get_handle_changelog.return_value = 'storage-changelog'
         type(mock_storage_handler).provide_changelog = mock.PropertyMock(return_value=True)
 
-        handle = 'source.tjx'
+        handle = 'source.xml'
         conv = converter.ScheduleConverter()
         schedule = conv.import_schedule(handle)
 

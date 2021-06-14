@@ -1,6 +1,8 @@
-from schedules_tools.schedule_handlers import ScheduleHandlerBase
 import logging
-from lxml.html import etree
+
+from lxml import etree
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
+
 
 log = logging.getLogger(__name__)
 

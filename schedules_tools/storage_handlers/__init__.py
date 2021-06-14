@@ -1,3 +1,12 @@
+# Storage Handlers Base
+#
+# Handler should be able to checkout/copy/clone storage
+# and return local handle to the calling code
+#
+# It may keep shared checkout
+# Must handle concurrent processing on a single storage
+
+
 import datetime
 import logging
 

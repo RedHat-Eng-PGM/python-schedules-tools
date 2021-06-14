@@ -1,7 +1,7 @@
-import pytest
 import os
+import pytest
 
-from schedules_tools import converter
+from . import create_test_schedule
 
 
 DATA_DIR = 'data'
@@ -16,15 +16,12 @@ BASE_DIR = os.path.dirname(os.path.realpath(
 CURR_DIR = os.path.join(BASE_DIR, PARENT_DIRNAME)
 
 
-class CheckTaskExistence(object):
+class TestCheckTaskExistence(object):
     schedule = None
 
     @pytest.fixture(autouse=True)
     def setUp(self):
-        super(CheckTaskExistence, self).setUp()
-        input_schedule = os.path.join(CURR_DIR, DATA_DIR, 'input.tjx')
-        conv = converter.ScheduleConverter()
-        self.schedule = conv.import_schedule(input_schedule)
+        self.schedule = create_test_schedule()
 
     def test_empty_check_list(self):
         check_tasks = dict()
@@ -34,8 +31,8 @@ class CheckTaskExistence(object):
     def test_exact_match(self):
         # key = task name, value = match from beginning
         check_tasks = {
-            'Release': False,
-            'Test 2': False,
+            'Planning': False,
+            'Development': False,
         }
         missing_tasks = self.schedule.check_for_taskname(check_tasks)
         assert len(missing_tasks) == 0
@@ -44,7 +41,7 @@ class CheckTaskExistence(object):
         # key = task name, value = match from beginning
         check_tasks = {
             'Releaseeee': False,
-            'Test 2': False,
+            'Development': False,
         }
         missing_tasks = self.schedule.check_for_taskname(check_tasks)
         assert len(missing_tasks) == 1
@@ -53,7 +50,7 @@ class CheckTaskExistence(object):
     def test_startswith_match(self):
         check_tasks = {
             'Devel': True,  # Should match 'Development'
-            'T': True,  # Should match 'Test 1', 'Testing phase', ...
+            'P': True,  # Should match 'Planning', ...
         }
         missing_tasks = self.schedule.check_for_taskname(check_tasks)
         assert len(missing_tasks) == 0
@@ -71,8 +68,8 @@ class CheckTaskExistence(object):
 
     def test_combine_exact_startswith_match(self):
         check_tasks = {
-            'Release': False,
-            'Test': True
+            'Planning': False,
+            'Dev': True
         }
         missing_tasks = self.schedule.check_for_taskname(check_tasks)
         assert len(missing_tasks) == 0
@@ -80,8 +77,8 @@ class CheckTaskExistence(object):
     def test_combine_exact_startswith_not_matchs(self):
         check_tasks = {
             'Releaseeee': False,
-            'Release': False,
-            'Test': True,
+            'Planning': False,
+            'Dev': True,
             'Testnothing': True
         }
         missing_tasks = self.schedule.check_for_taskname(check_tasks)
