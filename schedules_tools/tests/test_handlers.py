@@ -72,7 +72,8 @@ class TestHandlers(object):
         ('html', 'export-schedule-html.html', False, [], [], {}, None),
         ('html', 'export-schedule-html-sort-date.html', False, [], [], {}, 'dStart'),
         ('html', 'export-schedule-html-options.html', False, [], [],
-         dict(html_title='Test title', html_table_header='<p>Test header</p>'), None),
+         dict(html_title='Test title', html_table_header='<p>Test header</p>',
+              html_table_fooder='<p>Test footer</p>'), None),
 
         ('html', 'export-schedule-html-css.html', False, [], [],
          dict(html_css_href='./test.css'), None),
