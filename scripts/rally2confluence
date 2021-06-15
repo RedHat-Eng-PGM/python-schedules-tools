@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+OUT_FILE=/tmp/sprint.html
+
+rm -rf $OUT_FILE
+
+schedule-convert --source-format rally --rally-iter "$1" ~/.config/rally_pp.cfg $OUT_FILE --target-format confluencehtml
+
+google-chrome $OUT_FILE
