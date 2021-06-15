@@ -1,11 +1,14 @@
+#!/usr/bin/python3
+
+import argparse
 import logging
 import os
-
 from schedules_tools import SchedulesToolsException
 from schedules_tools import discovery
 from schedules_tools.discovery import search_paths
 from schedules_tools.models import Schedule
 from schedules_tools.storage_handlers import AcquireLockException
+import sys
 
 
 log = logging.getLogger(__name__)
@@ -458,3 +461,43 @@ def get_handlers_args_parser(add_help=False):
                         type=sorting_field)
 
     return parser
+
+
+logger = logging.getLogger(__name__)
+
+
+def setup_logging(level):
+    log_format = '%(name)-10s %(levelname)7s: %(message)s'
+    sh = logging.StreamHandler(sys.stderr)
+    sh.setLevel(level)
+
+    formatter = logging.Formatter(log_format)
+    sh.setFormatter(formatter)
+
+    # setup root logger
+    inst = logging.getLogger('')
+    inst.setLevel(level)
+    inst.addHandler(sh)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Convert schedules source to target',
+                                     parents=[get_handlers_args_parser()])
+
+    parser.add_argument('source',
+                        help='Source handle (file/URL/...)',
+                        type=str,
+                        metavar='SRC')
+
+    parser.add_argument('target', metavar='TARGET',
+                        help='Output target', default=None, nargs='?')
+
+    args = parser.parse_args()
+
+    setup_logging(getattr(logging, args.log_level))
+
+    convert(args)
+
+
+if __name__ == '__main__':
+    main()
