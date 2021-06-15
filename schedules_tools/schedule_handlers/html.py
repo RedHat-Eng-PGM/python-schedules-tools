@@ -146,6 +146,9 @@ class ScheduleHandler_html(ScheduleHandlerBase):
         for index, task in enumerate(self.schedule.tasks):
             self._export_task(e_table, task, index + 1)
 
+        if self.options.get('html_table_footer', False):
+            e_body.append(etree.fromstring(self.options['html_table_footer']))
+
         etree_return = etree.ElementTree(e_html)
         if out_file:
             etree_return.write(out_file, pretty_print=True, encoding="utf-8",

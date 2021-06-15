@@ -396,6 +396,8 @@ def get_handlers_args_parser(add_help=False):
 
     parser.add_argument('--html-title',
                         help='HTML export page title')
+    parser.add_argument('--html-table-footer',
+                        help='HTML export table footer')
     parser.add_argument('--html-table-header',
                         help='HTML export table header')
     parser.add_argument(
