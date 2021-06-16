@@ -2,11 +2,11 @@ import calendar
 import datetime
 import logging
 import numbers
+import os
 import re
-import traceback
-
-from schedules_tools.schedule_handlers import ScheduleHandlerBase
 from schedules_tools import models, SchedulesToolsException
+from schedules_tools.schedule_handlers import ScheduleHandlerBase
+import traceback
 
 
 COLUMN_TASK_NAME = 'name'
@@ -155,7 +155,7 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     def client(self):
         if not self._client_instance:
             self._client_instance = smartsheet.Smartsheet(
-                self.options['smartsheet_token'])
+                self.options['smartsheet_token'] or os.environ.get('SMARTSHEET_TOKEN'))
             self._client_instance.errors_as_exceptions(True)
         return self._client_instance
 
