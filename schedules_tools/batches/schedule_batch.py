@@ -5,11 +5,10 @@
 
 import argparse
 import re
+from schedules_tools.batches.utils import initialize_ss_handler, load_template
 from schedules_tools.models import Task
 
 from smartsheet.models import Row, Cell, ObjectValue, PredecessorList, Predecessor, Duration
-
-from schedules_tools.batches.utils import initialize_ss_handler, load_template
 
 
 GA_NAME_REGEX = re.compile(r'^GA( Release)?$')
@@ -52,9 +51,9 @@ def build_columns_map(columns):
         elif column_name in ('finish', 'due', 'end date'):
             result['finish'] = column.index
 
-    missing_headers = {'name', 'start', 'finish'} - set(result.keys())
-    if missing_headers:
-        raise BatchError(f'Couldn\'t locate required headers.')
+    missing_columns = {'name', 'start', 'finish'} - set(result.keys())
+    if missing_columns:
+        raise BatchError(f'Couldn\'t locate required columns: {missing_columns}')
 
     return result
 
