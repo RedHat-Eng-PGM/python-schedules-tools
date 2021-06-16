@@ -9,7 +9,7 @@ Library to handle various schedule sources and storage
 https://pypi.org/project/schedules-tools/
 
 ## Tests
-Smartsheet tests need SMARTSHEET_API_TOKEN env variable.
+Smartsheet tests need SMARTSHEET_TOKEN env variable.
 Run as either:
 - tox
 - tox -e py
