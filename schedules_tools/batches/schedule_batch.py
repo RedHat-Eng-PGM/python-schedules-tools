@@ -36,18 +36,41 @@ def construct_task(name, duration=None):
     return task
 
 
+def build_columns_map(columns):
+    result = {}
+
+    for column in columns:
+        if not column.title:
+            continue
+
+        column_name = column.title.lower()
+
+        if column_name in ('task', 'task name'):
+            result['name'] = column.index
+        elif column_name in ('start', 'start date'):
+            result['start'] = column.index
+        elif column_name in ('finish', 'due', 'end date'):
+            result['finish'] = column.index
+
+    missing_headers = {'name', 'start', 'finish'} - set(result.keys())
+    if missing_headers:
+        raise BatchError(f'Couldn\'t locate required headers.')
+
+    return result
+
+
 def add_batch(handle, template):
     handler = initialize_ss_handler(handle)
+    columns_map = build_columns_map(handler.sheet.columns)
     parsed_rows = list(
         map(
-            parse_row,
+            lambda x: parse_row(x, columns_map),
             handler.sheet.rows
         )
     )
 
     # finding relevant rows
     parent_row = find_parent_row(parsed_rows, template['parent'])
-    print(parsed_rows)
     if not parent_row:
         raise BatchError(f'Parent row "{template["parent"]}" not found.')
 
@@ -87,7 +110,7 @@ def add_batch(handle, template):
     for task_id, task_data in template['tasks'].items():
         st_task = construct_task(task_data['name'], duration=task_data['duration'])
         task_export_row = handler.export_task(st_task, batch_row_id)
-        task_id_to_row[task_id] = parse_row(task_export_row)
+        task_id_to_row[task_id] = parse_row(task_export_row, columns_map)
 
     # setting dependencies
     for task_id, task_data in template['tasks'].items():
@@ -132,7 +155,7 @@ def add_batch(handle, template):
         )
 
 
-def parse_row(row):
+def parse_row(row, columns_map):
     """
     converts smartsheet row into a dict
     """
@@ -142,9 +165,9 @@ def parse_row(row):
         'id': row_dict['id'],
         'row_number': row_dict['rowNumber'],
         'parent_id': row_dict.get('parentId'),
-        'name': cells[1].get('value'),
-        'date_start': cells[2].get('value'),
-        'date_finish': cells[3].get('value'),
+        'name': cells[columns_map['name']].get('value'),
+        'date_start': cells[columns_map['start']].get('value'),
+        'date_finish': cells[columns_map['finish']].get('value'),
     }
     return result
 
