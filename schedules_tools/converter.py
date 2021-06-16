@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+# Test as "python -m schedules_tools.batches.schedule_batch"
+
+
 import argparse
 import logging
 import os
@@ -346,7 +349,6 @@ def get_handlers_args_parser(add_help=False):
 
     For schedules tools scripts with handler arguments
     """
-    import argparse
 
     parser = argparse.ArgumentParser(add_help=add_help)
 
@@ -490,7 +492,7 @@ def main():
                         metavar='SRC')
 
     parser.add_argument('target', metavar='TARGET',
-                        help='Output target', default=None, nargs='?')
+                        help='Output target', default='schedule.html', nargs='?')
 
     args = parser.parse_args()
 

@@ -10,6 +10,8 @@ Follows 'diff' exit codes:
     0 - same
     1 - different
     2 - other trouble
+
+Test as "python -m schedules_tools.batches.diff"
 """
 
 import argparse
@@ -480,7 +482,7 @@ def setup_logging(level):
 
 
 def main():
-    setup_logging(logging.DEBUG)
+    setup_logging(logging.INFO)
     parser = argparse.ArgumentParser(
         description='Tool to show differences between two schedules.')
 
