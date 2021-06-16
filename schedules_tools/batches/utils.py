@@ -38,10 +38,10 @@ def load_template(template_name):
 
 
 def initialize_ss_handler(handle):
-    api_token = os.getenv('SMARTSHEET_API_TOKEN')
+    api_token = os.getenv('SMARTSHEET_TOKEN')
 
     if not api_token:
-        raise ValueError('SMARTSHEET_API_TOKEN required')
+        raise ValueError('SMARTSHEET_TOKEN required')
 
     handler = ScheduleHandler_smartsheet(
         handle=handle,
