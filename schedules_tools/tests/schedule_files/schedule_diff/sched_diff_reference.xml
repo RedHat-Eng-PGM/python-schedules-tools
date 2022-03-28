@@ -395,7 +395,7 @@
             <EarnedValueMethod>0</EarnedValueMethod>
             <ExtendedAttribute>
                 <FieldID>188743731</FieldID>
-                <Value>Flags: pm,qe</Value>
+                <Value>Flags: qe,pm</Value>
             </ExtendedAttribute>
             <Active>1</Active>
             <Manual>0</Manual>

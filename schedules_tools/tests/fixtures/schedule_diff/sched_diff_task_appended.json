@@ -42,8 +42,8 @@
                     {
                         "both": {
                             "flags": [
-                                "pm",
-                                "qe"
+                                "qe",
+                                "pm"
                             ],
                             "p_complete": 0.0,
                             "priority": 500,

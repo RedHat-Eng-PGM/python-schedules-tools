@@ -270,6 +270,12 @@ class ScheduleDiff(object):
             if isinstance(attribute_b, datetime):
                 attribute_b = attribute_b.date()
 
+        if isinstance(attribute_a, list):
+            attribute_a = sorted(attribute_a)
+
+        if isinstance(attribute_b, list):
+            attribute_b = sorted(attribute_b)
+
         return attribute_a == attribute_b
 
     def find_best_match(self, t1, possible_matches, start_at_index=0):
