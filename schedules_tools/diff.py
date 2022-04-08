@@ -263,6 +263,10 @@ class ScheduleDiff(object):
         attribute_a = getattr(task_a, attr_name)
         attribute_b = getattr(task_b, attr_name)
 
+        # no need to compare empty values strictly
+        if not attribute_a and not attribute_b:
+            return True
+
         if self.trim_time:
             if isinstance(attribute_a, datetime):
                 attribute_a = attribute_a.date()
