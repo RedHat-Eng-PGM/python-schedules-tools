@@ -94,6 +94,8 @@ class TestScheduleDiff(object):
         ('sched_diff_reference', True, True),
         ('sched_diff_flags_changed', True, True),
         ('sched_diff_flags_changed', True, False),
+        # unfortunately scenario of an empty yet existing note is not possible to test msp schedule
+        # todo: test this scenario in some other way
     )
 
     def import_schedule(self, filename):
