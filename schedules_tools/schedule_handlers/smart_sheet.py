@@ -155,9 +155,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
     @property
     def sheet(self):
         if not self._sheet_instance:
-            if self.handle in self.__class__.wrong_handles:
-                raise SmartSheetImportException(
-                    'Wrong handle (does not exist or missing permissions)', source=self.handle)
             try:
                 # get sheet and turn off rows pagination to get all rows
                 self._sheet_instance = self.client.Sheets.get_sheet(
