@@ -75,8 +75,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
 
     columns_mapping_id = {}
 
-    wrong_handles = set([])  # not existing handles cache
-
     # getter/setter to convert handle to Smartsheet id
     @property
     def handle(self):
@@ -104,30 +102,26 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                 sheet = self.client.Sheets.get_sheet(value)
                 info_dict = dict(id=int(value), permalink=sheet.permalink)
             except smartsheet.exceptions.ApiError as e:
-                log.warn(e)
+                log.warning(e)
 
         else:
             match = ScheduleHandler_smartsheet.value_is_ss_permalink(value)
             if match:
                 value = match.groups()[0]
 
-                # Need a speedup in case of wrong handle
-                if value not in self.__class__.wrong_handles:
-                    log.info('Getting sheets looking for handle (consuming)')
-                    log.info('Waiting on Smartsheets')
+                log.info('Getting sheets looking for handle (consuming)')
+                log.info('Waiting on Smartsheets')
 
-                    sheets = self.client.Sheets.list_sheets(include_all=True)
+                sheets = self.client.Sheets.list_sheets(include_all=True)
 
-                    log.info('Getting sheets looking for handle (consuming) - DONE')
+                log.info('Getting sheets looking for handle (consuming) - DONE')
 
-                    for sheet in sheets.data:
-                        if sheet.permalink == value:
-                            info_dict = info_dict = dict(id=int(sheet.id),
-                                                         permalink=value)
-                            break
+                for sheet in sheets.data:
+                    if sheet.permalink == value:
+                        info_dict = info_dict = dict(id=int(sheet.id),
+                                                     permalink=value)
+                        break
 
-                    if not info_dict:
-                        self.__class__.wrong_handles.add(value)
 
         return info_dict
 
