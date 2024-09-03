@@ -122,7 +122,6 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
                                                      permalink=value)
                         break
 
-
         return info_dict
 
     @classmethod
