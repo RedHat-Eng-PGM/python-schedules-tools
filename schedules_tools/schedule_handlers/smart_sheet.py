@@ -517,17 +517,17 @@ class ScheduleHandler_smartsheet(ScheduleHandlerBase):
             })
         if task.link:
             row.cells.append({
-                'column_id': self.sheet.columns[5].id,
+                'column_id': self.sheet_columns['link'],
                 'value': task.link
             })
         if task.p_complete:
             row.cells.append({
-                'column_id': self.sheet.columns[8].id,
+                'column_id': self.sheet_columns['% complete'],
                 'value': task.p_complete / 100.0
             })
         if task.note:
             row.cells.append({
-                'column_id': self.sheet.columns[10].id,
+                'column_id': self.sheet_columns['comments'],
                 'value': task.note
             })
         resp = self.client.Sheets.add_rows(self.handle, [row])
